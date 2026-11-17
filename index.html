@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Otomo</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <main id="setup" class="screen setup">
+    <h1>Otomo</h1>
+    <p class="tagline">Play music together.</p>
+    <form id="setup-form" class="setup-form">
+      <label>Song <select id="song-select"></select></label>
+      <label>Part <select id="part-select"></select></label>
+      <fieldset>
+        <legend>Difficulty</legend>
+        <label class="choice">
+          <input type="radio" name="difficulty" value="beginner" checked>
+          <span><strong>Beginner</strong> Only timing matters. Any button plays.</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="difficulty" value="intermediate">
+          <span><strong>Intermediate</strong> Press the right number.</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="difficulty" value="advanced">
+          <span><strong>Advanced</strong> Numbers, plus ♯ and ↑.</span>
+        </label>
+      </fieldset>
+      <button type="submit" class="primary">Start</button>
+    </form>
+    <p id="setup-message" class="message" role="alert"></p>
+    <section class="help">
+      <h2>Keys</h2>
+      <p><kbd>1</kbd>–<kbd>8</kbd> play Do, Re, Mi, Fa, Sol, La, Ti, Do.</p>
+      <p><kbd>Z</kbd> or <kbd>,</kbd> raises a semitone (♯). <kbd>X</kbd> or <kbd>.</kbd> raises an octave (↑).
+        Hold them while pressing a number.</p>
+    </section>
+  </main>
+
+  <section id="play" class="screen play" hidden>
+    <header class="play-header">
+      <span id="play-title"></span>
+      <button id="quit-button" type="button">Quit</button>
+    </header>
+    <p class="rotate-hint">Turn your device sideways for more room.</p>
+    <div class="roll"><canvas id="roll"></canvas></div>
+    <div class="controls">
+      <div class="modifiers">
+        <button type="button" class="control" data-modifier="sharp" tabindex="-1" aria-label="Semitone up">♯</button>
+        <button type="button" class="control" data-modifier="octave" tabindex="-1" aria-label="Octave up">↑</button>
+      </div>
+      <div class="notes">
+        <button type="button" class="control" data-button="1" tabindex="-1"><span class="number">1</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="2" tabindex="-1"><span class="number">2</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="3" tabindex="-1"><span class="number">3</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="4" tabindex="-1"><span class="number">4</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="5" tabindex="-1"><span class="number">5</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="6" tabindex="-1"><span class="number">6</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="7" tabindex="-1"><span class="number">7</span><span class="name"></span></button>
+        <button type="button" class="control" data-button="8" tabindex="-1"><span class="number">8</span><span class="name"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen result" hidden>
+    <h2 id="result-title"></h2>
+    <p class="score"><span id="score"></span><span class="out-of"> / 100</span></p>
+    <div class="actions">
+      <button id="again-button" type="button" class="primary">Play again</button>
+      <button id="change-button" type="button">Change song</button>
+    </div>
+  </section>
+</body>
+</html>

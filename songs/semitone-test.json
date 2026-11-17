@@ -1,0 +1,42 @@
+{
+  "format": 1,
+  "title": "Semitone test",
+  "tempo": 90,
+  "beatsPerBar": 4,
+  "parts": [
+    {
+      "name": "Chromatic scale",
+      "buttons": "scale",
+      "sound": "lead",
+      "events": [
+        {"at": 0, "do": "C4"},
+        {"at": 0, "length": 1, "button": 1},
+        {"at": 1, "length": 1, "button": 1, "sharp": true},
+        {"at": 2, "length": 1, "button": 2},
+        {"at": 3, "length": 1, "button": 2, "sharp": true},
+        {"at": 4, "length": 1, "button": 3},
+        {"at": 5, "length": 1, "button": 4},
+        {"at": 6, "length": 1, "button": 4, "sharp": true},
+        {"at": 7, "length": 1, "button": 5},
+        {"at": 8, "length": 1, "button": 5, "sharp": true},
+        {"at": 9, "length": 1, "button": 6},
+        {"at": 10, "length": 1, "button": 6, "sharp": true},
+        {"at": 11, "length": 1, "button": 7},
+        {"at": 12, "length": 4, "button": 8},
+        {"at": 16, "length": 1, "button": 1, "octave": true},
+        {"at": 17, "length": 1, "button": 1, "sharp": true, "octave": true},
+        {"at": 18, "length": 1, "button": 2, "octave": true},
+        {"at": 19, "length": 1, "button": 2, "sharp": true, "octave": true},
+        {"at": 20, "length": 1, "button": 3, "octave": true},
+        {"at": 21, "length": 1, "button": 4, "octave": true},
+        {"at": 22, "length": 1, "button": 4, "sharp": true, "octave": true},
+        {"at": 23, "length": 1, "button": 5, "octave": true},
+        {"at": 24, "length": 1, "button": 5, "sharp": true, "octave": true},
+        {"at": 25, "length": 1, "button": 6, "octave": true},
+        {"at": 26, "length": 1, "button": 6, "sharp": true, "octave": true},
+        {"at": 27, "length": 1, "button": 7, "octave": true},
+        {"at": 28, "length": 4, "button": 8, "octave": true}
+      ]
+    }
+  ]
+}

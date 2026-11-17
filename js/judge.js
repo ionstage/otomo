@@ -1,0 +1,149 @@
+// Matches presses to notes and scores them. See section 5 of docs/design.md.
+// All times are in seconds from the start of the song.
+
+import { buttonMidi } from './pitch.js';
+
+export const DIFFICULTIES = ['beginner', 'intermediate', 'advanced'];
+
+export const MATCH_WINDOW = 0.2;
+export const PERFECT_WINDOW = 0.05;
+export const RELEASE_TOLERANCE = 0.1;
+
+// Extra time before an unpressed note counts as missed, so that a press
+// handled slightly after a frame has passed the window is still matched.
+const MISS_GRACE = 0.1;
+
+export function timingScore(offset) {
+  const distance = Math.abs(offset);
+  if (distance <= PERFECT_WINDOW) {
+    return 100;
+  }
+  if (distance >= MATCH_WINDOW) {
+    return 0;
+  }
+  return (100 * (MATCH_WINDOW - distance)) / (MATCH_WINDOW - PERFECT_WINDOW);
+}
+
+export function durationScore(note, pressTime, releaseTime) {
+  if (releaseTime >= note.end - RELEASE_TOLERANCE) {
+    return 100;
+  }
+  const held = (releaseTime - pressTime) / (note.end - note.start);
+  return Math.min(100, Math.max(0, held * 100));
+}
+
+export function isCorrect(note, input, difficulty) {
+  switch (difficulty) {
+    case 'beginner':
+      return true;
+    case 'intermediate':
+      return input.button === note.button;
+    default:
+      return input.button === note.button && input.sharp === note.sharp && input.octave === note.octave;
+  }
+}
+
+// Each state is { result, pressTime, releaseTime, score }, where result is
+// null until judged, then 'correct', 'wrong' or 'missed'.
+export function createJudge(notes, difficulty) {
+  const states = notes.map(() => ({ result: null, pressTime: null, releaseTime: null, timing: 0, score: null }));
+  let held = null;
+  let missCursor = 0;
+
+  function release(time) {
+    if (held === null) {
+      return;
+    }
+    const state = states[held];
+    state.releaseTime = time;
+    if (state.result === 'correct') {
+      state.score = (state.timing + durationScore(notes[held], state.pressTime, time)) / 2;
+    }
+    held = null;
+  }
+
+  function press(time, input) {
+    release(time);
+    let best = -1;
+    let bestDistance = Infinity;
+    notes.forEach((note, index) => {
+      const distance = Math.abs(note.start - time);
+      if (states[index].result === null && distance <= MATCH_WINDOW && distance < bestDistance) {
+        best = index;
+        bestDistance = distance;
+      }
+    });
+    if (best < 0) {
+      return { note: null, correct: false };
+    }
+    const note = notes[best];
+    const state = states[best];
+    const correct = isCorrect(note, input, difficulty);
+    state.pressTime = time;
+    if (correct) {
+      state.result = 'correct';
+      state.timing = timingScore(time - note.start);
+    } else {
+      state.result = 'wrong';
+      state.score = 0;
+    }
+    held = best;
+    return { note, correct };
+  }
+
+  function update(time) {
+    while (missCursor < notes.length && notes[missCursor].start + MATCH_WINDOW + MISS_GRACE < time) {
+      const state = states[missCursor];
+      if (state.result === null) {
+        state.result = 'missed';
+        state.score = 0;
+      }
+      missCursor++;
+    }
+  }
+
+  function finish(time) {
+    release(time);
+    for (const state of states) {
+      if (state.result === null) {
+        state.result = 'missed';
+        state.score = 0;
+      }
+    }
+    const total = states.reduce((sum, state) => sum + state.score, 0);
+    return { score: total / states.length };
+  }
+
+  return { states, press, release, update, finish };
+}
+
+// The pitch a press sounds, following section 3 of docs/design.md. The
+// reference is the matched note, or the note starting nearest in time. Its Do
+// position is used, so a slightly early press across a Do change still sounds
+// in the right octave.
+export function pressPitch(part, difficulty, input, matchedNote, time) {
+  const reference = matchedNote ?? nearestNote(part.notes, time);
+  switch (difficulty) {
+    case 'beginner':
+      return reference.midi;
+    case 'intermediate':
+      return buttonMidi(
+        reference.doMidi,
+        input.button,
+        input.button === reference.button && reference.sharp,
+        reference.octave,
+      );
+    default:
+      return buttonMidi(reference.doMidi, input.button, input.sharp, input.octave);
+  }
+}
+
+function nearestNote(notes, time) {
+  let nearest = notes[0];
+  for (const note of notes) {
+    if (Math.abs(note.start - time) < Math.abs(nearest.start - time)) {
+      nearest = note;
+    }
+  }
+  return nearest;
+}
