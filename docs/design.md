@@ -256,6 +256,10 @@ later composition tool and MIDI converter will address.
   autoplay, runs entirely on one device.
 - Because ES modules and `fetch` do not work from `file://`, the files must be
   served over HTTP, by any static file server or a static host.
+- The game is published with GitHub Pages at https://www.ionstage.org/otomo/.
+  A workflow deploys each push to `main`, copying only the files the game
+  needs to run (`index.html`, `css/`, `js/`, `songs/`). Documentation and
+  tests are left out.
 - The Web Audio clock is the single time reference. Autoplay
   notes are scheduled slightly ahead on that clock, and key and touch events
   are converted to the same clock for judging.
