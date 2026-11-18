@@ -99,6 +99,9 @@ music.
 - Each bar has its button number (1 to 8) at its left end. In advanced mode, the
   modifier symbols "♯" and "↑" appear above the left end when needed.
 - In beginner mode the numbers are hidden.
+- In intermediate and advanced modes each bar has the colour of its button
+  (see [Button colours](#button-colours)). In beginner mode, where any button
+  plays, all bars share one neutral colour.
 - Faint bar lines and beat marks in each row make the rhythm readable.
 - A current-position line moves from left to right along the row. At the end of
   the row it wraps to the start of the next.
@@ -128,6 +131,32 @@ from the keyboard.
 Touch layout (needs testing on real phones): landscape
 orientation, the eight note buttons in a row along the bottom, and the two
 modifier buttons next to each other above the left end of that row.
+
+### Button colours
+
+Each note button has its own colour, a rainbow by scale step, so a bar and the
+button that plays it can be matched at a glance:
+
+| Button | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Colour | Red | Orange | Yellow | Green | Teal | Blue | Purple | Magenta |
+
+- The colour belongs to the button number, not to a pitch, so it stays the same
+  when Do moves. Button 8 has its own colour rather than repeating button 1's.
+- Modifiers do not change the colour. The "♯" and "↑" symbols show them.
+- A bar's number sits on a small square badge at the bar's left end, white
+  with a dark number (dark with a light number in dark mode), so every number
+  has the same colour and reads clearly on any bar. The badge is the height of
+  the bar, and a row is always wide enough for the part's shortest note to hold
+  it, so a sixteenth note, the shortest allowed, still fits it. On a wrong
+  press, the badge fades with the bar.
+- At rest, a button shows its colour as a thick bottom edge. While held, it
+  fills with its colour and its number and pitch name sit on the same kind of
+  badge. This style may change after play.
+- A correct hit's effect is drawn in the bar's colour. The current-position
+  line is neutral so that it does not clash with any bar.
+- In beginner mode the buttons are plain and the bars neutral.
+- Colour always accompanies the number and never replaces it.
 
 ### Start of a song
 

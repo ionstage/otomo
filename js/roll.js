@@ -11,7 +11,10 @@ const BAR_TOP = 30;
 const BAR_HEIGHT = 30;
 const BAR_GAP = 2;
 const BAR_RADIUS = 6;
-const LABEL_WIDTH = 24;
+// The narrowest note must hold the square badge behind its number.
+const LABEL_WIDTH = 30;
+const BADGE_INSET = 3;
+const BADGE_RADIUS = 4;
 const MIN_BEAT_WIDTH = 36;
 const FADED_ALPHA = 0.3;
 const SCROLL_TIME = 0.12;
@@ -38,7 +41,9 @@ export class Roll {
     this.colors = {
       background: read('--roll-bg'),
       note: read('--note'),
-      noteText: read('--note-text'),
+      badge: read('--badge'),
+      badgeText: read('--badge-text'),
+      notes: [1, 2, 3, 4, 5, 6, 7, 8].map((button) => read(`--note-${button}`)),
       symbol: read('--fg'),
       grid: read('--grid'),
       gridStrong: read('--grid-strong'),
@@ -91,9 +96,16 @@ export class Roll {
     return { beat, row };
   }
 
-  addHit(time) {
+  // Bars take the colour of their button, except in beginner mode where any
+  // button plays and every bar is the same.
+  noteColor(note) {
+    return this.difficulty === 'beginner' ? this.colors.note : this.colors.notes[note.button - 1];
+  }
+
+  addHit(time, note) {
     const { beat, row } = this.position(time);
-    this.effects.push({ x: this.x(beat, row), y: row * ROW_HEIGHT + BAR_TOP + BAR_HEIGHT / 2, born: performance.now() });
+    const color = this.difficulty === 'beginner' ? this.colors.hit : this.noteColor(note);
+    this.effects.push({ x: this.x(beat, row), y: row * ROW_HEIGHT + BAR_TOP + BAR_HEIGHT / 2, color, born: performance.now() });
   }
 
   draw(time, states) {
@@ -178,7 +190,7 @@ export class Roll {
         context.rect(x0, y, x1 - x0, BAR_HEIGHT);
       }
       context.clip();
-      context.fillStyle = this.colors.note;
+      context.fillStyle = this.noteColor(note);
       if (state.result === 'wrong') {
         context.globalAlpha = FADED_ALPHA;
         context.fillRect(x0, y, split - x0, BAR_HEIGHT);
@@ -198,10 +210,22 @@ export class Roll {
     const x = this.x(start, startRow);
     const y = startRow * ROW_HEIGHT + BAR_TOP;
     context.globalAlpha = started ? FADED_ALPHA : 1;
+    // The number sits on a square badge so it reads the same on every colour.
+    const size = BAR_HEIGHT - 2 * BADGE_INSET;
+    context.fillStyle = this.colors.badge;
+    context.beginPath();
+    if (context.roundRect) {
+      context.roundRect(x + BADGE_INSET, y + BADGE_INSET, size, size, BADGE_RADIUS);
+    } else {
+      context.rect(x + BADGE_INSET, y + BADGE_INSET, size, size);
+    }
+    context.fill();
+    context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.font = '600 15px system-ui, sans-serif';
-    context.fillStyle = this.colors.noteText;
-    context.fillText(String(note.button), x + 7, y + BAR_HEIGHT / 2 + 1);
+    context.fillStyle = this.colors.badgeText;
+    context.fillText(String(note.button), x + BADGE_INSET + size / 2, y + BAR_HEIGHT / 2 + 1);
+    context.textAlign = 'left';
     if (this.difficulty === 'advanced' && (note.sharp || note.octave)) {
       context.font = '700 15px system-ui, sans-serif';
       context.fillStyle = this.colors.symbol;
@@ -224,9 +248,9 @@ export class Roll {
   drawEffects(now) {
     const context = this.context;
     this.effects = this.effects.filter((effect) => now - effect.born < HIT_DURATION);
-    context.strokeStyle = this.colors.hit;
     context.lineWidth = 3;
     for (const effect of this.effects) {
+      context.strokeStyle = effect.color;
       const progress = (now - effect.born) / HIT_DURATION;
       context.globalAlpha = 1 - progress;
       context.beginPath();

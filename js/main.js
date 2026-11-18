@@ -146,7 +146,7 @@ function handlePress({ button, sharp, octave, time }) {
   game.voice?.release();
   game.voice = audio.noteOn(game.part.sound, pressPitch(game.part, game.difficulty, pressed, note, songTime));
   if (correct) {
-    roll.addHit(songTime);
+    roll.addHit(songTime, note);
   }
 }
 

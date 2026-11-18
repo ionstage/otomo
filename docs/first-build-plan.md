@@ -79,7 +79,7 @@ doing anything larger, because the project is being developed by discussion.
 
 | Topic | Suggested default |
 |---|---|
-| Visual style (colours, fonts, the hit effect) | Plain and minimal. Ask before investing in a look. |
+| Visual style (fonts, the hit effect) | Plain and minimal. Ask before investing in a look. Note button colours are decided: see "Button colours" in section 4 of the design. |
 | Setup screen (choosing song, part and difficulty) | One simple screen with three choices and a start button. |
 | Result screen | The song score out of 100 and a way to play again. |
 | Changing a modifier while a note is held | Modifiers are read when the note button goes down. Later changes do not affect the sounding note. |

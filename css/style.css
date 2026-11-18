@@ -8,11 +8,22 @@
   --accent: #2f6fde;
   --accent-fg: #ffffff;
   --roll-bg: #ffffff;
-  --note: #2f6fde;
-  --note-text: #ffffff;
+  --note: #6b7180;
+  /* The square behind a number, on bars and held buttons. */
+  --badge: #ffffff;
+  --badge-text: #1d1d1f;
+  /* Note buttons 1 to 8 and their bars, a rainbow by scale step. */
+  --note-1: #d93636;
+  --note-2: #f08a1c;
+  --note-3: #f2b705;
+  --note-4: #3faa4f;
+  --note-5: #1fa8a8;
+  --note-6: #2f6fde;
+  --note-7: #8048cc;
+  --note-8: #c93690;
   --grid: rgba(0, 0, 0, 0.07);
   --grid-strong: rgba(0, 0, 0, 0.25);
-  --line: #e0542e;
+  --line: #1d1d1f;
   --hit: #f0a81a;
 }
 
@@ -26,11 +37,20 @@
     --accent: #5b8ff0;
     --accent-fg: #ffffff;
     --roll-bg: #1c1c1f;
-    --note: #5b8ff0;
-    --note-text: #ffffff;
+    --note: #8d93a0;
+    --badge: #1c1c1f;
+    --badge-text: #ececee;
+    --note-1: #f05757;
+    --note-2: #ff9a3d;
+    --note-3: #ffd23f;
+    --note-4: #5cc96c;
+    --note-5: #3cc4c2;
+    --note-6: #5b8ff0;
+    --note-7: #a175e8;
+    --note-8: #ee5cb2;
     --grid: rgba(255, 255, 255, 0.07);
     --grid-strong: rgba(255, 255, 255, 0.25);
-    --line: #ff7a52;
+    --line: #ececee;
     --hit: #ffc24a;
   }
 }
@@ -293,6 +313,14 @@ legend {
   line-height: 1.1;
 }
 
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 6px;
+  padding: 2px 10px;
+}
+
 .number {
   font-size: 1.4rem;
   font-weight: 700;
@@ -316,6 +344,36 @@ legend {
 
 .control.down .name {
   color: var(--accent-fg);
+}
+
+/* Each note button shows its colour as a thick bottom edge and fills with it
+   while held. Beginner mode stays plain, since any button plays. */
+
+.notes .control[data-button="1"] { --tone: var(--note-1); }
+.notes .control[data-button="2"] { --tone: var(--note-2); }
+.notes .control[data-button="3"] { --tone: var(--note-3); }
+.notes .control[data-button="4"] { --tone: var(--note-4); }
+.notes .control[data-button="5"] { --tone: var(--note-5); }
+.notes .control[data-button="6"] { --tone: var(--note-6); }
+.notes .control[data-button="7"] { --tone: var(--note-7); }
+.notes .control[data-button="8"] { --tone: var(--note-8); }
+
+.play:not([data-difficulty="beginner"]) .notes .control {
+  border-bottom: 6px solid var(--tone);
+}
+
+.play:not([data-difficulty="beginner"]) .notes .control.down {
+  background: var(--tone);
+  border-color: var(--tone);
+}
+
+.play:not([data-difficulty="beginner"]) .notes .control.down .badge {
+  background: var(--badge);
+  color: var(--badge-text);
+}
+
+.play:not([data-difficulty="beginner"]) .notes .control.down .name {
+  color: var(--muted);
 }
 
 @media (max-height: 420px) {
