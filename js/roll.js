@@ -1,7 +1,8 @@
 // The piano roll: one part laid out in rows like sheet music, with a moving
 // current-position line. See section 4 of docs/design.md.
 
-import { RELEASE_TOLERANCE } from './judge.js';
+import { heldToEnd } from './judge.js';
+import { SIXTEENTH } from './song.js';
 
 const ROW_HEIGHT = 84;
 const TOP_MARGIN = 12;
@@ -150,8 +151,11 @@ export class Roll {
     let treatedEnd = start;
     if (pressed) {
       // A release the scoring treats as held to the end shows that way too.
-      const heldToEnd = state.releaseTime === null || state.releaseTime >= note.end - RELEASE_TOLERANCE;
-      const releaseBeat = heldToEnd ? Infinity : state.releaseTime / this.song.secondsPerBeat;
+      // An early release leaves the remaining time rounded to the nearest
+      // sixteenth note.
+      const held = state.releaseTime === null || heldToEnd(note, state.releaseTime);
+      const remainingBeats = (note.end - state.releaseTime) / this.song.secondsPerBeat;
+      const releaseBeat = held ? Infinity : end - Math.round(remainingBeats / SIXTEENTH) * SIXTEENTH;
       treatedEnd = clamp(Math.min(beat, releaseBeat), start, end);
     }
     const startRow = Math.floor(start / this.beatsPerRow);

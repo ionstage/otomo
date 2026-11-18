@@ -59,12 +59,18 @@ test('doAt returns the Do position in effect', () => {
   assert.equal(doAt(part, 2).name, 'G3');
 });
 
+test('a sixteenth note is the shortest note allowed', () => {
+  const song = resolveSong(songWith([{ at: 0, do: 'C4' }, { at: 0, length: 0.25, button: 1 }]));
+  assert.equal(song.parts[0].notes[0].lengthBeats, 0.25);
+});
+
 test('resolveSong rejects invalid songs', () => {
   const invalid = [
     songWith([{ at: 0, length: 1, button: 1 }]),
     songWith([{ at: 0, do: 'C4' }, { at: 0, length: 2, button: 1 }, { at: 1, length: 1, button: 2 }]),
     songWith([{ at: 0, do: 'C4' }, { at: 0, length: 1, button: 9 }]),
     songWith([{ at: 0, do: 'C4' }, { at: 0, length: 0, button: 1 }]),
+    songWith([{ at: 0, do: 'C4' }, { at: 0, length: 0.2, button: 1 }]),
     songWith([{ at: 0, do: 'H4' }, { at: 0, length: 1, button: 1 }]),
     songWith([{ at: 0, do: 'C4' }]),
     songWith([{ at: 0, do: 'C4' }, { at: 0, length: 1, button: 1 }], { format: 2 }),

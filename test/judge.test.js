@@ -26,12 +26,27 @@ test('timingScore is full within 50 ms and falls to 0 at 200 ms', () => {
 });
 
 test('durationScore is the share held, with release near the end counting as full', () => {
-  const note = { start: 0, end: 2 };
-  assert.equal(durationScore(note, 0, 1), 50);
-  assert.equal(durationScore(note, 0, 1.9), 100);
-  assert.equal(durationScore(note, 0, 2.5), 100);
-  assert.ok(Math.abs(durationScore(note, 0, 1.8) - 90) < 1e-9);
-  assert.equal(durationScore(note, 0.1, 0.05), 0);
+  // Two beats: up to one beat early counts as held to the end.
+  const half = { start: 0, end: 2, lengthBeats: 2 };
+  assert.equal(durationScore(half, 0, 1), 100);
+  assert.equal(durationScore(half, 0, 0.9), 45);
+  assert.equal(durationScore(half, 0, 2.5), 100);
+  assert.equal(durationScore(half, 0.1, 0.05), 0);
+  // Four beats: still only one beat early.
+  const whole = { start: 0, end: 4, lengthBeats: 4 };
+  assert.equal(durationScore(whole, 0, 3), 100);
+  assert.equal(durationScore(whole, 0, 2.9), 72.5);
+});
+
+test('a quarter note needs to be held for half its length', () => {
+  const quarter = { start: 0, end: 1, lengthBeats: 1 };
+  assert.equal(durationScore(quarter, 0, 0.5), 100);
+  assert.equal(durationScore(quarter, 0, 0.4), 40);
+});
+
+test('notes shorter than a beat have no duration check', () => {
+  const eighth = { start: 0, end: 0.5, lengthBeats: 0.5 };
+  assert.equal(durationScore(eighth, 0, 0.01), 100);
 });
 
 test('a well-timed press held to the end scores 100', () => {
@@ -47,9 +62,9 @@ test('timing and duration are averaged', () => {
   const part = partWith([{ at: 1, length: 1, button: 1 }]);
   const judge = createJudge(part.notes, 'advanced');
   judge.press(1.125, plain);
-  judge.release(1.5);
-  // Timing 50, duration 37.5.
-  assert.equal(judge.states[0].score, 43.75);
+  judge.release(1.25);
+  // Timing 50, duration 12.5.
+  assert.equal(judge.states[0].score, 31.25);
 });
 
 test('a wrong first press scores 0 and cannot be corrected', () => {
@@ -116,9 +131,21 @@ test('a new press ends the held note', () => {
   const part = partWith([{ at: 1, length: 1, button: 1 }]);
   const judge = createJudge(part.notes, 'advanced');
   judge.press(1, plain);
-  judge.press(1.5, { button: 2, sharp: false, octave: false });
-  assert.equal(judge.states[0].releaseTime, 1.5);
-  assert.equal(judge.states[0].score, 75);
+  judge.press(1.4, { button: 2, sharp: false, octave: false });
+  assert.equal(judge.states[0].releaseTime, 1.4);
+  assert.equal(judge.states[0].score, 70);
+});
+
+test('pressing the next note slightly early keeps full duration', () => {
+  const part = partWith([
+    { at: 1, length: 1, button: 1 },
+    { at: 2, length: 1, button: 2 },
+  ]);
+  const judge = createJudge(part.notes, 'advanced');
+  judge.press(1, plain);
+  judge.press(1.8, { button: 2, sharp: false, octave: false });
+  judge.release(3);
+  assert.equal(judge.states[0].score, 100);
 });
 
 test('pressPitch follows the rules for each difficulty', () => {

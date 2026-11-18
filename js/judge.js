@@ -7,7 +7,6 @@ export const DIFFICULTIES = ['beginner', 'intermediate', 'advanced'];
 
 export const MATCH_WINDOW = 0.2;
 export const PERFECT_WINDOW = 0.05;
-export const RELEASE_TOLERANCE = 0.1;
 
 // Extra time before an unpressed note counts as missed, so that a press
 // handled slightly after a frame has passed the window is still matched.
@@ -24,8 +23,22 @@ export function timingScore(offset) {
   return (100 * (MATCH_WINDOW - distance)) / (MATCH_WINDOW - PERFECT_WINDOW);
 }
 
+// Whether a release counts as holding to the end. The player needs a moment to
+// release before pressing again, a slightly shorter note can sound natural, and
+// some sounds ring on after the button is released. Notes shorter than a beat
+// have no duration check. Longer notes may be released early by up to half
+// their length or one beat, whichever is less.
+export function heldToEnd(note, releaseTime) {
+  if (note.lengthBeats < 1) {
+    return true;
+  }
+  const length = note.end - note.start;
+  const beat = length / note.lengthBeats;
+  return note.end - releaseTime <= Math.min(length / 2, beat);
+}
+
 export function durationScore(note, pressTime, releaseTime) {
-  if (releaseTime >= note.end - RELEASE_TOLERANCE) {
+  if (heldToEnd(note, releaseTime)) {
     return 100;
   }
   const held = (releaseTime - pressTime) / (note.end - note.start);

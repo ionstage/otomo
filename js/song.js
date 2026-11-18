@@ -5,6 +5,9 @@ import { buttonMidi, parseNoteName } from './pitch.js';
 
 const OVERLAP_TOLERANCE = 1e-9;
 
+// A beat is a quarter note, and a sixteenth note is the shortest note allowed.
+export const SIXTEENTH = 0.25;
+
 export class SongError extends Error {}
 
 function fail(message) {
@@ -111,6 +114,9 @@ function resolvePart(part, index, secondsPerBeat) {
     }
     if (!isPositiveNumber(event.length)) {
       fail(`${where}: the note needs a positive length.`);
+    }
+    if (event.length < SIXTEENTH - OVERLAP_TOLERANCE) {
+      fail(`${where}: the note is shorter than a sixteenth note.`);
     }
     if (!Number.isInteger(event.button) || event.button < 1 || event.button > 8) {
       fail(`${where}: the button must be 1 to 8.`);

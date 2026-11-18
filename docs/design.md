@@ -115,6 +115,10 @@ music.
 
 After a passage, the three outcomes look different: gone, faded, or untouched.
 
+When a note is released too early (see
+[Score for one note](#score-for-one-note-0-to-100)), the part left visible is the time remaining, rounded to the nearest sixteenth
+note. This affects only the display. The score uses the exact release time.
+
 ### Buttons
 
 The eight note buttons and two modifier buttons are always on screen, on
@@ -153,8 +157,16 @@ Otherwise the score is the average of two parts:
 - **Timing (0 to 100):** 100 if the press is within 50 ms of the note's start,
   falling in a straight line to 0 at 200 ms.
 - **Duration (0 to 100):** the time the button was held as a percentage of the
-  note's length, capped at 100. Releasing within 100 ms of the end counts as
-  holding to the end. Holding too long is not penalised.
+  note's length, capped at 100. Holding too long is not penalised. A release
+  shortly before the end counts as holding to the end, because the player
+  needs a moment to release before pressing again, releasing slightly early can
+  sound natural depending on the song, and some sounds ring on after the
+  button is released. A beat is a quarter note.
+  - Notes shorter than a beat: any press scores 100. There is no duration
+    check.
+  - Notes of a beat or longer: the release counts as holding to the end unless
+    the time remaining is more than half the note's length or more than one
+    beat. A quarter note therefore needs to be held for half its length.
 
 ### Song and group scores
 
@@ -193,7 +205,11 @@ later composition tool and MIDI converter will address.
 }
 ```
 
-- `at` and `length` are in beats from the start of the song.
+- `at` and `length` are in beats from the start of the song. A beat is always
+  a quarter note.
+- The shortest note is a sixteenth note (a `length` of 0.25). Faster phrases
+  would be hard to play, and shorter bars leave no room for the button number.
+  Notes need not sit on a sixteenth-note grid, so triplets are allowed.
 - A `do` event sets the pitch of button 1 from that point on. The note name
   (such as `"D4"` or `"Bb3"`) also tells the game how to spell the pitch names
   shown on the buttons.
