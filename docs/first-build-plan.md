@@ -67,7 +67,9 @@ Each step ends with something that can be checked.
   is seen. Ignore events where `event.repeat` is true.
 - **Touch.** Use pointer events with `touch-action: none`. Several buttons are
   held at once, so track each pointer separately. Suppress text selection, the
-  long-press menu and double-tap zoom on the play screen.
+  long-press menu and double-tap zoom on the play screen. iOS Safari still
+  shows its magnifier on a double tap and hold unless `touchstart` is
+  cancelled (with a non-passive listener).
 - **Serving.** ES modules and `fetch` need HTTP. `python3 -m http.server` in the
   repository root is enough for development.
 

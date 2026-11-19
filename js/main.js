@@ -197,6 +197,15 @@ setupForm.addEventListener('submit', (event) => {
   startGame({ song, partIndex: Number(partSelect.value), difficulty });
 });
 
+// iOS Safari shows its magnifier on a double tap and hold, which the CSS on
+// the play screen does not stop. Cancelling touchstart does. Quit is left
+// out, since cancelling also stops the click it listens for.
+screens.play.addEventListener('touchstart', (event) => {
+  if (!event.target.closest('#quit-button')) {
+    event.preventDefault();
+  }
+}, { passive: false });
+
 document.getElementById('quit-button').addEventListener('click', () => {
   stopGame();
   show('setup');
