@@ -131,8 +131,9 @@ After a passage, the three outcomes look different: gone, faded, or untouched.
 When a note is released too early (see
 [Score for one note](#score-for-one-note-0-to-100)), the part left visible is the time remaining, rounded to the
 note's own grid: the nearest sixteenth note, or the nearest third of a beat for
-a triplet note. This affects only the display. The score uses the exact release
-time.
+a triplet note. A press always takes some time, so even a very quick press and
+release removes at least one step of that grid from the start of the bar. This
+affects only the display. The score uses the exact release time.
 
 ### Buttons
 

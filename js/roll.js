@@ -195,10 +195,12 @@ export class Roll {
     if (pressed) {
       // A release the scoring treats as held to the end shows that way too.
       // An early release leaves the remaining time rounded to the note's grid:
-      // sixteenth notes, or thirds of a beat for a triplet.
+      // sixteenth notes, or thirds of a beat for a triplet. A press always
+      // takes some time, so at least one grid step goes, however quick it was.
       const held = state.releaseTime === null || heldToEnd(note, state.releaseTime);
       const remainingBeats = (note.end - state.releaseTime) / this.song.secondsPerBeat;
-      const releaseBeat = held ? Infinity : end - Math.round(remainingBeats / note.gridBeats) * note.gridBeats;
+      const roundedBeat = end - Math.round(remainingBeats / note.gridBeats) * note.gridBeats;
+      const releaseBeat = held ? Infinity : Math.max(roundedBeat, start + note.gridBeats);
       treatedEnd = clamp(Math.min(beat, releaseBeat), start, end);
     }
     const startRow = Math.floor(start / this.beatsPerRow);
