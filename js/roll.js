@@ -21,7 +21,9 @@ const BAR_RADIUS = 6;
 const JOIN_LENGTH = 4;
 const BADGE_INSET = 3;
 const BADGE_RADIUS = 4;
-const FONT_SIZE = 15;
+// The number at the smallest head size, and the modifier symbols above a bar.
+const FONT_SIZE = 20;
+const SYMBOL_SIZE = 18;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
 const FADED_ALPHA = 0.3;
@@ -246,7 +248,6 @@ export class Roll {
     }
     const x = this.x(start, startRow);
     const y = this.headTop(startRow);
-    const font = `${this.size(FONT_SIZE)}px system-ui, sans-serif`;
     context.globalAlpha = started ? FADED_ALPHA : 1;
     // The number sits on a square badge so it reads the same on every colour.
     // The badge and its number grow with the head, keeping their proportions.
@@ -264,7 +265,7 @@ export class Roll {
     context.fillText(String(note.button), x + this.headSize / 2, y + (HEAD_SIZE / 2 + 1) * headScale);
     context.textAlign = 'left';
     if (this.difficulty === 'advanced' && (note.sharp || note.octave)) {
-      context.font = `700 ${font}`;
+      context.font = `700 ${this.size(SYMBOL_SIZE)}px system-ui, sans-serif`;
       context.fillStyle = this.colors.symbol;
       context.fillText((note.sharp ? '♯' : '') + (note.octave ? '↑' : ''), x + this.size(4), y - this.size(7));
     }

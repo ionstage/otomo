@@ -109,6 +109,13 @@ music.
 - All bars are the same height in every difficulty. Height does not show pitch.
 - Each bar has its button number (1 to 8) at its left end. In advanced mode, the
   modifier symbols "♯" and "↑" appear above the left end when needed.
+- Numbers and symbols are drawn large so they read at a glance, in the system
+  font (no font file). On a bar, the number is semibold (600) and 20/34 of the
+  head's size, and the symbols are bold (700) at 18 px at full scale. On the
+  on-screen buttons, the numbers are bold (700) at 1.75rem (1.5rem on short
+  screens, where the buttons are lower) and the modifier symbols bold at
+  1.6rem. Only the sizes were raised, not the weights. This was chosen by
+  comparing sizes, weights and fonts side by side.
 - In beginner mode the numbers are hidden.
 - In intermediate and advanced modes each bar has the colour of its button
   (see [Button colours](#button-colours)). In beginner mode, where any button

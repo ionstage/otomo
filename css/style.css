@@ -295,7 +295,7 @@ legend {
 
 .modifiers .control {
   height: 44px;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   font-weight: 700;
 }
 
@@ -322,7 +322,7 @@ legend {
 }
 
 .number {
-  font-size: 1.4rem;
+  font-size: 1.75rem;
   font-weight: 700;
 }
 
@@ -387,5 +387,10 @@ legend {
 
   .notes .control {
     height: 52px;
+  }
+
+  /* The full-size number and pitch name do not fit in the shorter button. */
+  .number {
+    font-size: 1.5rem;
   }
 }
