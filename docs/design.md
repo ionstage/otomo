@@ -98,11 +98,13 @@ music.
   squeezed.
 - Notes are horizontal bars. Their length shows duration. They do not move.
 - Each bar is a square head at its left end that curves into a slightly
-  thinner tail, drawn as one shape. The head is always one sixteenth note wide,
-  however wide the bars are drawn, so it grows taller with the row on wider
-  screens. A sixteenth note is the head alone. When a note carries on to the next row, that part is tail
-  only. Both sides of the break are square edges, to show the bar continues,
-  and the bar runs right to the end of the row with no gap.
+  thinner tail, drawn as one shape. The head always takes up the same share of
+  a sixteenth note, however wide the bars are drawn, so it grows taller with
+  the row on wider screens. A sixteenth note is the head and a short tail, a
+  quarter of the head's width, so every note shows a tail. When a note carries
+  on to the next row, that part is tail only. Both sides of the break are
+  square edges, to show the bar continues, and the bar runs right to the end
+  of the row with no gap.
 - On a correct press, even an early one, the number goes and the whole bar,
   head included, drops to the height of the tail, at the same moment as the
   hit effect appears.
@@ -169,9 +171,9 @@ button that plays it can be matched at a glance:
   white with a dark number (dark with a light number in dark mode), so every
   number has the same colour and reads clearly on any bar. The badge and its
   number grow and shrink with the head, so their proportions to it never
-  change. A row is always wide enough for a sixteenth note to
-  hold the badge, whatever the part's shortest note is. On a wrong press, the
-  badge fades with the bar.
+  change. A row is always wide enough for a sixteenth note to hold a head of
+  full size and its tail, whatever the part's shortest note is. On a wrong
+  press, the badge fades with the bar.
 - At rest, a button shows its colour as a thick bottom edge. While held, it
   fills with its colour and its number and pitch name sit on the same kind of
   badge. This style may change after play.

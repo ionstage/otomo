@@ -8,13 +8,16 @@ import { SIXTEENTH } from './song.js';
 const TOP_MARGIN = 12;
 const SIDE_MARGIN = 16;
 // A note is a square head, which holds the number badge, and a thinner tail.
-// The head is one sixteenth note wide, so it grows with the row. HEAD_SIZE is
-// its smallest size, and the row keeps a fixed space above and below it.
+// The head fills a sixteenth note but for a short tail, so it grows with the
+// row. HEAD_SIZE is its smallest size, and the row keeps a fixed space above
+// and below it.
 const HEAD_TOP = 28;
 const HEAD_SIZE = 34;
 const ROW_BOTTOM = 22;
 // The tail's height as a share of the head's.
 const TAIL_RATIO = 26 / 34;
+// The length of a sixteenth note's tail as a share of the head's width.
+const SIXTEENTH_TAIL = 0.25;
 const BAR_GAP = 2;
 const BAR_RADIUS = 6;
 // How far along the tail the curve from the head reaches.
@@ -97,17 +100,20 @@ export class Roll {
   }
 
   // Each row holds as many whole bars as fit, keeping a sixteenth note wide
-  // enough for a head. If not even one bar fits, everything is scaled down.
+  // enough for a head and its tail. If not even one bar fits, everything is
+  // scaled down.
   layout() {
     const usable = Math.max(1, this.width - 2 * SIDE_MARGIN);
-    const minBarWidth = ((HEAD_SIZE + BAR_GAP) / SIXTEENTH) * this.song.beatsPerBar;
+    const minSixteenth = HEAD_SIZE * (1 + SIXTEENTH_TAIL) + BAR_GAP;
+    const minBarWidth = (minSixteenth / SIXTEENTH) * this.song.beatsPerBar;
     this.scale = clamp(usable / minBarWidth, MIN_SCALE, 1);
     const bars = Math.max(1, Math.floor(usable / (minBarWidth * this.scale)));
     this.beatsPerRow = bars * this.song.beatsPerBar;
     this.beatWidth = usable / this.beatsPerRow;
     this.rows = Math.ceil(this.song.lengthBeats / this.beatsPerRow);
-    // The head fills a sixteenth note, less the gap before the next note.
-    this.headSize = this.beatWidth * SIXTEENTH - this.size(BAR_GAP);
+    // A sixteenth note is a head and a short tail, then the gap before the
+    // next note.
+    this.headSize = (this.beatWidth * SIXTEENTH - this.size(BAR_GAP)) / (1 + SIXTEENTH_TAIL);
     this.tailHeight = this.headSize * TAIL_RATIO;
     this.rowHeight = this.size(HEAD_TOP + ROW_BOTTOM) + this.headSize;
   }
