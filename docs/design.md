@@ -160,8 +160,9 @@ button that plays it can be matched at a glance:
 - Modifiers do not change the colour. The "♯" and "↑" symbols show them.
 - A bar's number sits on a small square badge in the centre of the bar's head,
   white with a dark number (dark with a light number in dark mode), so every
-  number has the same colour and reads clearly on any bar. The badge keeps its
-  size when the head grows. A row is always wide enough for a sixteenth note to
+  number has the same colour and reads clearly on any bar. The badge and its
+  number grow and shrink with the head, so their proportions to it never
+  change. A row is always wide enough for a sixteenth note to
   hold the badge, whatever the part's shortest note is. On a wrong press, the
   badge fades with the bar.
 - At rest, a button shows its colour as a thick bottom edge. While held, it

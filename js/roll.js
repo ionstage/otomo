@@ -249,18 +249,19 @@ export class Roll {
     const font = `${this.size(FONT_SIZE)}px system-ui, sans-serif`;
     context.globalAlpha = started ? FADED_ALPHA : 1;
     // The number sits on a square badge so it reads the same on every colour.
-    // The badge keeps its size and sits in the centre of a larger head.
-    const badge = Math.min(this.size(HEAD_SIZE - 2 * BADGE_INSET), this.headSize - 2 * this.size(BADGE_INSET));
-    const centre = this.headSize / 2;
+    // The badge and its number grow with the head, keeping their proportions.
+    const headScale = this.headSize / HEAD_SIZE;
+    const inset = BADGE_INSET * headScale;
+    const badge = this.headSize - 2 * inset;
     context.fillStyle = this.colors.badge;
     context.beginPath();
-    roundedRect(context, x + centre - badge / 2, y + centre - badge / 2, badge, badge, this.size(BADGE_RADIUS));
+    roundedRect(context, x + inset, y + inset, badge, badge, BADGE_RADIUS * headScale);
     context.fill();
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.font = `600 ${font}`;
+    context.font = `600 ${FONT_SIZE * headScale}px system-ui, sans-serif`;
     context.fillStyle = this.colors.badgeText;
-    context.fillText(String(note.button), x + centre, y + centre + this.size(1));
+    context.fillText(String(note.button), x + this.headSize / 2, y + (HEAD_SIZE / 2 + 1) * headScale);
     context.textAlign = 'left';
     if (this.difficulty === 'advanced' && (note.sharp || note.octave)) {
       context.font = `700 ${font}`;
