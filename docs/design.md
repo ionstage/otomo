@@ -98,8 +98,9 @@ music.
   squeezed.
 - Notes are horizontal bars. Their length shows duration. They do not move.
 - Each bar is a square head at its left end that curves into a slightly
-  thinner tail, drawn as one shape. A note shorter than its head would be is
-  the head alone. When a note carries on to the next row, that part is tail
+  thinner tail, drawn as one shape. The head is always one sixteenth note wide,
+  however wide the bars are drawn, so it grows taller with the row on wider
+  screens. A sixteenth note is the head alone. When a note carries on to the next row, that part is tail
   only. Both sides of the break are square edges, to show the bar continues,
   and the bar runs right to the end of the row with no gap.
 - On a correct press, even an early one, the number goes and the whole bar,
@@ -157,12 +158,12 @@ button that plays it can be matched at a glance:
 - The colour belongs to the button number, not to a pitch, so it stays the same
   when Do moves. Button 8 has its own colour rather than repeating button 1's.
 - Modifiers do not change the colour. The "♯" and "↑" symbols show them.
-- A bar's number sits on a small square badge in the bar's head, white
-  with a dark number (dark with a light number in dark mode), so every number
-  has the same colour and reads clearly on any bar. A row is always wide
-  enough for the part's shortest note to hold a whole head, so a sixteenth
-  note, the shortest allowed, is at least the head's width. On a wrong press,
-  the badge fades with the bar.
+- A bar's number sits on a small square badge in the centre of the bar's head,
+  white with a dark number (dark with a light number in dark mode), so every
+  number has the same colour and reads clearly on any bar. The badge keeps its
+  size when the head grows. A row is always wide enough for a sixteenth note to
+  hold the badge, whatever the part's shortest note is. On a wrong press, the
+  badge fades with the bar.
 - At rest, a button shows its colour as a thick bottom edge. While held, it
   fills with its colour and its number and pitch name sit on the same kind of
   badge. This style may change after play.

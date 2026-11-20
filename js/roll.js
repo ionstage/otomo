@@ -2,15 +2,19 @@
 // current-position line. See section 4 of docs/design.md.
 
 import { heldToEnd } from './judge.js';
+import { SIXTEENTH } from './song.js';
 
 // Sizes are at full scale. The whole roll shrinks when a bar does not fit.
-const ROW_HEIGHT = 84;
 const TOP_MARGIN = 12;
 const SIDE_MARGIN = 16;
 // A note is a square head, which holds the number badge, and a thinner tail.
+// The head is one sixteenth note wide, so it grows with the row. HEAD_SIZE is
+// its smallest size, and the row keeps a fixed space above and below it.
 const HEAD_TOP = 28;
 const HEAD_SIZE = 34;
-const TAIL_HEIGHT = 26;
+const ROW_BOTTOM = 22;
+// The tail's height as a share of the head's.
+const TAIL_RATIO = 26 / 34;
 const BAR_GAP = 2;
 const BAR_RADIUS = 6;
 // How far along the tail the curve from the head reaches.
@@ -18,7 +22,6 @@ const JOIN_LENGTH = 4;
 const BADGE_INSET = 3;
 const BADGE_RADIUS = 4;
 const FONT_SIZE = 15;
-const MIN_BEAT_WIDTH = 36;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
 const FADED_ALPHA = 0.3;
@@ -91,19 +94,20 @@ export class Roll {
     }
   }
 
-  // Each row holds as many whole bars as fit, keeping the shortest note wide
-  // enough for its head. If not even one bar fits, everything is scaled down.
+  // Each row holds as many whole bars as fit, keeping a sixteenth note wide
+  // enough for a head. If not even one bar fits, everything is scaled down.
   layout() {
-    const shortest = Math.min(...this.part.notes.map((note) => note.lengthBeats));
-    const minBeatWidth = Math.max(MIN_BEAT_WIDTH, (HEAD_SIZE + BAR_GAP) / shortest);
     const usable = Math.max(1, this.width - 2 * SIDE_MARGIN);
-    const minBarWidth = minBeatWidth * this.song.beatsPerBar;
+    const minBarWidth = ((HEAD_SIZE + BAR_GAP) / SIXTEENTH) * this.song.beatsPerBar;
     this.scale = clamp(usable / minBarWidth, MIN_SCALE, 1);
     const bars = Math.max(1, Math.floor(usable / (minBarWidth * this.scale)));
     this.beatsPerRow = bars * this.song.beatsPerBar;
     this.beatWidth = usable / this.beatsPerRow;
     this.rows = Math.ceil(this.song.lengthBeats / this.beatsPerRow);
-    this.rowHeight = ROW_HEIGHT * this.scale;
+    // The head fills a sixteenth note, less the gap before the next note.
+    this.headSize = this.beatWidth * SIXTEENTH - this.size(BAR_GAP);
+    this.tailHeight = this.headSize * TAIL_RATIO;
+    this.rowHeight = this.size(HEAD_TOP + ROW_BOTTOM) + this.headSize;
   }
 
   // A length at full scale, in pixels at the current scale.
@@ -168,7 +172,7 @@ export class Roll {
   drawGrid(row) {
     const context = this.context;
     const top = this.headTop(row) - this.size(6);
-    const bottom = this.headTop(row) + this.size(HEAD_SIZE + 6);
+    const bottom = this.headTop(row) + this.headSize + this.size(6);
     context.lineWidth = 1;
     for (let i = 0; i <= this.beatsPerRow; i++) {
       const beat = row * this.beatsPerRow + i;
@@ -219,7 +223,7 @@ export class Roll {
         continue;
       }
       const y = this.headTop(r);
-      const height = this.size(HEAD_SIZE);
+      const height = this.headSize;
       const split = clamp(this.x(clamp(treatedEnd, segmentStart, segmentEnd), r), x0, x1);
       context.save();
       this.traceNote(x0, x1, y, r === startRow && !playing, r > startRow, segmentEnd < end);
@@ -242,20 +246,21 @@ export class Roll {
     }
     const x = this.x(start, startRow);
     const y = this.headTop(startRow);
-    const inset = this.size(BADGE_INSET);
     const font = `${this.size(FONT_SIZE)}px system-ui, sans-serif`;
     context.globalAlpha = started ? FADED_ALPHA : 1;
     // The number sits on a square badge so it reads the same on every colour.
-    const badge = this.size(HEAD_SIZE - 2 * BADGE_INSET);
+    // The badge keeps its size and sits in the centre of a larger head.
+    const badge = Math.min(this.size(HEAD_SIZE - 2 * BADGE_INSET), this.headSize - 2 * this.size(BADGE_INSET));
+    const centre = this.headSize / 2;
     context.fillStyle = this.colors.badge;
     context.beginPath();
-    roundedRect(context, x + inset, y + inset, badge, badge, this.size(BADGE_RADIUS));
+    roundedRect(context, x + centre - badge / 2, y + centre - badge / 2, badge, badge, this.size(BADGE_RADIUS));
     context.fill();
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.font = `600 ${font}`;
     context.fillStyle = this.colors.badgeText;
-    context.fillText(String(note.button), x + inset + badge / 2, y + this.size(HEAD_SIZE / 2 + 1));
+    context.fillText(String(note.button), x + centre, y + centre + this.size(1));
     context.textAlign = 'left';
     if (this.difficulty === 'advanced' && (note.sharp || note.octave)) {
       context.font = `700 ${font}`;
@@ -274,10 +279,10 @@ export class Roll {
     const radius = this.size(BAR_RADIUS);
     const startRadius = fromRowAbove ? 0 : radius;
     const endRadius = toRowBelow ? 0 : radius;
-    const tailTop = top + this.size(HEAD_SIZE - TAIL_HEIGHT) / 2;
-    const tailBottom = tailTop + this.size(TAIL_HEIGHT);
-    const bottom = top + this.size(HEAD_SIZE);
-    const headEnd = x0 + this.size(HEAD_SIZE);
+    const tailTop = top + (this.headSize - this.tailHeight) / 2;
+    const tailBottom = tailTop + this.tailHeight;
+    const bottom = top + this.headSize;
+    const headEnd = x0 + this.headSize;
     context.beginPath();
     if (!withHead) {
       roundedRect(context, x0, tailTop, x1 - x0, tailBottom - tailTop, startRadius, endRadius);
@@ -308,7 +313,7 @@ export class Roll {
     context.lineWidth = 3;
     context.beginPath();
     context.moveTo(x, this.headTop(row) - this.size(14));
-    context.lineTo(x, this.headTop(row) + this.size(HEAD_SIZE + 12));
+    context.lineTo(x, this.headTop(row) + this.headSize + this.size(12));
     context.stroke();
   }
 
@@ -322,9 +327,10 @@ export class Roll {
       context.globalAlpha = 1 - progress;
       context.beginPath();
       const row = Math.floor(effect.beat / this.beatsPerRow);
-      const x = this.x(effect.beat, row) + this.size(HEAD_SIZE / 2);
-      const y = this.headTop(row) + this.size(HEAD_SIZE / 2);
-      context.arc(x, y, this.size(8 + 28 * progress), 0, Math.PI * 2);
+      const x = this.x(effect.beat, row) + this.headSize / 2;
+      const y = this.headTop(row) + this.headSize / 2;
+      // The effect grows with the head.
+      context.arc(x, y, ((8 + 28 * progress) * this.headSize) / HEAD_SIZE, 0, Math.PI * 2);
       context.stroke();
     }
     context.globalAlpha = 1;

@@ -6,7 +6,7 @@ import { buttonMidi, parseNoteName } from './pitch.js';
 const OVERLAP_TOLERANCE = 1e-9;
 
 // A beat is a quarter note, and a sixteenth note is the shortest note allowed.
-const SIXTEENTH = 0.25;
+export const SIXTEENTH = 0.25;
 
 // A note starts and ends on the sixteenth-note grid, or both on the triplet
 // grid that splits each beat into three. JSON cannot hold a third exactly, so a
