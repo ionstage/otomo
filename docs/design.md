@@ -93,8 +93,18 @@ The screen shows the player's own part as a piano roll laid out like sheet
 music.
 
 - The part is split into rows. Each row holds a whole number of bars, as many
-  as fit the screen width.
+  as fit the screen width. If not even one bar fits, the whole roll is drawn
+  smaller, down to three quarters of full size. Below that, short notes are
+  squeezed.
 - Notes are horizontal bars. Their length shows duration. They do not move.
+- Each bar is a square head at its left end that curves into a slightly
+  thinner tail, drawn as one shape. A note shorter than its head would be is
+  the head alone. When a note carries on to the next row, that part is tail
+  only. Both sides of the break are square edges, to show the bar continues,
+  and the bar runs right to the end of the row with no gap.
+- On a correct press, even an early one, the number goes and the whole bar,
+  head included, drops to the height of the tail, at the same moment as the
+  hit effect appears.
 - All bars are the same height in every difficulty. Height does not show pitch.
 - Each bar has its button number (1 to 8) at its left end. In advanced mode, the
   modifier symbols "♯" and "↑" appear above the left end when needed.
@@ -144,16 +154,17 @@ button that plays it can be matched at a glance:
 - The colour belongs to the button number, not to a pitch, so it stays the same
   when Do moves. Button 8 has its own colour rather than repeating button 1's.
 - Modifiers do not change the colour. The "♯" and "↑" symbols show them.
-- A bar's number sits on a small square badge at the bar's left end, white
+- A bar's number sits on a small square badge in the bar's head, white
   with a dark number (dark with a light number in dark mode), so every number
-  has the same colour and reads clearly on any bar. The badge is the height of
-  the bar, and a row is always wide enough for the part's shortest note to hold
-  it, so a sixteenth note, the shortest allowed, still fits it. On a wrong
-  press, the badge fades with the bar.
+  has the same colour and reads clearly on any bar. A row is always wide
+  enough for the part's shortest note to hold a whole head, so a sixteenth
+  note, the shortest allowed, is at least the head's width. On a wrong press,
+  the badge fades with the bar.
 - At rest, a button shows its colour as a thick bottom edge. While held, it
   fills with its colour and its number and pitch name sit on the same kind of
   badge. This style may change after play.
-- A correct hit's effect is drawn in the bar's colour. The current-position
+- A correct hit's effect is drawn in the bar's colour and spreads from the
+  centre of the bar's head, showing which note was hit. The current-position
   line is neutral so that it does not clash with any bar.
 - In beginner mode the buttons are plain and the bars neutral.
 - Colour always accompanies the number and never replaces it.

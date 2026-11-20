@@ -88,7 +88,7 @@ doing anything larger, because the project is being developed by discussion.
 | Pressing a second note button while one is held | The new note replaces the old one, because a part is monophonic. The old note's duration stops counting. |
 | Pause and restart during a song | A way to quit to the setup screen. No pause. |
 | Volume balance between the player and autoplay | The player's part slightly louder. |
-| How many beats of width a row uses | Wide enough that the shortest note in the part fits its number label. Since the shortest note is a sixteenth, a beat never needs more than four label widths. |
+| How many beats of width a row uses | Wide enough that the shortest note in the part fits a note head. Since the shortest note is a sixteenth, a beat never needs more than four head widths. If one bar does not fit, the roll is scaled down (to 0.75 at most). |
 
 ## Arrangement notes
 
