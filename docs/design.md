@@ -129,8 +129,10 @@ music.
 After a passage, the three outcomes look different: gone, faded, or untouched.
 
 When a note is released too early (see
-[Score for one note](#score-for-one-note-0-to-100)), the part left visible is the time remaining, rounded to the nearest sixteenth
-note. This affects only the display. The score uses the exact release time.
+[Score for one note](#score-for-one-note-0-to-100)), the part left visible is the time remaining, rounded to the
+note's own grid: the nearest sixteenth note, or the nearest third of a beat for
+a triplet note. This affects only the display. The score uses the exact release
+time.
 
 ### Buttons
 
@@ -249,7 +251,14 @@ later composition tool and MIDI converter will address.
   a quarter note.
 - The shortest note is a sixteenth note (a `length` of 0.25). Faster phrases
   would be hard to play, and shorter bars leave no room for the button number.
-  Notes need not sit on a sixteenth-note grid, so triplets are allowed.
+- Each note starts and ends on the sixteenth-note grid (multiples of 0.25), or
+  starts and ends on the triplet grid (multiples of ⅓). A note cannot start on
+  one grid and end on the other. Whole beats are on both grids. A triplet
+  therefore spans at least one beat, so eighth-note triplets are the shortest.
+- JSON cannot hold ⅓ exactly, so a position within 0.001 of a grid position
+  (written to at least three decimals, such as `0.333` or `1.6667`) is read as
+  that grid position. Composition and conversion tools are expected to write
+  positions this precisely.
 - A `do` event sets the pitch of button 1 from that point on. The note name
   (such as `"D4"` or `"Bb3"`) also tells the game how to spell the pitch names
   shown on the buttons.

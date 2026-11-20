@@ -6,7 +6,13 @@ import { buttonMidi, parseNoteName } from './pitch.js';
 const OVERLAP_TOLERANCE = 1e-9;
 
 // A beat is a quarter note, and a sixteenth note is the shortest note allowed.
-export const SIXTEENTH = 0.25;
+const SIXTEENTH = 0.25;
+
+// A note starts and ends on the sixteenth-note grid, or both on the triplet
+// grid that splits each beat into three. JSON cannot hold a third exactly, so a
+// position this close to the grid is moved onto it.
+const GRID_TOLERANCE = 1e-3;
+const GRID_DIVISIONS = [1 / SIXTEENTH, 3];
 
 export class SongError extends Error {}
 
@@ -24,6 +30,19 @@ function isPositiveNumber(value) {
 
 function isOptionalBoolean(value) {
   return value === undefined || typeof value === 'boolean';
+}
+
+// The position on the grid with `division` steps per beat, or null if `beat`
+// is not on it.
+function snap(beat, division) {
+  const snapped = Math.round(beat * division) / division;
+  return Math.abs(snapped - beat) <= GRID_TOLERANCE ? snapped : null;
+}
+
+// The steps per beat of the one grid both ends of a note are on, or null.
+// Whole beats are on both grids, and count as the sixteenth-note grid.
+function noteDivision(start, end) {
+  return GRID_DIVISIONS.find((division) => snap(start, division) !== null && snap(end, division) !== null) ?? null;
 }
 
 export function resolveSong(data) {
@@ -89,16 +108,18 @@ function resolvePart(part, index, secondsPerBeat) {
     if (typeof event.at !== 'number' || !Number.isFinite(event.at) || event.at < 0) {
       fail(`${label}: event ${order + 1} needs an "at" of zero or more.`);
     }
-    return { event, order, isDo: 'do' in event };
+    // A Do change is snapped too, so that it lands where the note does.
+    const at = GRID_DIVISIONS.map((division) => snap(event.at, division)).find((beat) => beat !== null) ?? event.at;
+    return { event, at, order, isDo: 'do' in event };
   });
   // A Do position applies to notes starting on the same beat, whatever the
   // order in the file.
-  events.sort((a, b) => a.event.at - b.event.at || b.isDo - a.isDo || a.order - b.order);
+  events.sort((a, b) => a.at - b.at || b.isDo - a.isDo || a.order - b.order);
 
   const doChanges = [];
   const notes = [];
   let currentDo = null;
-  for (const { event, isDo } of events) {
+  for (const { event, at, isDo } of events) {
     const where = `${label}, beat ${event.at}`;
     if (isDo) {
       if ('button' in event) {
@@ -108,14 +129,20 @@ function resolvePart(part, index, secondsPerBeat) {
       if (!parsed) {
         fail(`${where}: "${event.do}" is not a note name.`);
       }
-      currentDo = { beat: event.at, time: event.at * secondsPerBeat, name: event.do, midi: parsed.midi };
+      currentDo = { beat: at, time: at * secondsPerBeat, name: event.do, midi: parsed.midi };
       doChanges.push(currentDo);
       continue;
     }
     if (!isPositiveNumber(event.length)) {
       fail(`${where}: the note needs a positive length.`);
     }
-    if (event.length < SIXTEENTH - OVERLAP_TOLERANCE) {
+    const division = noteDivision(event.at, event.at + event.length);
+    if (division === null) {
+      fail(`${where}: the note must start and end on the sixteenth-note grid, or both on the triplet grid.`);
+    }
+    const end = snap(event.at + event.length, division);
+    const length = end - at;
+    if (length < SIXTEENTH - OVERLAP_TOLERANCE) {
       fail(`${where}: the note is shorter than a sixteenth note.`);
     }
     if (!Number.isInteger(event.button) || event.button < 1 || event.button > 8) {
@@ -128,7 +155,7 @@ function resolvePart(part, index, secondsPerBeat) {
       fail(`${where}: the note comes before any Do position.`);
     }
     const previous = notes[notes.length - 1];
-    if (previous && event.at < previous.startBeat + previous.lengthBeats - OVERLAP_TOLERANCE) {
+    if (previous && at < previous.startBeat + previous.lengthBeats - OVERLAP_TOLERANCE) {
       fail(`${where}: the note overlaps the previous note.`);
     }
     const sharp = event.sharp === true;
@@ -138,10 +165,12 @@ function resolvePart(part, index, secondsPerBeat) {
       fail(`${where}: the note is out of range.`);
     }
     notes.push({
-      startBeat: event.at,
-      lengthBeats: event.length,
-      start: event.at * secondsPerBeat,
-      end: (event.at + event.length) * secondsPerBeat,
+      startBeat: at,
+      lengthBeats: length,
+      // The spacing of the note's grid, in beats.
+      gridBeats: 1 / division,
+      start: at * secondsPerBeat,
+      end: end * secondsPerBeat,
       button: event.button,
       sharp,
       octave,

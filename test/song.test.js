@@ -64,6 +64,58 @@ test('a sixteenth note is the shortest note allowed', () => {
   assert.equal(song.parts[0].notes[0].lengthBeats, 0.25);
 });
 
+test('notes may sit on the triplet grid, snapped to exact thirds', () => {
+  const song = resolveSong(songWith([
+    { at: 0, do: 'C4' },
+    { at: 0, length: 0.333, button: 1 },
+    { at: 0.333, length: 0.334, button: 2 },
+    { at: 0.6667, length: 0.3333, button: 3 },
+    { at: 1, length: 0.6667, button: 4 },
+    { at: 1.6667, length: 0.3333, button: 5 },
+    { at: 2, length: 0.75, button: 6 },
+  ]));
+  const notes = song.parts[0].notes;
+  assert.deepEqual(notes.map((note) => note.startBeat), [0, 1 / 3, 2 / 3, 1, 5 / 3, 2]);
+  assert.deepEqual(notes.map((note) => note.startBeat + note.lengthBeats), [1 / 3, 2 / 3, 1, 5 / 3, 2, 2.75]);
+  assert.equal(notes[1].end, (2 / 3) * song.secondsPerBeat);
+  assert.deepEqual(notes.map((note) => note.gridBeats), [1 / 3, 1 / 3, 1 / 3, 1 / 3, 1 / 3, 0.25]);
+});
+
+test('a note between whole beats is on the sixteenth-note grid', () => {
+  const song = resolveSong(songWith([{ at: 0, do: 'C4' }, { at: 1, length: 2, button: 1 }]));
+  assert.equal(song.parts[0].notes[0].gridBeats, 0.25);
+});
+
+test('a Do change snaps to the triplet grid with its note', () => {
+  const song = resolveSong(songWith([
+    { at: 0, do: 'C4' },
+    { at: 0, length: 1, button: 1 },
+    { at: 1.3334, do: 'C3' },
+    { at: 1.3333, length: 1, button: 1 },
+  ]));
+  assert.equal(song.parts[0].notes[1].midi, 48);
+});
+
+test('notes must start and end on one grid, sixteenth-note or triplet', () => {
+  const offGrid = [
+    // A start between grid positions.
+    { at: 0.1, length: 1, button: 1 },
+    // An end between grid positions.
+    { at: 0, length: 0.3, button: 1 },
+    // Sixteenth-note triplets.
+    { at: 1 / 6, length: 1 / 6, button: 1 },
+    // A third written with too few decimals.
+    { at: 0.33, length: 0.67, button: 1 },
+    // From the sixteenth-note grid to the triplet grid, and back.
+    { at: 0.25, length: 5 / 12, button: 1 },
+    { at: 1 / 3, length: 5 / 12, button: 1 },
+    { at: 0.5, length: 1 / 6, button: 1 },
+  ];
+  for (const note of offGrid) {
+    assert.throws(() => resolveSong(songWith([{ at: 0, do: 'C4' }, note])), SongError, JSON.stringify(note));
+  }
+});
+
 test('resolveSong rejects invalid songs', () => {
   const invalid = [
     songWith([{ at: 0, length: 1, button: 1 }]),

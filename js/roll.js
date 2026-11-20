@@ -2,7 +2,6 @@
 // current-position line. See section 4 of docs/design.md.
 
 import { heldToEnd } from './judge.js';
-import { SIXTEENTH } from './song.js';
 
 // Sizes are at full scale. The whole roll shrinks when a bar does not fit.
 const ROW_HEIGHT = 84;
@@ -195,11 +194,11 @@ export class Roll {
     let treatedEnd = start;
     if (pressed) {
       // A release the scoring treats as held to the end shows that way too.
-      // An early release leaves the remaining time rounded to the nearest
-      // sixteenth note.
+      // An early release leaves the remaining time rounded to the note's grid:
+      // sixteenth notes, or thirds of a beat for a triplet.
       const held = state.releaseTime === null || heldToEnd(note, state.releaseTime);
       const remainingBeats = (note.end - state.releaseTime) / this.song.secondsPerBeat;
-      const releaseBeat = held ? Infinity : end - Math.round(remainingBeats / SIXTEENTH) * SIXTEENTH;
+      const releaseBeat = held ? Infinity : end - Math.round(remainingBeats / note.gridBeats) * note.gridBeats;
       treatedEnd = clamp(Math.min(beat, releaseBeat), start, end);
     }
     const startRow = Math.floor(start / this.beatsPerRow);
