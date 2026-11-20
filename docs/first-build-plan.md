@@ -102,6 +102,16 @@ doing anything larger, because the project is being developed by discussion.
   phrase.
 - The semitone test piece only needs to be a few bars that use "♯" alone and
   together with "↑".
+- "Rondo alla Turca" (Mozart, K. 331) was added to check how sixteenth notes
+  look. It is the first A-minor section (bars 1 to 24), with the repeat of
+  bars 9 to 24 written out. The notes follow the public-domain Mutopia Project
+  edition (piece 108, typeset from IMSLP). The melody is the right hand's top
+  note, without the grace notes, and with the trill near the end played as a
+  plain note. The harmony is the upper note of each left-hand chord, and the
+  bass is the lowest left-hand note.
+- It is in A minor with Do on C, since the buttons have no flat, so G♯ and D♯
+  use "♯". Do moves at phrase starts so that the low notes stay reachable. The
+  tempo is slowed to 80 so the sixteenths stay playable.
 
 ## After the first build
 
