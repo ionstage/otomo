@@ -88,7 +88,7 @@ doing anything larger, because the project is being developed by discussion.
 | Pressing a second note button while one is held | The new note replaces the old one, because a part is monophonic. The old note's duration stops counting. |
 | Pause and restart during a song | A way to quit to the setup screen. No pause. |
 | Volume balance between the player and autoplay | The player's part slightly louder. |
-| How many beats of width a row uses | Wide enough that a sixteenth note holds a head of full size and its short tail (a quarter of the head's width), whatever the part's shortest note. If one bar does not fit, the roll is scaled down (to 0.75 at most). |
+| How many beats of width a row uses | Wide enough that a sixteenth note holds a head of full size and its short tail (a quarter of the head's width), whatever the part's shortest note. If one bar (a pair of bars in 2/4) does not fit, the roll is scaled down (to 0.75 at most). |
 
 ## Arrangement notes
 
@@ -104,7 +104,8 @@ doing anything larger, because the project is being developed by discussion.
   together with "↑".
 - "Rondo alla Turca" (Mozart, K. 331) was added to check how sixteenth notes
   look. It is the first A-minor section (bars 1 to 24), with the repeat of
-  bars 9 to 24 written out. The notes follow the public-domain Mutopia Project
+  bars 9 to 24 written out. The pickup starts at beat 3, so that bar 1 starts
+  at beat 4 and the roll's pairs of 2/4 bars are (1, 2), (3, 4) and so on. The notes follow the public-domain Mutopia Project
   edition (piece 108, typeset from IMSLP). The melody is the right hand's top
   note, without the grace notes, and with the trill near the end played as a
   plain note. The harmony is the upper note of each left-hand chord, and the

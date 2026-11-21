@@ -96,6 +96,11 @@ music.
   as fit the screen width. If not even one bar fits, the whole roll is drawn
   smaller, down to three quarters of full size. Below that, short notes are
   squeezed.
+- A song in 2/4 is shown the same way as one in 4/4: its bars are taken in
+  pairs, counted from the start of the song, and rows hold whole pairs. The bar
+  line inside a pair is drawn faint like a beat mark, so a pair looks like one
+  bar of 4/4. A song with a pickup is placed so that the pairs follow its
+  phrases.
 - Notes are horizontal bars. Their length shows duration. They do not move.
 - Each bar is a square head at its left end that curves into a slightly
   thinner tail, drawn as one shape. The head always takes up the same share of
@@ -122,7 +127,9 @@ music.
 - In intermediate and advanced modes each bar has the colour of its button
   (see [Button colours](#button-colours)). In beginner mode, where any button
   plays, all bars share one neutral colour.
-- Faint bar lines and beat marks in each row make the rhythm readable.
+- Faint bar lines and beat marks in each row make the rhythm readable. The
+  bar lines are stronger than the beat marks, and the end of the song is
+  marked like a bar line.
 - A current-position line moves from left to right along the row. At the end of
   the row it wraps to the start of the next.
 - The current row stays near the top of the screen with the upcoming rows

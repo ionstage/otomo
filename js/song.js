@@ -71,11 +71,15 @@ export function resolveSong(data) {
     return last.startBeat + last.lengthBeats;
   }));
   const lengthBeats = Math.ceil(lastBeat / data.beatsPerBar) * data.beatsPerBar;
+  // The roll lays out bars in groups: a 2/4 song pairs its bars so that it
+  // looks like a song in 4/4.
+  const beatsPerGroup = data.beatsPerBar === 2 ? 4 : data.beatsPerBar;
   return {
     title: data.title,
     composer: typeof data.composer === 'string' ? data.composer : '',
     tempo: data.tempo,
     beatsPerBar: data.beatsPerBar,
+    beatsPerGroup,
     secondsPerBeat,
     lengthBeats,
     length: lengthBeats * secondsPerBeat,
