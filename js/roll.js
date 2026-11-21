@@ -30,6 +30,9 @@ const FONT_SIZE = 20;
 const SYMBOL_SIZE = 18;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
+// How much wider than its narrowest a bar group may grow, so that bars on
+// wide screens do not ask for too much eye movement.
+const MAX_STRETCH = 1.25;
 const FADED_ALPHA = 0.3;
 const HIT_DURATION = 400;
 
@@ -107,7 +110,8 @@ export class Roll {
 
   // Each row holds as many whole bar groups as fit, keeping a sixteenth note
   // wide enough for a head and its tail. If not even one group fits,
-  // everything is scaled down.
+  // everything is scaled down. Groups share out the spare width up to a
+  // maximum, and the rows are centred in what is left.
   layout() {
     const usable = Math.max(1, this.width - 2 * SIDE_MARGIN);
     const minSixteenth = HEAD_SIZE * (1 + SIXTEENTH_TAIL) + BAR_GAP;
@@ -115,7 +119,9 @@ export class Roll {
     this.scale = clamp(usable / minGroupWidth, MIN_SCALE, 1);
     const groups = Math.max(1, Math.floor(usable / (minGroupWidth * this.scale)));
     this.beatsPerRow = groups * this.song.beatsPerGroup;
-    this.beatWidth = usable / this.beatsPerRow;
+    const maxBeatWidth = (minGroupWidth * this.scale * MAX_STRETCH) / this.song.beatsPerGroup;
+    this.beatWidth = Math.min(usable / this.beatsPerRow, maxBeatWidth);
+    this.left = (this.width - this.beatWidth * this.beatsPerRow) / 2;
     this.rows = Math.ceil(this.song.lengthBeats / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the
     // next note.
@@ -134,7 +140,7 @@ export class Roll {
   }
 
   x(beat, row) {
-    return SIDE_MARGIN + (beat - row * this.beatsPerRow) * this.beatWidth;
+    return this.left + (beat - row * this.beatsPerRow) * this.beatWidth;
   }
 
   position(time) {

@@ -96,6 +96,11 @@ music.
   as fit the screen width. If not even one bar fits, the whole roll is drawn
   smaller, down to three quarters of full size. Below that, short notes are
   squeezed.
+- The bars in a row share out the spare width, but a bar grows to at most
+  1.25 times its narrowest width, so that wide screens do not ask for too
+  much eye movement. The rows are then centred, and the margins on either
+  side are plain background with no frame. This was chosen by comparing
+  caps of 1, 1.1, 1.25 and 1.5 times and no cap.
 - A song in 2/4 is shown the same way as one in 4/4: its bars are taken in
   pairs, counted from the start of the song, and rows hold whole pairs. The bar
   line inside a pair is drawn faint like a beat mark, so a pair looks like one
@@ -105,8 +110,9 @@ music.
 - Each bar is a square head at its left end that curves into a slightly
   thinner tail, drawn as one shape. The head always takes up the same share of
   a sixteenth note, however wide the bars are drawn, so it grows taller with
-  the row on wider screens. A sixteenth note is the head and a short tail, a
-  quarter of the head's width, so every note shows a tail. When a note carries
+  the row on wider screens, up to the cap on bar width. A sixteenth note is
+  the head and a short tail, a quarter of the head's width, so every note
+  shows a tail. When a note carries
   on to the next row, that part is tail only. Both sides of the break are
   square edges, to show the bar continues, and the bar runs right to the end
   of the row with no gap.
