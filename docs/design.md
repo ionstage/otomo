@@ -39,12 +39,15 @@ once.
 
 | Modifier | Effect | Symbol | Keys |
 |---|---|---|---|
-| Semitone | Raises the note by a semitone | ♯ | `Z` or `,` |
-| Octave | Raises the note by an octave | ↑ | `X` or `.` |
+| Semitone | Raises the note by a semitone | ♯ | `C` |
+| Octave | Raises the note by an octave | ↑ | `V` |
 
-Both key pairs are always active, so either hand can take the modifiers while
-the other plays the number keys. Ctrl, Alt and Cmd are not used because
-browsers combine them with number keys to switch tabs.
+The keys are for playing with both hands on the number keys: the left hand's
+little to index fingers on 1 to 4, the right hand's index to little fingers on
+5 to 8. That leaves the thumbs free for C and V, below the middle of that row.
+They are physical keys, so the keyboard layout does not change them. Ctrl, Alt
+and Cmd are not used because browsers combine them with number keys to switch
+tabs.
 
 ### Do position
 

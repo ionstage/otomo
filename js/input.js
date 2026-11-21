@@ -11,9 +11,11 @@
 const NOTE_KEYS = {
   Digit1: 1, Digit2: 2, Digit3: 3, Digit4: 4, Digit5: 5, Digit6: 6, Digit7: 7, Digit8: 8,
 };
-const MODIFIER_KEYS = { KeyZ: 'sharp', Comma: 'sharp', KeyX: 'octave', Period: 'octave' };
+// Physical keys, so the layout does not matter. With fingers on 1 to 8, C and
+// V sit under the thumbs.
+const MODIFIER_KEYS = { KeyC: 'sharp', KeyV: 'octave' };
 
-function keyControl(code) {
+export function keyControl(code) {
   if (code in NOTE_KEYS) {
     return { type: 'note', button: NOTE_KEYS[code] };
   }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { slideTarget } from '../js/input.js';
+import { keyControl, slideTarget } from '../js/input.js';
 
 // Eight buttons, each 100 wide and side by side, from y 0 to 60.
 const rects = Array.from({ length: 8 }, (_, i) => ({
@@ -24,4 +24,18 @@ test('leaving the buttons keeps the held button', () => {
   assert.equal(slideTarget(3, { x: 650, y: -10 }, rects), 3);
   assert.equal(slideTarget(3, { x: 650, y: 70 }, rects), 3);
   assert.equal(slideTarget(8, { x: 900, y: 30 }, rects), 8);
+});
+
+test('number keys play buttons 1 to 8', () => {
+  assert.deepEqual(keyControl('Digit1'), { type: 'note', button: 1 });
+  assert.deepEqual(keyControl('Digit8'), { type: 'note', button: 8 });
+  assert.equal(keyControl('Digit9'), null);
+});
+
+test('C raises a semitone and V an octave', () => {
+  assert.deepEqual(keyControl('KeyC'), { type: 'modifier', modifier: 'sharp' });
+  assert.deepEqual(keyControl('KeyV'), { type: 'modifier', modifier: 'octave' });
+  for (const code of ['KeyZ', 'KeyX', 'Comma', 'Period']) {
+    assert.equal(keyControl(code), null);
+  }
 });

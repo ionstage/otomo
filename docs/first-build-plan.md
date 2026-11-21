@@ -62,8 +62,7 @@ Each step ends with something that can be checked.
 - **Input time.** Judge presses on the audio clock. `event.timeStamp` is on the
   `performance.now()` clock, and `audioContext.getOutputTimestamp()` gives a
   matching pair of times for converting between the two.
-- **Keys.** Use `event.code` (`Digit1` to `Digit8`, `KeyZ`, `KeyX`, `Comma`,
-  `Period`) so keyboard layout and held modifier keys do not change which key
+- **Keys.** Use `event.code` (`Digit1` to `Digit8`, `KeyC`, `KeyV`) so keyboard layout and held modifier keys do not change which key
   is seen. Ignore events where `event.repeat` is true.
 - **Touch.** Use pointer events with `touch-action: none`. Several buttons are
   held at once, so track each pointer separately. Suppress text selection, the
