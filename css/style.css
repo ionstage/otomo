@@ -308,6 +308,12 @@ legend {
   cursor: default;
 }
 
+/* The modifiers are only used in advanced mode. Elsewhere they are hidden and
+   the note buttons take their space: their height plus the gap above them. */
+.play:not([data-difficulty="advanced"]) .modifiers {
+  display: none;
+}
+
 .notes .control {
   height: 64px;
   display: flex;
@@ -315,6 +321,10 @@ legend {
   align-items: center;
   justify-content: center;
   line-height: 1.1;
+}
+
+.play:not([data-difficulty="advanced"]) .notes .control {
+  height: 114px;
 }
 
 .badge {
@@ -399,8 +409,13 @@ legend {
     height: 52px;
   }
 
-  /* The full-size number and pitch name do not fit in the shorter button. */
-  .number {
+  .play:not([data-difficulty="advanced"]) .notes .control {
+    height: 94px;
+  }
+
+  /* The full-size number and pitch name do not fit in the shorter button.
+     Without the modifiers the note buttons are tall enough for them. */
+  .play[data-difficulty="advanced"] .number {
     font-size: 1.5rem;
   }
 }

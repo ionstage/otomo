@@ -68,7 +68,7 @@ level.
 | Intermediate | Timing, duration and the note button (1 to 8) | Semitone and octave |
 | Advanced | Timing, duration, note button and modifiers | Nothing |
 
-The modifier buttons are unavailable in beginner and intermediate modes.
+The modifier buttons are hidden in beginner and intermediate modes.
 
 ## 3. Sound
 
@@ -125,9 +125,9 @@ music.
   font (no font file). On a bar, the number is semibold (600) and 20/34 of the
   head's size, and the symbols are bold (700) at 18 px at full scale. On the
   on-screen buttons, the numbers are bold (700) at 1.75rem (1.5rem on short
-  screens, where the buttons are lower) and the modifier symbols bold at
-  1.6rem. Only the sizes were raised, not the weights. This was chosen by
-  comparing sizes, weights and fonts side by side.
+  screens in advanced mode, where the buttons are lower) and the modifier
+  symbols bold at 1.6rem. Only the sizes were raised, not the weights. This
+  was chosen by comparing sizes, weights and fonts side by side.
 - In beginner mode, where any button plays, the bars show no numbers but
   keep their badge, empty. The buttons keep their numbers.
 - In intermediate and advanced modes each bar has the colour of its button
@@ -165,14 +165,16 @@ affects only the display. The score uses the exact release time.
 
 ### Buttons
 
-The eight note buttons and two modifier buttons are always on screen, on
-desktop as well. They light up when pressed, including when the press comes
-from the keyboard.
+The eight note buttons are always on screen, on desktop as well. The two
+modifier buttons are on screen in advanced mode only. They light up when
+pressed, including when the press comes from the keyboard.
 
 Touch layout (needs testing on real phones): landscape
 orientation, the eight note buttons in a row near the bottom, and the two
 modifier buttons in a row below them. Each modifier button is as wide as four
-note buttons: semitone below buttons 1 to 4, octave below buttons 5 to 8.
+note buttons: semitone below buttons 1 to 4, octave below buttons 5 to 8. In
+beginner and intermediate modes, where the modifier buttons are hidden, the
+note buttons grow taller to fill their space.
 
 ### Button colours
 
