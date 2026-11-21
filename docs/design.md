@@ -129,10 +129,11 @@ music.
   screens, where the buttons are lower) and the modifier symbols bold at
   1.6rem. Only the sizes were raised, not the weights. This was chosen by
   comparing sizes, weights and fonts side by side.
-- In beginner mode the numbers are hidden.
+- In beginner mode, where any button plays, the bars show no numbers but
+  keep their badge, empty. The buttons keep their numbers.
 - In intermediate and advanced modes each bar has the colour of its button
   (see [Button colours](#button-colours)). In beginner mode, where any button
-  plays, all bars share one neutral colour.
+  plays, all bars share the colour a button fills with while held.
 - Faint bar lines and beat marks in each row make the rhythm readable. The
   bar lines are stronger than the beat marks, and the end of the song is
   marked like a bar line.
@@ -198,7 +199,9 @@ button that plays it can be matched at a glance:
 - A correct hit's effect is drawn in the bar's colour and spreads from the
   centre of the bar's head, showing which note was hit. The current-position
   line is neutral so that it does not clash with any bar.
-- In beginner mode the buttons are plain and the bars neutral.
+- In beginner mode every button shares one colour: the thick bottom edge at
+  rest and the fill while held. Every bar has that same colour, and so does
+  a correct hit's effect. The buttons show their number but no pitch name.
 - Colour always accompanies the number and never replaces it.
 
 ### Start of a song

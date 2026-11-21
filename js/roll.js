@@ -76,7 +76,8 @@ export class Roll {
     const read = (name) => style.getPropertyValue(name).trim();
     this.colors = {
       background: read('--roll-bg'),
-      note: read('--note'),
+      // Beginner bars share the colour of a held button, since any button plays.
+      beginner: read('--accent'),
       badge: read('--badge'),
       badgeText: read('--badge-text'),
       notes: [1, 2, 3, 4, 5, 6, 7, 8].map((button) => read(`--note-${button}`)),
@@ -84,7 +85,6 @@ export class Roll {
       grid: read('--grid'),
       gridStrong: read('--grid-strong'),
       line: read('--line'),
-      hit: read('--hit'),
     };
   }
 
@@ -150,16 +150,15 @@ export class Roll {
   }
 
   // Bars take the colour of their button, except in beginner mode where any
-  // button plays and every bar is the same.
+  // button plays and every bar has the colour of a held button.
   noteColor(note) {
-    return this.difficulty === 'beginner' ? this.colors.note : this.colors.notes[note.button - 1];
+    return this.difficulty === 'beginner' ? this.colors.beginner : this.colors.notes[note.button - 1];
   }
 
   // The effect spreads from the centre of the note's head, so it shows which
   // note was hit, whenever within the timing window the press came.
   addHit(note) {
-    const color = this.difficulty === 'beginner' ? this.colors.hit : this.noteColor(note);
-    this.effects.push({ beat: note.startBeat, color, born: performance.now() });
+    this.effects.push({ beat: note.startBeat, color: this.noteColor(note), born: performance.now() });
   }
 
   draw(time, states) {
@@ -261,7 +260,7 @@ export class Roll {
       context.restore();
     }
 
-    if (this.difficulty === 'beginner' || startRow < firstRow || startRow > lastRow) {
+    if (startRow < firstRow || startRow > lastRow) {
       return;
     }
     if (playing) {
@@ -272,6 +271,7 @@ export class Roll {
     context.globalAlpha = started ? FADED_ALPHA : 1;
     // The number sits on a square badge so it reads the same on every colour.
     // The badge and its number grow with the head, keeping their proportions.
+    // Beginner mode keeps the badge but shows no number, since any button plays.
     const headScale = this.headSize / HEAD_SIZE;
     const inset = BADGE_INSET * headScale;
     const badge = this.headSize - 2 * inset;
@@ -279,12 +279,14 @@ export class Roll {
     context.beginPath();
     roundedRect(context, x + inset, y + inset, badge, badge, BADGE_RADIUS * headScale);
     context.fill();
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.font = `600 ${FONT_SIZE * headScale}px system-ui, sans-serif`;
-    context.fillStyle = this.colors.badgeText;
-    context.fillText(String(note.button), x + this.headSize / 2, y + (HEAD_SIZE / 2 + 1) * headScale);
-    context.textAlign = 'left';
+    if (this.difficulty !== 'beginner') {
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.font = `600 ${FONT_SIZE * headScale}px system-ui, sans-serif`;
+      context.fillStyle = this.colors.badgeText;
+      context.fillText(String(note.button), x + this.headSize / 2, y + (HEAD_SIZE / 2 + 1) * headScale);
+      context.textAlign = 'left';
+    }
     if (this.difficulty === 'advanced' && (note.sharp || note.octave)) {
       context.font = `700 ${this.size(SYMBOL_SIZE)}px system-ui, sans-serif`;
       context.fillStyle = this.colors.symbol;

@@ -8,7 +8,6 @@
   --accent: #2f6fde;
   --accent-fg: #ffffff;
   --roll-bg: #ffffff;
-  --note: #6b7180;
   /* The square behind a number, on bars and held buttons. */
   --badge: #ffffff;
   --badge-text: #1d1d1f;
@@ -24,7 +23,6 @@
   --grid: rgba(0, 0, 0, 0.07);
   --grid-strong: rgba(0, 0, 0, 0.25);
   --line: #1d1d1f;
-  --hit: #f0a81a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,7 +35,6 @@
     --accent: #5b8ff0;
     --accent-fg: #ffffff;
     --roll-bg: #1c1c1f;
-    --note: #8d93a0;
     --badge: #1c1c1f;
     --badge-text: #ececee;
     --note-1: #f05757;
@@ -51,7 +48,6 @@
     --grid: rgba(255, 255, 255, 0.07);
     --grid-strong: rgba(255, 255, 255, 0.25);
     --line: #ececee;
-    --hit: #ffc24a;
   }
 }
 
@@ -347,7 +343,7 @@ legend {
 }
 
 /* Each note button shows its colour as a thick bottom edge and fills with it
-   while held. Beginner mode stays plain, since any button plays. */
+   while held. */
 
 .notes .control[data-button="1"] { --tone: var(--note-1); }
 .notes .control[data-button="2"] { --tone: var(--note-2); }
@@ -360,6 +356,12 @@ legend {
 
 .play:not([data-difficulty="beginner"]) .notes .control {
   border-bottom: 6px solid var(--tone);
+}
+
+/* Any button plays in beginner mode, so every button shares the blue edge,
+   the colour it fills with while held and the colour of the bars. */
+.play[data-difficulty="beginner"] .notes .control {
+  border-bottom: 6px solid var(--accent);
 }
 
 .play:not([data-difficulty="beginner"]) .notes .control.down {
