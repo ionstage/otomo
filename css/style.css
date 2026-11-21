@@ -273,7 +273,10 @@ legend {
 .controls {
   display: grid;
   gap: 6px;
-  padding: 8px 16px 12px;
+  padding: 0 16px 12px;
+  /* One line across the whole width separates the roll from the controls. The
+     note buttons below it have no top border of their own. */
+  border-top: 1px solid var(--border);
 }
 
 .modifiers,
@@ -281,6 +284,13 @@ legend {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 6px;
+}
+
+/* The note buttons sit side by side like piano keys, so a finger can slide
+   from one to the next. Only the bottom corners are rounded, and neighbours
+   share one border line. */
+.notes {
+  gap: 0;
 }
 
 .control {
@@ -316,6 +326,7 @@ legend {
 
 .notes .control {
   height: 64px;
+  border-radius: 0 0 10px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -325,6 +336,14 @@ legend {
 
 .play:not([data-difficulty="advanced"]) .notes .control {
   height: 114px;
+}
+
+.notes .control {
+  border-top-width: 0;
+}
+
+.notes .control + .control {
+  border-left-width: 0;
 }
 
 .badge {

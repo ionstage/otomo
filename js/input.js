@@ -4,6 +4,9 @@
 // Modifiers are read when a note button goes down. A part is monophonic, so a
 // new note press replaces the held one, and releasing the replaced button
 // does nothing.
+//
+// A finger held on a note button can slide onto another, which presses that
+// button. Leaving the buttons keeps the note held until the finger lifts.
 
 const NOTE_KEYS = {
   Digit1: 1, Digit2: 2, Digit3: 3, Digit4: 4, Digit5: 5, Digit6: 6, Digit7: 7, Digit8: 8,
@@ -18,6 +21,16 @@ function keyControl(code) {
     return { type: 'modifier', modifier: MODIFIER_KEYS[code] };
   }
   return null;
+}
+
+// The note button a finger holds after moving to `point`: the button under it,
+// or the one it already holds, `held`, when it is off the buttons. `rects` are
+// the on-screen rectangles of buttons 1 to 8.
+export function slideTarget(held, point, rects) {
+  const over = rects.findIndex((rect) =>
+    point.x >= rect.left && point.x < rect.right &&
+    point.y >= rect.top && point.y < rect.bottom);
+  return over === -1 ? held : over + 1;
 }
 
 // Event time stamps share the performance.now() clock in current browsers.
@@ -38,6 +51,7 @@ export class Input {
     this.modifiersAllowed = false;
     this.sources = new Map();
     this.activeSource = null;
+    this.noteElements = buttons.filter((element) => !element.dataset.modifier);
 
     window.addEventListener('keydown', (event) => this.handleKeyDown(event));
     window.addEventListener('keyup', (event) => this.handleKeyUp(event));
@@ -86,6 +100,9 @@ export class Input {
       element.setPointerCapture(event.pointerId);
       this.down(`pointer:${event.pointerId}`, control, eventTime(event));
     });
+    if (control.type === 'note') {
+      element.addEventListener('pointermove', (event) => this.slide(event));
+    }
     const end = (event) => this.up(`pointer:${event.pointerId}`, eventTime(event));
     element.addEventListener('pointerup', end);
     element.addEventListener('pointercancel', end);
@@ -108,6 +125,21 @@ export class Input {
       });
     }
     this.changed();
+  }
+
+  slide(event) {
+    const id = `pointer:${event.pointerId}`;
+    const control = this.sources.get(id);
+    if (!this.enabled || control?.type !== 'note') {
+      return;
+    }
+    const rects = this.noteElements.map((element) => element.getBoundingClientRect());
+    const button = slideTarget(control.button, { x: event.clientX, y: event.clientY }, rects);
+    if (button === control.button) {
+      return;
+    }
+    this.sources.delete(id);
+    this.down(id, { type: 'note', button }, eventTime(event));
   }
 
   up(id, time) {

@@ -176,6 +176,23 @@ note buttons: semitone below buttons 1 to 4, octave below buttons 5 to 8. In
 beginner and intermediate modes, where the modifier buttons are hidden, the
 note buttons grow taller to fill their space.
 
+The note buttons sit side by side with no gap, like piano keys. Their top
+corners are square and their bottom corners rounded, and neighbours share one
+border line. A single line across the full width of the screen separates the
+roll from the buttons, in place of a top border on each note button.
+
+A finger or mouse held on a note button can slide onto another without lifting:
+- Entering another note button presses it, exactly as a new press would. The
+  held note ends there and the modifiers are read at that moment. Scoring
+  treats it as any other press, so a button crossed on the way is pressed too
+  and can score a note as wrong.
+- The next button takes over as soon as the finger crosses the boundary.
+- Leaving the note buttons, for example onto the roll, keeps the note held
+  until the finger lifts. Coming back onto the same button does nothing.
+- A finger whose note was replaced by another finger's press takes over again
+  when it slides onto a different button.
+- The modifier buttons do not slide.
+
 ### Button colours
 
 Each note button has its own colour, a rainbow by scale step, so a bar and the
