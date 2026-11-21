@@ -30,11 +30,18 @@ const SYMBOL_SIZE = 18;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
 const FADED_ALPHA = 0.3;
-const SCROLL_TIME = 0.12;
 const HIT_DURATION = 400;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+// How far the view has scrolled, in rows. It moves at a steady pace of one
+// row per row of music, a row behind the line, so the current row slides from
+// the second slot up to the top slot as it is played. The first row stays at
+// the top until the line reaches the second.
+export function scrollRows(beat, beatsPerRow) {
+  return Math.max(0, beat / beatsPerRow - 1);
 }
 
 // The two ends can have their own radius, so a bar can start or end square.
@@ -82,8 +89,6 @@ export class Roll {
     this.part = part;
     this.difficulty = difficulty;
     this.effects = [];
-    this.scroll = 0;
-    this.lastFrame = performance.now();
     this.resize();
   }
 
@@ -156,15 +161,15 @@ export class Roll {
     }
     const context = this.context;
     const now = performance.now();
-    const elapsed = (now - this.lastFrame) / 1000;
-    this.lastFrame = now;
     const { beat, row } = this.position(time);
-    this.scroll += (row - this.scroll) * (1 - Math.exp(-elapsed / SCROLL_TIME));
 
     context.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
     context.fillStyle = this.colors.background;
     context.fillRect(0, 0, this.width, this.height);
-    const top = this.scroll * this.rowHeight - this.size(TOP_MARGIN);
+    // Whole device pixels, so text and grid lines do not shimmer as the view
+    // moves.
+    const scrolled = scrollRows(beat, this.beatsPerRow) * this.rowHeight - this.size(TOP_MARGIN);
+    const top = Math.round(scrolled * this.ratio) / this.ratio;
     context.translate(0, -top);
 
     const firstRow = Math.max(0, Math.floor(top / this.rowHeight));

@@ -126,7 +126,12 @@ music.
 - A current-position line moves from left to right along the row. At the end of
   the row it wraps to the start of the next.
 - The current row stays near the top of the screen with the upcoming rows
-  visible below. The view scrolls smoothly when the line wraps.
+  visible below. The view scrolls continuously at a slow, steady pace of one
+  row per row of music, a row behind the line: the current row slides from
+  the second slot up to the top slot as it is played, so the row just
+  finished stays visible above it until the next row reaches the top. The
+  first row stays at the top until the line reaches the second row. The line
+  itself still jumps from the end of one row to the start of the next.
 
 ### Feedback while playing
 
