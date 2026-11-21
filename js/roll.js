@@ -28,6 +28,16 @@ const BADGE_RADIUS = 4;
 // The number at the smallest head size, and the modifier symbols above a bar.
 const FONT_SIZE = 20;
 const SYMBOL_SIZE = 18;
+// The modifiers' mark above a head: as wide as the head, in the space above
+// it with a small gap. Its top corner is rounded on the left for semitone, on
+// the right for octave and on both sides for both, like the modifier buttons.
+// While a modifier is held, its marks move down onto their heads. While both
+// are held, only the marks for both move.
+// The gap is wide enough that closing it shows clearly, and the mark is a
+// little shorter so that both still fit in the space above the head.
+const MARK_HEIGHT = 20;
+const MARK_SYMBOLS = { sharp: '♯', octave: '↑' };
+const MARK_GAP = 6;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
 // How much wider than its narrowest a bar group may grow, so that bars on
@@ -61,6 +71,18 @@ function roundedRect(context, x, y, width, height, leftRadius, rightRadius = lef
   context.closePath();
 }
 
+// A rectangle with only its top corners rounded, each by its own radius.
+function topRoundedRect(context, x, y, width, height, leftRadius, rightRadius) {
+  const left = Math.min(leftRadius, width / 2, height);
+  const right = Math.min(rightRadius, width / 2, height);
+  context.moveTo(x + left, y);
+  context.arcTo(x + width, y, x + width, y + height, right);
+  context.lineTo(x + width, y + height);
+  context.lineTo(x, y + height);
+  context.arcTo(x, y, x + width, y, left);
+  context.closePath();
+}
+
 export class Roll {
   constructor(canvas) {
     this.canvas = canvas;
@@ -85,6 +107,8 @@ export class Roll {
       badgeText: read('--badge-text'),
       notes: [1, 2, 3, 4, 5, 6, 7, 8].map((button) => read(`--note-${button}`)),
       symbol: read('--fg'),
+      sharp: read('--sharp'),
+      octave: read('--octave'),
       grid: read('--grid'),
       gridStrong: read('--grid-strong'),
       line: read('--line'),
@@ -96,6 +120,7 @@ export class Roll {
     this.part = part;
     this.difficulty = difficulty;
     this.effects = [];
+    this.modifiers = { sharp: false, octave: false };
     this.resize();
   }
 
@@ -309,11 +334,48 @@ export class Roll {
       context.textAlign = 'left';
     }
     if (this.difficulty === 'advanced' && (note.sharp || note.octave)) {
-      context.font = `700 ${this.size(SYMBOL_SIZE)}px system-ui, sans-serif`;
-      context.fillStyle = this.colors.symbol;
-      context.fillText((note.sharp ? '♯' : '') + (note.octave ? '↑' : ''), x + this.size(4), y - this.size(7));
+      this.drawMark(note, x, y);
     }
     context.globalAlpha = 1;
+  }
+
+  // The modifiers held now, which move their marks onto the heads.
+  setModifiers({ sharp, octave }) {
+    this.modifiers = { sharp, octave };
+  }
+
+  // The modifiers' mark above the head at (x, y). With both, the semitone
+  // half is on the left and the octave half on the right.
+  drawMark(note, x, y) {
+    const context = this.context;
+    const height = this.size(MARK_HEIGHT);
+    const top = y - this.size(MARK_GAP) - height;
+    const round = height / 2;
+    const pieces = [];
+    if (note.sharp && note.octave) {
+      const half = this.headSize / 2;
+      pieces.push({ x, width: half, left: round, right: 0, modifier: 'sharp' });
+      pieces.push({ x: x + half, width: half, left: 0, right: round, modifier: 'octave' });
+    } else if (note.sharp) {
+      pieces.push({ x, width: this.headSize, left: round, right: 0, modifier: 'sharp' });
+    } else {
+      pieces.push({ x, width: this.headSize, left: 0, right: round, modifier: 'octave' });
+    }
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.font = `700 ${this.size(SYMBOL_SIZE)}px system-ui, sans-serif`;
+    const both = this.modifiers.sharp && this.modifiers.octave;
+    for (const piece of pieces) {
+      const moved = both ? note.sharp && note.octave : this.modifiers[piece.modifier];
+      const pieceTop = moved ? top + this.size(MARK_GAP) : top;
+      context.fillStyle = this.colors[piece.modifier];
+      context.beginPath();
+      topRoundedRect(context, piece.x, pieceTop, piece.width, height, piece.left, piece.right);
+      context.fill();
+      context.fillStyle = this.colors.symbol;
+      context.fillText(MARK_SYMBOLS[piece.modifier], piece.x + piece.width / 2, pieceTop + height / 2 + this.size(1));
+    }
+    context.textAlign = 'left';
   }
 
   // One row's piece of a note, from x0 to x1: a square head that curves into

@@ -20,6 +20,12 @@
   --note-6: #2f6fde;
   --note-7: #8048cc;
   --note-8: #c93690;
+  /* The modifiers: pale tints at rest, deeper while held. Paler and greyer
+     than any note colour, so they cannot be taken for a note button. */
+  --sharp: #f5c8d5;
+  --sharp-held: #e68aa8;
+  --octave: #bfcad8;
+  --octave-held: #8a9fb8;
   --grid: rgba(0, 0, 0, 0.07);
   --grid-strong: rgba(0, 0, 0, 0.25);
   --line: #1d1d1f;
@@ -45,6 +51,10 @@
     --note-6: #5b8ff0;
     --note-7: #a175e8;
     --note-8: #ee5cb2;
+    --sharp: #5c3b49;
+    --sharp-held: #a65a7a;
+    --octave: #3b4757;
+    --octave-held: #5f7894;
     --grid: rgba(255, 255, 255, 0.07);
     --grid-strong: rgba(255, 255, 255, 0.25);
     --line: #ececee;
@@ -310,12 +320,13 @@ legend {
   touch-action: none;
 }
 
-.modifiers .control[data-modifier="sharp"] {
-  grid-column: 1 / span 4;
-}
-
-.modifiers .control[data-modifier="octave"] {
-  grid-column: 5 / span 4;
+/* Semitone and octave sit side by side, each half the width, and the zone
+   holding both is a third button laid over the centre, one note button
+   wide. */
+.modifiers {
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  position: relative;
 }
 
 .modifiers .control {
@@ -324,10 +335,49 @@ legend {
   font-weight: 700;
 }
 
+/* The row is rounded only at its outer top corners: semitone's top left and
+   octave's top right. The zone is rounded at both its top corners, and the
+   cutouts there show the buttons underneath. Bottom corners are square. The
+   marks on the roll have the same shapes. */
+/* Lines along the top, left and right edges of each modifier, the same as
+   the zone's, thinner along the top. Where the two buttons meet, the zone
+   covers them, so it stays one undivided area. */
+.modifiers .control[data-modifier] {
+  border-top: 1px solid var(--muted);
+  border-left: 2px solid var(--muted);
+  border-right: 2px solid var(--muted);
+}
+
+.modifiers .control[data-modifier="sharp"] {
+  background: var(--sharp);
+  border-radius: var(--modifier-radius) 0 0 0;
+}
+
+.modifiers .control[data-modifier="octave"] {
+  background: var(--octave);
+  border-radius: 0 var(--modifier-radius) 0 0;
+}
+
+.modifiers {
+  --modifier-radius: 24px;
+}
+
+.modifiers .control[data-modifier="sharp"].down {
+  background: var(--sharp-held);
+  border-bottom-color: var(--border);
+  color: var(--fg);
+}
+
+.modifiers .control[data-modifier="octave"].down {
+  background: var(--octave-held);
+  border-bottom-color: var(--border);
+  color: var(--fg);
+}
+
 /* In advanced mode the modifiers join the note buttons with no gap, and reach
    down to the bottom edge, so the padding below is part of them. They take
-   the gap's height as well. Their top corners are square, and the note buttons
-   keep their rounded bottom corners. */
+   the gap's height as well. The note buttons keep their rounded bottom
+   corners. */
 .play[data-difficulty="advanced"] .controls {
   gap: 0;
   padding-bottom: 0;
@@ -335,39 +385,38 @@ legend {
 
 .play[data-difficulty="advanced"] .modifiers .control {
   height: 62px;
-  border-top-width: 0;
-  border-radius: 0 0 10px 10px;
 }
 
-/* The zone at the shared edge of the modifiers holds both. It is one note
-   button wide. Touches anywhere in the modifiers, including this label and
-   the gap, are read from their position by js/input.js. */
+/* The zone holds both modifiers. It has no symbol. Its halves show the
+   semitone and octave colours, each turning deeper while its modifier is
+   held, and lines along its top, left and right edges mark it as one area. Touches anywhere in the modifiers,
+   including this zone and the rounded corners, are read from their position
+   by js/input.js. */
 .modifiers {
-  position: relative;
   touch-action: none;
 }
 
 .modifiers .both {
+  --left: var(--sharp);
+  --right: var(--octave);
   position: absolute;
   top: 0;
   bottom: 0;
   left: calc(50% - 100% / 16);
   width: calc(100% / 8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-top-width: 0;
-  font-size: 1.2rem;
-  font-weight: 700;
+  background: linear-gradient(to right, var(--left) 50%, var(--right) 50%);
+  border: 0 solid var(--muted);
+  border-width: 1px 2px 0;
+  border-radius: var(--modifier-radius) var(--modifier-radius) 0 0;
   pointer-events: none;
 }
 
-.modifiers .both.down {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-fg);
+.modifiers .both.sharp-down {
+  --left: var(--sharp-held);
+}
+
+.modifiers .both.octave-down {
+  --right: var(--octave-held);
 }
 
 .modifiers .control:disabled {

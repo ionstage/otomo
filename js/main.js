@@ -195,7 +195,9 @@ function showLit({ buttons, sharp, octave }) {
   for (const element of modifierButtons) {
     element.classList.toggle('down', element.dataset.modifier === 'sharp' ? sharp : octave);
   }
-  bothLabel.classList.toggle('down', sharp && octave);
+  roll.setModifiers({ sharp, octave });
+  bothLabel.classList.toggle('sharp-down', sharp);
+  bothLabel.classList.toggle('octave-down', octave);
 }
 
 function showPitchNames(time) {

@@ -131,7 +131,17 @@ music.
   hit effect appears.
 - All bars are the same height in every difficulty. Height does not show pitch.
 - Each bar has its button number (1 to 8) at its left end. In advanced mode, the
-  modifier symbols "♯" and "↑" appear above the left end when needed.
+  modifier symbols "♯" and "↑" appear above the left end when needed, on a
+  mark as wide as the head and 20 px tall, with a 6 px gap between them (at
+  full scale). The mark has the modifier's colour and its shape: its top corner is rounded on the left for
+  "♯", on the right for "↑", and on both sides for both, with square bottom
+  corners, with the "♯" half on the left (see
+  [Button colours](#button-colours)). Like the number, it goes on a correct
+  press and fades on a wrong one. While a modifier is held, every mark for it
+  on the roll moves down to close the gap and sit on its head. In a "♯↑"
+  mark each half moves with its own modifier. While both modifiers are
+  held, only "♯↑" marks move, and marks for only one modifier stay up. This is being tried and may
+  change after play.
 - Numbers and symbols are drawn large so they read at a glance, in the system
   font (no font file). On a bar, the number is semibold (600) and 20/34 of the
   head's size, and the symbols are bold (700) at 18 px at full scale. On the
@@ -188,8 +198,9 @@ beginner and intermediate modes, where the modifier buttons are hidden, the
 note buttons grow taller to fill their space.
 
 In advanced mode the modifier buttons join the note buttons with no gap. The
-modifier buttons' top corners are square, and the note buttons keep their
-rounded bottom corners. For touch, each button's whole rectangle is its
+note buttons keep their rounded bottom corners, and the modifier buttons'
+top corners are rounded as described under
+[Button colours](#button-colours). For touch, each button's whole rectangle is its
 own, so the small notches left by rounded corners belong to the button whose
 corner they are: a note button's to that note button, a modifier button's to
 that modifier button. The modifier
@@ -198,9 +209,14 @@ the screen with no padding below, so that space is part of them too. They are
 62 px tall (54 px on short screens), which takes in the gap and padding they
 replaced, so the roll keeps its height.
 
-A zone one note button wide, centred on the shared edge of the two modifier
-buttons, holds both modifiers at once, so "♯↑" needs one finger. It is marked
-"♯↑" and lights up while both modifiers are held.
+The two modifier buttons sit side by side with no gap. A third button, one
+note button wide, is laid over the centre where they meet. It holds both
+modifiers at once, so "♯↑" needs one finger. It has no text or symbol: its
+left half is pink and its right half blue-grey, and lines along its top,
+left and right edges show that the central area is one place to press. The
+two modifier buttons have the same lines along their top and outer edges.
+The lines are 2 px at the sides and 1 px along the top. Where they
+meet, the "♯↑" button covers them, so it stays one undivided area.
 
 The note buttons sit side by side with no gap, like piano keys. Their top
 corners are square and their bottom corners rounded, and neighbours share one
@@ -235,7 +251,23 @@ button that plays it can be matched at a glance:
 
 - The colour belongs to the button number, not to a pitch, so it stays the same
   when Do moves. Button 8 has its own colour rather than repeating button 1's.
-- Modifiers do not change the colour. The "♯" and "↑" symbols show them.
+- Modifiers do not change a note's colour. The "♯" and "↑" marks show them.
+- The modifiers have colours of their own, paler and greyer than any note
+  colour so that they cannot be taken for a note button: light pink for
+  semitone and light blue-grey for octave (muted dark versions in dark
+  mode). The modifier buttons are filled with their colour at rest and with
+  a deeper version while held. The "♯↑" button is pink on its left half
+  and blue-grey on its right, and each half deepens while its modifier is
+  held.
+- Each modifier also has a shape, so it can be told apart without colour.
+  Only top corners are rounded: the modifier row as a whole is rounded at
+  its outer top corners (the semitone button's top left and the octave
+  button's top right), and the "♯↑" button over the centre at both of its
+  top corners, with a larger radius than the note buttons. The cutouts at
+  the "♯↑" button's corners show the buttons underneath. Bottom corners are
+  square. The marks on the roll match: top corner rounded on the left,
+  the right, or both, so the rounded side points to the button that plays
+  it.
 - A bar's number sits on a small square badge in the centre of the bar's head,
   white with a dark number (dark with a light number in dark mode), so every
   number has the same colour and reads clearly on any bar. The badge and its
