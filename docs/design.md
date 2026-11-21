@@ -170,8 +170,9 @@ desktop as well. They light up when pressed, including when the press comes
 from the keyboard.
 
 Touch layout (needs testing on real phones): landscape
-orientation, the eight note buttons in a row along the bottom, and the two
-modifier buttons next to each other above the left end of that row.
+orientation, the eight note buttons in a row near the bottom, and the two
+modifier buttons in a row below them. Each modifier button is as wide as four
+note buttons: semitone below buttons 1 to 4, octave below buttons 5 to 8.
 
 ### Button colours
 

@@ -289,6 +289,14 @@ legend {
   touch-action: none;
 }
 
+.modifiers .control[data-modifier="sharp"] {
+  grid-column: 1 / span 4;
+}
+
+.modifiers .control[data-modifier="octave"] {
+  grid-column: 5 / span 4;
+}
+
 .modifiers .control {
   height: 44px;
   font-size: 1.6rem;
