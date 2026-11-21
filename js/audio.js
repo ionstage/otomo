@@ -149,6 +149,13 @@ export class AudioEngine {
       }
     };
     const voice = {
+      // Changes the pitch of a sounding voice now.
+      setPitch: (newMidi) => {
+        const now = context.currentTime;
+        for (const oscillator of oscillators) {
+          oscillator.frequency.setValueAtTime(midiToFrequency(newMidi), now);
+        }
+      },
       release: (at = context.currentTime) => {
         if (released) {
           return;

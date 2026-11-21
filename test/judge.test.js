@@ -167,3 +167,47 @@ test('pressPitch follows the rules for each difficulty', () => {
   assert.equal(pressPitch(part, 'advanced', two, null, 3.9), 50);
   assert.equal(pressPitch(part, 'intermediate', two, null, 3.9), low.midi);
 });
+
+test('modifiers pressed just after the note still count for it', () => {
+  const part = partWith([{ at: 1, length: 1, button: 4, sharp: true, octave: true }]);
+  const judge = createJudge(part.notes, 'advanced');
+  assert.equal(judge.press(1.02, { button: 4, sharp: false, octave: false }).correct, false);
+  assert.deepEqual(judge.amend(1.04, { sharp: true, octave: false }), {
+    note: part.notes[0], correct: false, changed: false,
+  });
+  const { correct, changed } = judge.amend(1.07, { sharp: true, octave: true });
+  assert.equal(correct, true);
+  assert.equal(changed, true);
+  judge.release(2);
+  // Timing is from the note press, not the modifier.
+  assert.equal(judge.finish(3).score, 100);
+});
+
+test('a modifier released just after the note also counts', () => {
+  const part = partWith([{ at: 1, length: 1, button: 4 }]);
+  const judge = createJudge(part.notes, 'advanced');
+  assert.equal(judge.press(1, { button: 4, sharp: true, octave: false }).correct, false);
+  assert.equal(judge.amend(1.03, { sharp: false, octave: false }).correct, true);
+  assert.equal(judge.states[0].result, 'correct');
+});
+
+test('modifiers changed after the late window do not change the result', () => {
+  const part = partWith([{ at: 1, length: 1, button: 4, sharp: true }]);
+  const judge = createJudge(part.notes, 'advanced');
+  judge.press(1, { button: 4, sharp: false, octave: false });
+  assert.equal(judge.amend(1.07, { sharp: true, octave: false }).changed, false);
+  assert.equal(judge.states[0].result, 'wrong');
+  // Nor once the note is released.
+  const other = createJudge(part.notes, 'advanced');
+  other.press(1, { button: 4, sharp: false, octave: false });
+  other.release(1.01);
+  assert.equal(other.amend(1.02, { sharp: true, octave: false }).changed, false);
+});
+
+test('late modifiers cannot correct a wrong note button', () => {
+  const part = partWith([{ at: 1, length: 1, button: 4, sharp: true }]);
+  const judge = createJudge(part.notes, 'advanced');
+  judge.press(1, { button: 3, sharp: false, octave: false });
+  assert.equal(judge.amend(1.02, { sharp: true, octave: false }).correct, false);
+  assert.equal(judge.states[0].result, 'wrong');
+});

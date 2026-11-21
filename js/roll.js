@@ -176,6 +176,11 @@ export class Roll {
     this.effects.push({ beat: note.startBeat, color: this.noteColor(note), born: performance.now() });
   }
 
+  // Takes back the effect of a hit that turned out wrong.
+  removeHit(note) {
+    this.effects = this.effects.filter((effect) => effect.beat !== note.startBeat);
+  }
+
   draw(time, states) {
     if (!this.song || !this.width || !this.height) {
       return;

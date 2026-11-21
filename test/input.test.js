@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { keyControl, slideTarget } from '../js/input.js';
+import { keyControl, modifierTarget, slideTarget } from '../js/input.js';
 
 // Eight buttons, each 100 wide and side by side, from y 0 to 60.
 const rects = Array.from({ length: 8 }, (_, i) => ({
@@ -33,9 +33,35 @@ test('number keys play buttons 1 to 8', () => {
 });
 
 test('C raises a semitone and V an octave', () => {
-  assert.deepEqual(keyControl('KeyC'), { type: 'modifier', modifier: 'sharp' });
-  assert.deepEqual(keyControl('KeyV'), { type: 'modifier', modifier: 'octave' });
+  assert.deepEqual(keyControl('KeyC'), { type: 'modifier', sharp: true, octave: false });
+  assert.deepEqual(keyControl('KeyV'), { type: 'modifier', sharp: false, octave: true });
   for (const code of ['KeyZ', 'KeyX', 'Comma', 'Period']) {
     assert.equal(keyControl(code), null);
   }
+});
+
+// The modifiers span 0 to 800 across, below the note buttons. The zone that
+// holds both is one note button wide, 350 to 450.
+const modifierRect = { left: 0, right: 800, top: 60, bottom: 120 };
+const none = { sharp: false, octave: false };
+const sharp = { sharp: true, octave: false };
+const octave = { sharp: false, octave: true };
+const both = { sharp: true, octave: true };
+
+test('the left modifier is semitone and the right octave', () => {
+  assert.deepEqual(modifierTarget(none, { x: 10, y: 90 }, modifierRect), sharp);
+  assert.deepEqual(modifierTarget(none, { x: 349, y: 90 }, modifierRect), sharp);
+  assert.deepEqual(modifierTarget(none, { x: 451, y: 90 }, modifierRect), octave);
+  assert.deepEqual(modifierTarget(none, { x: 799, y: 119 }, modifierRect), octave);
+});
+
+test('the zone at the shared edge holds both modifiers', () => {
+  assert.deepEqual(modifierTarget(none, { x: 351, y: 90 }, modifierRect), both);
+  assert.deepEqual(modifierTarget(none, { x: 400, y: 90 }, modifierRect), both);
+  assert.deepEqual(modifierTarget(none, { x: 449, y: 90 }, modifierRect), both);
+});
+
+test('a finger leaving the modifiers keeps what it held', () => {
+  assert.deepEqual(modifierTarget(both, { x: 100, y: 30 }, modifierRect), both);
+  assert.deepEqual(modifierTarget(sharp, { x: 900, y: 90 }, modifierRect), sharp);
 });

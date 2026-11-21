@@ -7,6 +7,9 @@ export const DIFFICULTIES = ['beginner', 'intermediate', 'advanced'];
 
 export const MATCH_WINDOW = 0.2;
 export const PERFECT_WINDOW = 0.05;
+// A modifier changed this soon after a note press still counts for it, so the
+// note and its modifiers can be pressed together in any order.
+export const LATE_MODIFIER_WINDOW = 0.06;
 
 // Extra time before an unpressed note counts as missed, so that a press
 // handled slightly after a frame has passed the window is still matched.
@@ -61,6 +64,7 @@ export function isCorrect(note, input, difficulty) {
 export function createJudge(notes, difficulty) {
   const states = notes.map(() => ({ result: null, pressTime: null, releaseTime: null, timing: 0, score: null }));
   let held = null;
+  let heldInput = null;
   let missCursor = 0;
 
   function release(time) {
@@ -73,6 +77,7 @@ export function createJudge(notes, difficulty) {
       state.score = (state.timing + durationScore(notes[held], state.pressTime, time)) / 2;
     }
     held = null;
+    heldInput = null;
   }
 
   function press(time, input) {
@@ -101,7 +106,34 @@ export function createJudge(notes, difficulty) {
       state.score = 0;
     }
     held = best;
+    heldInput = input;
     return { note, correct };
+  }
+
+  // Judges the held note again with the modifiers changed at `time`, if that
+  // is within LATE_MODIFIER_WINDOW of its press. `changed` says whether the
+  // result went between correct and wrong.
+  function amend(time, modifiers) {
+    if (held === null || time - states[held].pressTime > LATE_MODIFIER_WINDOW) {
+      return { note: null, correct: false, changed: false };
+    }
+    const note = notes[held];
+    const state = states[held];
+    heldInput = { ...heldInput, sharp: modifiers.sharp, octave: modifiers.octave };
+    const correct = isCorrect(note, heldInput, difficulty);
+    if (correct === (state.result === 'correct')) {
+      return { note, correct, changed: false };
+    }
+    if (correct) {
+      state.result = 'correct';
+      state.timing = timingScore(state.pressTime - note.start);
+      state.score = null;
+    } else {
+      state.result = 'wrong';
+      state.timing = 0;
+      state.score = 0;
+    }
+    return { note, correct, changed: true };
   }
 
   function update(time) {
@@ -127,7 +159,7 @@ export function createJudge(notes, difficulty) {
     return { score: total / states.length };
   }
 
-  return { states, press, release, update, finish };
+  return { states, press, amend, release, update, finish };
 }
 
 // The pitch a press sounds, following section 3 of docs/design.md. The

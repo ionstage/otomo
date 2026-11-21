@@ -292,6 +292,9 @@ legend {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 6px;
+  /* The rows respond to presses in the buttons' rounded corners and between
+     the modifiers, so they show the same cursor as the buttons. */
+  cursor: pointer;
 }
 
 /* The note buttons sit side by side like piano keys, so a finger can slide
@@ -319,6 +322,52 @@ legend {
   height: 44px;
   font-size: 1.6rem;
   font-weight: 700;
+}
+
+/* In advanced mode the modifiers join the note buttons with no gap, and reach
+   down to the bottom edge, so the padding below is part of them. They take
+   the gap's height as well. Their top corners are square, and the note buttons
+   keep their rounded bottom corners. */
+.play[data-difficulty="advanced"] .controls {
+  gap: 0;
+  padding-bottom: 0;
+}
+
+.play[data-difficulty="advanced"] .modifiers .control {
+  height: 62px;
+  border-top-width: 0;
+  border-radius: 0 0 10px 10px;
+}
+
+/* The zone at the shared edge of the modifiers holds both. It is one note
+   button wide. Touches anywhere in the modifiers, including this label and
+   the gap, are read from their position by js/input.js. */
+.modifiers {
+  position: relative;
+  touch-action: none;
+}
+
+.modifiers .both {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 100% / 16);
+  width: calc(100% / 8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top-width: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.modifiers .both.down {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
 }
 
 .modifiers .control:disabled {
@@ -430,6 +479,10 @@ legend {
 
   .modifiers .control {
     height: 36px;
+  }
+
+  .play[data-difficulty="advanced"] .modifiers .control {
+    height: 54px;
   }
 
   .notes .control {

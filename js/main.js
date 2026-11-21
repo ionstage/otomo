@@ -2,7 +2,7 @@
 
 import { AudioEngine } from './audio.js';
 import { Input } from './input.js';
-import { createJudge, pressPitch } from './judge.js';
+import { LATE_MODIFIER_WINDOW, createJudge, pressPitch } from './judge.js';
 import { buttonPitchName } from './pitch.js';
 import { Roll } from './roll.js';
 import { doAt, resolveSong } from './song.js';
@@ -24,7 +24,9 @@ const partSelect = document.getElementById('part-select');
 const setupMessage = document.getElementById('setup-message');
 const playTitle = document.getElementById('play-title');
 const noteButtons = [...document.querySelectorAll('[data-button]')];
-const modifierButtons = [...document.querySelectorAll('[data-modifier]')];
+const modifierArea = document.querySelector('.modifiers');
+const modifierButtons = [...modifierArea.querySelectorAll('[data-modifier]')];
+const bothLabel = modifierArea.querySelector('.both');
 const scoreText = document.getElementById('score');
 const resultTitle = document.getElementById('result-title');
 
@@ -33,9 +35,11 @@ const roll = new Roll(document.getElementById('roll'));
 const controls = document.querySelector('.controls');
 roll.onLayout = (width) => controls.style.setProperty('--row-width', `${width}px`);
 const input = new Input({
-  buttons: [...noteButtons, ...modifierButtons],
+  noteButtons,
+  modifierArea,
   onPress: handlePress,
   onRelease: handleRelease,
+  onModifiers: handleModifiers,
   onChange: showLit,
 });
 
@@ -94,6 +98,7 @@ function startGame({ song, partIndex, difficulty }) {
     difficulty,
     judge: createJudge(part.notes, difficulty),
     voice: null,
+    held: null,
     shownDo: null,
     frame: 0,
   };
@@ -147,10 +152,30 @@ function handlePress({ button, sharp, octave, time }) {
   const pressed = { button, sharp, octave };
   const { note, correct } = game.judge.press(songTime, pressed);
   game.voice?.release();
+  game.held = { button, note, time: songTime };
   game.voice = audio.noteOn(game.part.sound, pressPitch(game.part, game.difficulty, pressed, note, songTime));
   if (correct) {
     roll.addHit(note);
   }
+}
+
+// Modifiers changed just after a note press still count for it, in its
+// sound and its score. Later changes do not affect the sounding note.
+function handleModifiers({ sharp, octave, time }) {
+  const songTime = audio.songTime(time);
+  if (!game?.held || songTime - game.held.time > LATE_MODIFIER_WINDOW) {
+    return;
+  }
+  const pressed = { button: game.held.button, sharp, octave };
+  const { note, correct, changed } = game.judge.amend(songTime, pressed);
+  if (changed) {
+    if (correct) {
+      roll.addHit(note);
+    } else {
+      roll.removeHit(note);
+    }
+  }
+  game.voice.setPitch(pressPitch(game.part, game.difficulty, pressed, game.held.note, game.held.time));
 }
 
 function handleRelease({ time }) {
@@ -160,6 +185,7 @@ function handleRelease({ time }) {
   game.judge.release(audio.songTime(time));
   game.voice?.release();
   game.voice = null;
+  game.held = null;
 }
 
 function showLit({ buttons, sharp, octave }) {
@@ -169,6 +195,7 @@ function showLit({ buttons, sharp, octave }) {
   for (const element of modifierButtons) {
     element.classList.toggle('down', element.dataset.modifier === 'sharp' ? sharp : octave);
   }
+  bothLabel.classList.toggle('down', sharp && octave);
 }
 
 function showPitchNames(time) {

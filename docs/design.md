@@ -49,6 +49,14 @@ They are physical keys, so the keyboard layout does not change them. Ctrl, Alt
 and Cmd are not used because browsers combine them with number keys to switch
 tabs.
 
+The modifiers do not have to go down before the note. Frequent semitone and
+octave changes were hard to play on a touchscreen. A modifier pressed or
+released up to 60 ms after a note button still counts for that note, for
+scoring as well as sound. The note and its modifiers can therefore be pressed
+together in any order. Timing is still measured from the note button. After
+those 60 ms, changing a modifier does not affect the sounding note, so a
+modifier can be held down early for the next note.
+
 ### Do position
 
 A part can change the pitch of Do at any point in the song. This one mechanism
@@ -179,6 +187,21 @@ note buttons: semitone below buttons 1 to 4, octave below buttons 5 to 8. In
 beginner and intermediate modes, where the modifier buttons are hidden, the
 note buttons grow taller to fill their space.
 
+In advanced mode the modifier buttons join the note buttons with no gap. The
+modifier buttons' top corners are square, and the note buttons keep their
+rounded bottom corners. For touch, each button's whole rectangle is its
+own, so the small notches left by rounded corners belong to the button whose
+corner they are: a note button's to that note button, a modifier button's to
+that modifier button. The modifier
+buttons reach down to the bottom of
+the screen with no padding below, so that space is part of them too. They are
+62 px tall (54 px on short screens), which takes in the gap and padding they
+replaced, so the roll keeps its height.
+
+A zone one note button wide, centred on the shared edge of the two modifier
+buttons, holds both modifiers at once, so "♯↑" needs one finger. It is marked
+"♯↑" and lights up while both modifiers are held.
+
 The note buttons sit side by side with no gap, like piano keys. Their top
 corners are square and their bottom corners rounded, and neighbours share one
 border line. A single line across the full width of the screen separates the
@@ -197,7 +220,9 @@ A finger or mouse held on a note button can slide onto another without lifting:
   until the finger lifts. Coming back onto the same button does nothing.
 - A finger whose note was replaced by another finger's press takes over again
   when it slides onto a different button.
-- The modifier buttons do not slide.
+- A finger on the modifiers also slides: between semitone, the "♯↑" zone and
+  octave, changing the held modifiers as it crosses. Leaving the modifiers
+  keeps what it held until the finger lifts.
 
 ### Button colours
 
@@ -257,7 +282,8 @@ numbers below will need tuning by playing.
 - A press is matched to the nearest unjudged note whose start is within
   200 ms of the press.
 - The first press matched to a note judges it. A wrong button cannot be
-  corrected for that note.
+  corrected for that note. Its modifiers can be, within 60 ms of the press
+  (see [Modifier buttons](#modifier-buttons)).
 - A press with no note in range sounds but does not affect the score.
 
 ### Score for one note (0 to 100)
