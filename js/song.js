@@ -8,14 +8,14 @@ const OVERLAP_TOLERANCE = 1e-9;
 // A beat is a quarter note, and a sixteenth note is the shortest note allowed.
 export const SIXTEENTH = 0.25;
 
-// Before every song, three bars of 4/4 lead in, whatever the song's own time
-// signature. They are not part of the song data and hold no notes: the roll
-// shows them as empty bars, and the counts are heard as clicks. The first bar
-// is silent, the second counts two half notes, the third four quarter notes.
-// Every click sounds the same. Click beats are counted from the start of the
-// song, so they are negative.
-export const COUNT_IN_BAR_BEATS = 4;
-export const COUNT_IN_BEATS = 3 * COUNT_IN_BAR_BEATS;
+// Before every song comes a count-in of twelve beats, timed as three bars of
+// 4/4 whatever the song's own time signature. It is not part of the song data
+// and holds no notes: the roll shows it as empty bars, with bar lines in the
+// song's own time signature (six bars of 2/4, for example), and the counts are
+// heard as clicks. The first 4/4 bar is silent, the second counts two half
+// notes, the third four quarter notes. Every click sounds the same. Click
+// beats are counted from the start of the song, so they are negative.
+export const COUNT_IN_BEATS = 12;
 export const COUNT_IN_CLICKS = [-8, -6, -4, -3, -2, -1];
 
 // A note starts and ends on the sixteenth-note grid, or both on the triplet
@@ -81,8 +81,9 @@ export function resolveSong(data) {
     return last.startBeat + last.lengthBeats;
   }));
   const lengthBeats = Math.ceil(lastBeat / data.beatsPerBar) * data.beatsPerBar;
-  // The roll lays out bars in groups: a 2/4 song pairs its bars so that it
-  // looks like a song in 4/4.
+  // The roll lays out rows in groups of bars: a 2/4 song's rows hold whole
+  // pairs of bars, so they are as wide as a 4/4 song's. Each bar still has its
+  // own bar line.
   const beatsPerGroup = data.beatsPerBar === 2 ? 4 : data.beatsPerBar;
   return {
     title: data.title,

@@ -104,8 +104,8 @@ doing anything larger, because the project is being developed by discussion.
   together with "↑".
 - "Rondo alla Turca" (Mozart, K. 331) was added to check how sixteenth notes
   look. It is the first A-minor section (bars 1 to 24), with the repeat of
-  bars 9 to 24 written out. The pickup starts at beat 3, so that bar 1 starts
-  at beat 4 and the roll's pairs of 2/4 bars are (1, 2), (3, 4) and so on. The notes follow the public-domain Mutopia Project
+  bars 9 to 24 written out. The data starts with the pickup bar, so the pickup
+  starts at beat 1 and bar 1 at beat 2. The notes follow the public-domain Mutopia Project
   edition (piece 108, typeset from IMSLP). The melody is the right hand's top
   note, without the grace notes, and with the trill near the end played as a
   plain note. The harmony is the upper note of each left-hand chord, and the

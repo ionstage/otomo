@@ -2,7 +2,7 @@
 // current-position line. See section 4 of docs/design.md.
 
 import { heldToEnd } from './judge.js';
-import { COUNT_IN_BAR_BEATS, COUNT_IN_BEATS, SIXTEENTH } from './song.js';
+import { COUNT_IN_BEATS, SIXTEENTH } from './song.js';
 
 // Sizes are at full scale. The whole roll shrinks when a bar group does not
 // fit. A group is one bar, or two bars of 2/4 (see song.js).
@@ -211,11 +211,10 @@ export class Roll {
         break;
       }
       const x = Math.round(this.x(beat, row)) + 0.5;
-      // Only group boundaries and the end of the song are strong, so the bar
-      // line inside a pair of 2/4 bars is drawn like a beat mark. The count-in
-      // bars are 4/4 whatever the song.
-      const barBeats = beat < 0 ? COUNT_IN_BAR_BEATS : this.song.beatsPerGroup;
-      const strong = beat % barBeats === 0 || beat === this.song.lengthBeats;
+      // Bar lines, including the count-in's, and the end of the song are
+      // strong. The count-in is a whole number of bars, so its bar lines
+      // follow the song's time signature.
+      const strong = beat % this.song.beatsPerBar === 0 || beat === this.song.lengthBeats;
       context.strokeStyle = strong ? this.colors.gridStrong : this.colors.grid;
       context.beginPath();
       context.moveTo(x, top);

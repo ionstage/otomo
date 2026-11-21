@@ -37,7 +37,7 @@ test('resolveSong rounds the length up to a whole bar', () => {
   assert.equal(song.length, 4);
 });
 
-test('resolveSong pairs 2/4 bars into groups of four beats', () => {
+test('resolveSong lays out 2/4 rows in groups of four beats', () => {
   const events = [{ at: 0, do: 'C4' }, { at: 0, length: 1, button: 1 }];
   assert.equal(resolveSong(songWith(events, { beatsPerBar: 2 })).beatsPerGroup, 4);
   assert.equal(resolveSong(songWith(events, { beatsPerBar: 3 })).beatsPerGroup, 3);

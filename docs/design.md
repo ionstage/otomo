@@ -101,11 +101,10 @@ music.
   much eye movement. The rows are then centred, and the margins on either
   side are plain background with no frame. This was chosen by comparing
   caps of 1, 1.1, 1.25 and 1.5 times and no cap.
-- A song in 2/4 is shown the same way as one in 4/4: its bars are taken in
-  pairs, counted from the start of the song, and rows hold whole pairs. The bar
-  line inside a pair is drawn faint like a beat mark, so a pair looks like one
-  bar of 4/4. A song with a pickup is placed so that the pairs follow its
-  phrases.
+- Bar lines follow the song's own time signature, so a song in 2/4 has a
+  bar line every two beats. Rows of a 2/4 song are laid out the same way as
+  those of a 4/4 song: they hold whole pairs of bars, counted from the start
+  of the song, so a pair takes the width of one bar of 4/4.
 - Notes are horizontal bars. Their length shows duration. They do not move.
 - Each bar is a square head at its left end that curves into a slightly
   thinner tail, drawn as one shape. The head always takes up the same share of
@@ -206,17 +205,19 @@ button that plays it can be matched at a glance:
 
 ### Start of a song
 
-Three bars of count-in come before the song, to show when it begins and set
-its timing. They are always bars of 4/4, also before a 2/4 song, and they are
-not part of the song data.
+A count-in of twelve beats comes before the song, to show when it begins and
+set its timing. It is not part of the song data. Its timing is always three
+bars of 4/4, also before a 2/4 song.
 
-- The first bar is silent, the second counts twice at half-note intervals,
-  and the third counts four times at quarter-note intervals. The counts are
-  heard as clicks only, all with the same sound and no accent on the first
-  beat. Nothing is shown for them.
-- On the roll they are three empty bars before bar 1, in the same rows as the
-  song, with their bar lines and beat marks. The current-position line moves
-  through them in time, and the view scrolls as it does during the song.
+- The first 4/4 bar is silent, the second counts twice at half-note
+  intervals, and the third counts four times at quarter-note intervals. The
+  counts are heard as clicks only, all with the same sound and no accent on
+  the first beat. Nothing is shown for them.
+- On the roll the count-in is empty bars before bar 1, in the same rows as
+  the song, with bar lines in the song's own time signature and beat marks:
+  three bars before a 4/4 song, six before a 2/4 song. The current-position
+  line moves through them in time, and the view scrolls as it does during
+  the song.
 - The count-in ends at beat 0 of the song data, so a song whose data starts
   with empty beats before a pickup keeps them after the count-in.
 
