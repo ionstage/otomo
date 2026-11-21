@@ -67,6 +67,8 @@ export class Roll {
     this.context = canvas.getContext('2d');
     this.song = null;
     this.effects = [];
+    // Called with the width of a row, in CSS pixels, whenever it changes.
+    this.onLayout = null;
     this.readColors();
     new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.readColors());
@@ -123,6 +125,7 @@ export class Roll {
     const maxBeatWidth = (minGroupWidth * this.scale * MAX_STRETCH) / this.song.beatsPerGroup;
     this.beatWidth = Math.min(usable / this.beatsPerRow, maxBeatWidth);
     this.left = (this.width - this.beatWidth * this.beatsPerRow) / 2;
+    this.onLayout?.(this.beatWidth * this.beatsPerRow);
     // The empty count-in bars come first, in the same rows as the song.
     this.rows = Math.ceil((COUNT_IN_BEATS + this.song.lengthBeats) / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the

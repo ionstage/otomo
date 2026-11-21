@@ -179,7 +179,10 @@ note buttons grow taller to fill their space.
 The note buttons sit side by side with no gap, like piano keys. Their top
 corners are square and their bottom corners rounded, and neighbours share one
 border line. A single line across the full width of the screen separates the
-roll from the buttons, in place of a top border on each note button.
+roll from the buttons, in place of a top border on each note button. The
+buttons are no wider than the roll's rows and centred below them, so on wide
+screens their outer edges line up with the rows' edges. The line stays full
+width.
 
 A finger or mouse held on a note button can slide onto another without lifting:
 - Entering another note button presses it, exactly as a new press would. The

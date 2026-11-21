@@ -29,6 +29,9 @@ const scoreText = document.getElementById('score');
 const resultTitle = document.getElementById('result-title');
 
 const roll = new Roll(document.getElementById('roll'));
+// The buttons are no wider than the roll's rows, so their edges line up.
+const controls = document.querySelector('.controls');
+roll.onLayout = (width) => controls.style.setProperty('--row-width', `${width}px`);
 const input = new Input({
   buttons: [...noteButtons, ...modifierButtons],
   onPress: handlePress,
