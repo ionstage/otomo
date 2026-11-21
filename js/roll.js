@@ -2,7 +2,7 @@
 // current-position line. See section 4 of docs/design.md.
 
 import { heldToEnd } from './judge.js';
-import { SIXTEENTH } from './song.js';
+import { COUNT_IN_BAR_BEATS, COUNT_IN_BEATS, SIXTEENTH } from './song.js';
 
 // Sizes are at full scale. The whole roll shrinks when a bar group does not
 // fit. A group is one bar, or two bars of 2/4 (see song.js).
@@ -43,7 +43,8 @@ function clamp(value, min, max) {
 // How far the view has scrolled, in rows. It moves at a steady pace of one
 // row per row of music, a row behind the line, so the current row slides from
 // the second slot up to the top slot as it is played. The first row stays at
-// the top until the line reaches the second.
+// the top until the line reaches the second. `beat` counts from the start of
+// the roll, which is the start of the count-in.
 export function scrollRows(beat, beatsPerRow) {
   return Math.max(0, beat / beatsPerRow - 1);
 }
@@ -122,7 +123,8 @@ export class Roll {
     const maxBeatWidth = (minGroupWidth * this.scale * MAX_STRETCH) / this.song.beatsPerGroup;
     this.beatWidth = Math.min(usable / this.beatsPerRow, maxBeatWidth);
     this.left = (this.width - this.beatWidth * this.beatsPerRow) / 2;
-    this.rows = Math.ceil(this.song.lengthBeats / this.beatsPerRow);
+    // The empty count-in bars come first, in the same rows as the song.
+    this.rows = Math.ceil((COUNT_IN_BEATS + this.song.lengthBeats) / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the
     // next note.
     this.headSize = (this.beatWidth * SIXTEENTH - this.size(BAR_GAP)) / (1 + SIXTEENTH_TAIL);
@@ -139,13 +141,23 @@ export class Roll {
     return row * this.rowHeight + this.size(HEAD_TOP);
   }
 
+  // Beats are song beats, so the count-in has negative beats and the first
+  // row starts before the song does.
+  rowStart(row) {
+    return row * this.beatsPerRow - COUNT_IN_BEATS;
+  }
+
+  rowOf(beat) {
+    return Math.floor((beat + COUNT_IN_BEATS) / this.beatsPerRow);
+  }
+
   x(beat, row) {
-    return this.left + (beat - row * this.beatsPerRow) * this.beatWidth;
+    return this.left + (beat - this.rowStart(row)) * this.beatWidth;
   }
 
   position(time) {
-    const beat = clamp(time / this.song.secondsPerBeat, 0, this.song.lengthBeats);
-    const row = Math.min(Math.floor(beat / this.beatsPerRow), this.rows - 1);
+    const beat = clamp(time / this.song.secondsPerBeat, -COUNT_IN_BEATS, this.song.lengthBeats);
+    const row = Math.min(this.rowOf(beat), this.rows - 1);
     return { beat, row };
   }
 
@@ -174,7 +186,7 @@ export class Roll {
     context.fillRect(0, 0, this.width, this.height);
     // Whole device pixels, so text and grid lines do not shimmer as the view
     // moves.
-    const scrolled = scrollRows(beat, this.beatsPerRow) * this.rowHeight - this.size(TOP_MARGIN);
+    const scrolled = scrollRows(beat + COUNT_IN_BEATS, this.beatsPerRow) * this.rowHeight - this.size(TOP_MARGIN);
     const top = Math.round(scrolled * this.ratio) / this.ratio;
     context.translate(0, -top);
 
@@ -194,14 +206,16 @@ export class Roll {
     const bottom = this.headTop(row) + this.headSize + this.size(6);
     context.lineWidth = 1;
     for (let i = 0; i <= this.beatsPerRow; i++) {
-      const beat = row * this.beatsPerRow + i;
+      const beat = this.rowStart(row) + i;
       if (beat > this.song.lengthBeats) {
         break;
       }
       const x = Math.round(this.x(beat, row)) + 0.5;
       // Only group boundaries and the end of the song are strong, so the bar
-      // line inside a pair of 2/4 bars is drawn like a beat mark.
-      const strong = beat % this.song.beatsPerGroup === 0 || beat === this.song.lengthBeats;
+      // line inside a pair of 2/4 bars is drawn like a beat mark. The count-in
+      // bars are 4/4 whatever the song.
+      const barBeats = beat < 0 ? COUNT_IN_BAR_BEATS : this.song.beatsPerGroup;
+      const strong = beat % barBeats === 0 || beat === this.song.lengthBeats;
       context.strokeStyle = strong ? this.colors.gridStrong : this.colors.grid;
       context.beginPath();
       context.moveTo(x, top);
@@ -229,15 +243,15 @@ export class Roll {
       const releaseBeat = held ? Infinity : Math.max(roundedBeat, start + note.gridBeats);
       treatedEnd = clamp(Math.min(beat, releaseBeat), start, end);
     }
-    const startRow = Math.floor(start / this.beatsPerRow);
+    const startRow = this.rowOf(start);
     const started = pressed && treatedEnd > start;
     // On a correct press, even an early one, the number goes and the head drops
     // to the height of the tail, together with the hit effect.
     const playing = state.result === 'correct';
 
-    for (let r = Math.max(startRow, firstRow); r <= lastRow && r * this.beatsPerRow < end; r++) {
-      const segmentStart = Math.max(start, r * this.beatsPerRow);
-      const segmentEnd = Math.min(end, (r + 1) * this.beatsPerRow);
+    for (let r = Math.max(startRow, firstRow); r <= lastRow && this.rowStart(r) < end; r++) {
+      const segmentStart = Math.max(start, this.rowStart(r));
+      const segmentEnd = Math.min(end, this.rowStart(r + 1));
       const x0 = this.x(segmentStart, r);
       // A bar that carries on to the next row runs to the row's end with no gap.
       const x1 = this.x(segmentEnd, r) - (segmentEnd < end ? 0 : this.size(BAR_GAP));
@@ -351,7 +365,7 @@ export class Roll {
       const progress = (now - effect.born) / HIT_DURATION;
       context.globalAlpha = 1 - progress;
       context.beginPath();
-      const row = Math.floor(effect.beat / this.beatsPerRow);
+      const row = this.rowOf(effect.beat);
       const x = this.x(effect.beat, row) + this.headSize / 2;
       const y = this.headTop(row) + this.headSize / 2;
       // The effect grows with the head.

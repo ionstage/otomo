@@ -2,6 +2,7 @@
 // The audio clock is the game's single time reference.
 
 import { midiToFrequency } from './pitch.js';
+import { COUNT_IN_BEATS, COUNT_IN_CLICKS } from './song.js';
 
 const SCHEDULE_AHEAD = 0.15;
 const TICK_INTERVAL = 25;
@@ -47,10 +48,9 @@ export class AudioEngine {
   startSong(song, autoplayParts) {
     this.stopSong();
     const beatLength = song.secondsPerBeat;
-    const countIn = song.beatsPerBar * beatLength;
-    this.songStart = this.context.currentTime + START_DELAY + countIn;
-    for (let beat = 0; beat < song.beatsPerBar; beat++) {
-      this.click(this.songStart - countIn + beat * beatLength, beat === 0);
+    this.songStart = this.context.currentTime + START_DELAY + COUNT_IN_BEATS * beatLength;
+    for (const beat of COUNT_IN_CLICKS) {
+      this.click(this.songStart + beat * beatLength);
     }
     this.queue = autoplayParts
       .flatMap((part) => part.notes.map((note) => ({ note, sound: part.sound })))
@@ -178,12 +178,12 @@ export class AudioEngine {
     return voice;
   }
 
-  click(time, accent) {
+  click(time) {
     const context = this.context;
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     oscillator.type = 'square';
-    oscillator.frequency.value = accent ? 1600 : 1000;
+    oscillator.frequency.value = 1000;
     envelope.gain.setValueAtTime(CLICK_LEVEL, time);
     envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
     oscillator.connect(envelope).connect(this.output);

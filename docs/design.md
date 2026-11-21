@@ -206,7 +206,19 @@ button that plays it can be matched at a glance:
 
 ### Start of a song
 
-One bar of count-in clicks plays before the first note.
+Three bars of count-in come before the song, to show when it begins and set
+its timing. They are always bars of 4/4, also before a 2/4 song, and they are
+not part of the song data.
+
+- The first bar is silent, the second counts twice at half-note intervals,
+  and the third counts four times at quarter-note intervals. The counts are
+  heard as clicks only, all with the same sound and no accent on the first
+  beat. Nothing is shown for them.
+- On the roll they are three empty bars before bar 1, in the same rows as the
+  song, with their bar lines and beat marks. The current-position line moves
+  through them in time, and the view scrolls as it does during the song.
+- The count-in ends at beat 0 of the song data, so a song whose data starts
+  with empty beats before a pickup keeps them after the count-in.
 
 ## 5. Scoring
 
