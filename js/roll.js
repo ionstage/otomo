@@ -6,15 +6,18 @@ import { SIXTEENTH } from './song.js';
 
 // Sizes are at full scale. The whole roll shrinks when a bar group does not
 // fit. A group is one bar, or two bars of 2/4 (see song.js).
-const TOP_MARGIN = 12;
+// Space above the first row. The line's top triangle reaches 24 px above the
+// row at the top of its bounce, so this leaves some clear space above it. The
+// view keeps this space as it scrolls, so short screens, where every pixel
+// counts, keep only what the triangle needs.
+const TOP_MARGIN = 40;
+const SHORT_TOP_MARGIN = 24;
 const SIDE_MARGIN = 16;
 // A note is a square head, which holds the number badge, and a thinner tail.
 // The head fills a sixteenth note but for a short tail, so it grows with the
-// row. HEAD_SIZE is its smallest size, and the row keeps a fixed space above
-// and below it.
-const HEAD_TOP = 28;
+// row. HEAD_SIZE is its smallest size. The notes sit in the middle of their
+// row (see rowSpace).
 const HEAD_SIZE = 34;
-const ROW_BOTTOM = 22;
 // The tail's height as a share of the head's.
 const TAIL_RATIO = 26 / 34;
 // The length of a sixteenth note's tail as a share of the head's width.
@@ -41,10 +44,44 @@ const MARK_GAP = 6;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
 // How much wider than its narrowest a bar group may grow, so that bars on
-// wide screens do not ask for too much eye movement.
+// wide screens do not ask for too much eye movement. On short screens, such as
+// phones in landscape, it does not grow at all, which keeps the heads and so
+// the rows small enough for the next row to come into view in time.
 const MAX_STRETCH = 1.25;
+export const SHORT_SCREEN = '(max-height: 420px)';
 const FADED_ALPHA = 0.3;
 const HIT_DURATION = 400;
+// How far each row's display area reaches above and below its notes: the
+// current-position line, the current-beat band and the grid lines. It is the
+// same in every mode, so that the roll does not change with the difficulty,
+// and reaches past the modifier marks, so that the line's triangles clear
+// them. Short screens use a smaller one.
+const REACH = 40;
+const SHORT_REACH = 30;
+// The current position is marked by a triangle above and below the row's
+// display area, pointing at each other, with no line between them. Each
+// bounces once per beat: closest to the display area, TRIANGLE_GAP away,
+// exactly on each beat, and TRIANGLE_GAP + BOUNCE away halfway between beats.
+// "The line" elsewhere in this file means that current position.
+// The triangles are brown, a colour no note uses, with rounded corners and an
+// outline in the roll's background colour, which keeps them clear where they
+// reach into a neighbouring row. Like a ball, they squash as they land: up to
+// SQUASH flatter, and wider by SQUASH_WIDEN of that, over the last and first
+// SQUASH_TIME of their bounce.
+const TRIANGLE_WIDTH = 22;
+const TRIANGLE_HEIGHT = 16;
+const TRIANGLE_GAP = 2;
+const TRIANGLE_RADIUS = 3;
+const TRIANGLE_OUTLINE = 2;
+const BOUNCE = 12;
+const SQUASH = 0.35;
+const SQUASH_WIDEN = 0.6;
+const SQUASH_TIME = 0.25;
+// The space between two rows' display areas. The triangles are drawn large and
+// bounce high so the beat reads easily, and may reach past this gap into the
+// neighbouring row's display area. They only ever mark the current beat, so
+// the overlap does not distract.
+const ROW_GAP = 16;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -59,16 +96,38 @@ export function scrollRows(beat, beatsPerRow) {
   return Math.max(0, beat / beatsPerRow - 1);
 }
 
+// The bounce of the line's triangles at `beat`, from 0 on a beat to 1
+// halfway between beats. It follows a ball's path, so it touches sharply on
+// the beat and turns smoothly at the top.
+export function bounce(beat) {
+  const phase = beat - Math.floor(beat);
+  return 4 * phase * (1 - phase);
+}
+
+// How far a row's display area reaches above and below its notes, the space
+// between rows' display areas, and the space above the first row, at full
+// scale. The notes sit in the middle of the row.
+export function rowSpace(short) {
+  return { reach: short ? SHORT_REACH : REACH, gap: ROW_GAP, top: short ? SHORT_TOP_MARGIN : TOP_MARGIN };
+}
+
+// How squashed the triangles are at `beat`: 1 as they touch on the beat,
+// easing to 0 as they rise, and 0 for the rest of the bounce.
+export function squash(beat) {
+  return Math.max(0, 1 - bounce(beat) / SQUASH_TIME);
+}
+
 // One row holds one bar group of `beatsPerGroup` beats, keeping a sixteenth
 // note wide enough for a head and its tail. If the group does not fit,
 // everything is scaled down. The group takes the spare width up to a maximum,
-// and the row is centred in what is left. `width` is the canvas width.
-export function rowLayout(width, beatsPerGroup) {
+// except on short screens, and the row is centred in what is left. `width` is
+// the canvas width.
+export function rowLayout(width, beatsPerGroup, short = false) {
   const usable = Math.max(1, width - 2 * SIDE_MARGIN);
   const minSixteenth = HEAD_SIZE * (1 + SIXTEENTH_TAIL) + BAR_GAP;
   const minWidth = (minSixteenth / SIXTEENTH) * beatsPerGroup;
   const scale = clamp(usable / minWidth, MIN_SCALE, 1);
-  const rowWidth = Math.min(usable, minWidth * scale * MAX_STRETCH);
+  const rowWidth = Math.min(usable, minWidth * scale * (short ? 1 : MAX_STRETCH));
   return { scale, beatWidth: rowWidth / beatsPerGroup, width: rowWidth };
 }
 
@@ -124,7 +183,9 @@ export class Roll {
       octave: read('--octave'),
       grid: read('--grid'),
       gridStrong: read('--grid-strong'),
-      line: read('--line'),
+      gridFaint: read('--grid-faint'),
+      currentBeat: read('--current-beat'),
+      position: read('--position'),
     };
   }
 
@@ -151,21 +212,26 @@ export class Roll {
 
   // Each row holds one bar group. See rowLayout.
   layout() {
-    const row = rowLayout(this.width, this.song.beatsPerGroup);
+    const short = matchMedia(SHORT_SCREEN).matches;
+    const row = rowLayout(this.width, this.song.beatsPerGroup, short);
     this.scale = row.scale;
     this.beatsPerRow = this.song.beatsPerGroup;
     this.beatWidth = row.beatWidth;
     this.left = (this.width - row.width) / 2;
     // The buttons keep the width of a row of 4/4 in every song, so they do
     // not change size from song to song.
-    this.onLayout?.(rowLayout(this.width, 4).width);
+    this.onLayout?.(rowLayout(this.width, 4, short).width);
     // The empty count-in bars come first, in the same rows as the song.
     this.rows = Math.ceil((this.song.countIn.beats + this.song.lengthBeats) / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the
     // next note.
     this.headSize = (this.beatWidth * SIXTEENTH - this.size(BAR_GAP)) / (1 + SIXTEENTH_TAIL);
     this.tailHeight = this.headSize * TAIL_RATIO;
-    this.rowHeight = this.size(HEAD_TOP + ROW_BOTTOM) + this.headSize;
+    this.space = rowSpace(short);
+    this.reach = this.size(this.space.reach);
+    this.rowHeight = this.headSize + 2 * this.reach + this.size(this.space.gap);
+    // The notes sit in the middle of the row.
+    this.headOffset = (this.rowHeight - this.headSize) / 2;
   }
 
   // A length at full scale, in pixels at the current scale.
@@ -174,7 +240,7 @@ export class Roll {
   }
 
   headTop(row) {
-    return row * this.rowHeight + this.size(HEAD_TOP);
+    return row * this.rowHeight + this.headOffset;
   }
 
   // Beats are song beats, so the count-in has negative beats and the first
@@ -227,12 +293,13 @@ export class Roll {
     context.fillRect(0, 0, this.width, this.height);
     // Whole device pixels, so text and grid lines do not shimmer as the view
     // moves.
-    const scrolled = scrollRows(beat + this.song.countIn.beats, this.beatsPerRow) * this.rowHeight - this.size(TOP_MARGIN);
+    const scrolled = scrollRows(beat + this.song.countIn.beats, this.beatsPerRow) * this.rowHeight - this.size(this.space.top);
     const top = Math.round(scrolled * this.ratio) / this.ratio;
     context.translate(0, -top);
 
     const firstRow = Math.max(0, Math.floor(top / this.rowHeight));
     const lastRow = Math.min(this.rows - 1, Math.floor((top + this.height) / this.rowHeight));
+    this.drawCurrentBeat(beat, row);
     for (let r = firstRow; r <= lastRow; r++) {
       this.drawGrid(r);
     }
@@ -241,13 +308,32 @@ export class Roll {
     this.drawEffects(now);
   }
 
+  // A faint band behind the beat the line is in, in the current row, as tall
+  // as the row's display area. It moves on at each beat.
+  drawCurrentBeat(beat, row) {
+    const start = Math.floor(beat);
+    if (start >= this.song.lengthBeats) {
+      return;
+    }
+    const context = this.context;
+    const top = this.headTop(row) - this.reach;
+    const bottom = this.headTop(row) + this.headSize + this.reach;
+    const x0 = Math.round(this.x(start, row)) + 0.5;
+    const x1 = Math.round(this.x(start + 1, row)) + 0.5;
+    context.fillStyle = this.colors.currentBeat;
+    context.fillRect(x0, top, x1 - x0, bottom - top);
+  }
+
+  // Three levels of line across the row's display area: bar lines, beat
+  // marks, and fainter sixteenth-note lines between them.
   drawGrid(row) {
     const context = this.context;
-    const top = this.headTop(row) - this.size(6);
-    const bottom = this.headTop(row) + this.headSize + this.size(6);
+    const top = this.headTop(row) - this.reach;
+    const bottom = this.headTop(row) + this.headSize + this.reach;
+    const steps = Math.round(1 / SIXTEENTH);
     context.lineWidth = 1;
-    for (let i = 0; i <= this.beatsPerRow; i++) {
-      const beat = this.rowStart(row) + i;
+    for (let i = 0; i <= this.beatsPerRow * steps; i++) {
+      const beat = this.rowStart(row) + i / steps;
       if (beat > this.song.lengthBeats) {
         break;
       }
@@ -256,7 +342,8 @@ export class Roll {
       // strong. The count-in is a whole number of bars, so its bar lines
       // follow the song's time signature.
       const strong = beat % this.song.beatsPerBar === 0 || beat === this.song.lengthBeats;
-      context.strokeStyle = strong ? this.colors.gridStrong : this.colors.grid;
+      const onBeat = i % steps === 0;
+      context.strokeStyle = strong ? this.colors.gridStrong : onBeat ? this.colors.grid : this.colors.gridFaint;
       context.beginPath();
       context.moveTo(x, top);
       context.lineTo(x, bottom);
@@ -422,15 +509,44 @@ export class Roll {
     context.closePath();
   }
 
+  // The current position is shown by two triangles, with no line between
+  // them: one above the row's display area pointing down, and one below it
+  // pointing up. They bounce once per beat, closest to the display area on the
+  // beat, including through the count-in.
   drawLine(beat, row) {
     const context = this.context;
     const x = this.x(beat, row);
-    context.strokeStyle = this.colors.line;
-    context.lineWidth = 3;
+    const top = this.headTop(row) - this.reach;
+    const bottom = this.headTop(row) + this.headSize + this.reach;
+    const landing = squash(beat);
+    const distance = this.size(TRIANGLE_GAP + BOUNCE * bounce(beat));
+    const height = this.size(TRIANGLE_HEIGHT) * (1 - SQUASH * landing);
+    const halfWidth = (this.size(TRIANGLE_WIDTH) / 2) * (1 + SQUASH * SQUASH_WIDEN * landing);
+    context.lineJoin = 'round';
+    context.lineWidth = 2 * this.size(TRIANGLE_OUTLINE);
+    context.strokeStyle = this.colors.background;
+    context.fillStyle = this.colors.position;
+    for (const [tip, direction] of [[top - distance, 1], [bottom + distance, -1]]) {
+      this.traceTriangle(x, tip, halfWidth, height, direction);
+      context.stroke();
+      context.fill();
+    }
+  }
+
+  // A triangle with rounded corners, its tip at (x, tip), pointing down for
+  // `direction` 1 and up for -1.
+  traceTriangle(x, tip, halfWidth, height, direction) {
+    const context = this.context;
+    const base = tip - direction * height;
+    const corners = [[x, tip], [x + halfWidth, base], [x - halfWidth, base]];
+    const radius = this.size(TRIANGLE_RADIUS);
     context.beginPath();
-    context.moveTo(x, this.headTop(row) - this.size(14));
-    context.lineTo(x, this.headTop(row) + this.headSize + this.size(12));
-    context.stroke();
+    context.moveTo((corners[2][0] + x) / 2, (corners[2][1] + tip) / 2);
+    corners.forEach((corner, i) => {
+      const next = corners[(i + 1) % 3];
+      context.arcTo(corner[0], corner[1], next[0], next[1], radius);
+    });
+    context.closePath();
   }
 
   drawEffects(now) {

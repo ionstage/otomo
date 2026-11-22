@@ -112,7 +112,10 @@ music.
   narrowest width, so that wide screens do not ask for too much eye
   movement. The rows are then centred, and the margins on either side are
   plain background with no frame. This was chosen by comparing caps of 1,
-  1.1, 1.25 and 1.5 times and no cap.
+  1.1, 1.25 and 1.5 times and no cap. On short screens (420 px tall or
+  less, such as phones in landscape) the bar does not grow at all. Wider
+  bars mean larger heads and taller rows, and on those screens taller rows
+  bring the next row into view too late.
 - Bar lines follow the song's own time signature, so a song in 2/4 has a
   bar line every two beats. Rows of a 2/4 song are laid out the same way as
   those of a 4/4 song: each holds a pair of bars, counted from the start of
@@ -156,11 +159,45 @@ music.
 - In intermediate and advanced modes each bar has the colour of its button
   (see [Button colours](#button-colours)). In beginner mode, where any button
   plays, all bars share the colour a button fills with while held.
-- Faint bar lines and beat marks in each row make the rhythm readable. The
-  bar lines are stronger than the beat marks, and the end of the song is
-  marked like a bar line.
-- A current-position line moves from left to right along the row. At the end of
-  the row it wraps to the start of the next.
+- Faint lines in each row make the rhythm readable at three levels: bar
+  lines, beat marks, and sixteenth-note lines between them. Each level is
+  lighter than the one above, and the end of the song is marked like a bar
+  line. The lines are drawn behind the notes and run the full height of the
+  row's display area (see below).
+- The current position moves from left to right along the row. At the end of
+  the row it wraps to the start of the next. It is shown by two triangles,
+  with no line between them: one above the row's display area pointing down,
+  and one below it pointing up. They bounce once per beat, like a ball:
+  closest to the display area exactly on each beat, and furthest halfway
+  between beats. Like a ball, they squash as they land, flatter and wider
+  around the moment of the beat. They bounce through the count-in as well.
+  Below, "the line" means this current position.
+- The triangles are 22 px wide and 16 px tall, bounce 12 px, and have
+  slightly rounded corners and a 2 px outline in the roll's background
+  colour. They are brown (a light tan in dark mode), a colour no note uses.
+  This was chosen by comparing near-black, brown and deep orange, and
+  several sizes and styles, side by side.
+- The beat the line is in has a subtle highlight, a faint band as tall as the
+  row's display area, behind the notes. It moves on at each beat, through
+  the count-in as well. It is kept faint so that it does not distract.
+- Each row has a display area that reaches 40 px above and below its notes
+  (30 px on short screens), with the notes in the middle. The current-beat
+  band and the grid lines span it, and the triangles sit just outside it.
+  It reaches past the modifier marks, so the triangles never overlap the
+  marks of their own row. Rows are not spaced further apart: there is a
+  16 px gap between two rows' display areas. The triangles are the same size
+  on every screen and may reach past the gap into the neighbouring row,
+  where the outline keeps them clear. That is accepted, since they only mark
+  the beat being played and so do not distract.
+- Above the first row there is 40 px of space (24 px on short screens), so
+  that the top triangle has clear space above it. The view keeps this space
+  as it scrolls.
+- Row height is fixed, and does not grow to fill a tall screen. It is the same
+  in every mode, even where there are no marks, so that the roll does not
+  change with the difficulty. On short screens the rows are smaller, but on
+  some phones the next row still comes into view only after the current
+  row's last beat has started. Removing the gap between rows would fix that,
+  but was not chosen.
 - The current row stays near the top of the screen with the upcoming rows
   visible below. The view scrolls continuously at a slow, steady pace of one
   row per row of music, a row behind the line: the current row slides from
@@ -285,8 +322,9 @@ button that plays it can be matched at a glance:
   fills with its colour and its number and pitch name sit on the same kind of
   badge. This style may change after play.
 - A correct hit's effect is drawn in the bar's colour and spreads from the
-  centre of the bar's head, showing which note was hit. The current-position
-  line is neutral so that it does not clash with any bar.
+  centre of the bar's head, showing which note was hit. The triangles that
+  show the current position are brown, which no note uses, so that they do
+  not clash with any bar.
 - In beginner mode every button shares one colour: the thick bottom edge at
   rest and the fill while held. Every bar has that same colour, and so does
   a correct hit's effect. The buttons show their number but no pitch name.
@@ -304,11 +342,12 @@ set its timing. It is not part of the song data.
   first bar is silent, the second counts twice at half-note intervals, and
   the third counts four times at quarter-note intervals.
 - The counts are heard as clicks only, all with the same sound and no accent
-  on the first beat. Nothing is shown for them.
+  on the first beat. No count is shown, but the line's triangles bounce and
+  the current beat is highlighted, as during the song.
 - On the roll the count-in is empty bars before bar 1, in the same rows as
   the song, with bar lines in the song's own time signature and beat marks:
   three bars before a 3/4 or 4/4 song, six before a 2/4 song. The
-  current-position line moves through them in time, and the view scrolls as
+  current position moves through them in time, and the view scrolls as
   it does during the song.
 - The count-in ends at beat 0 of the song data, so a song whose data starts
   with empty beats before a pickup keeps them after the count-in.

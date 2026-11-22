@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { rowLayout, scrollRows } from '../js/roll.js';
+import { bounce, rowLayout, rowSpace, scrollRows, squash } from '../js/roll.js';
 
 test('scroll keeps the first row at the top', () => {
   assert.equal(scrollRows(0, 8), 0);
@@ -33,4 +33,52 @@ test('a row of three beats is three quarters as wide as one of four', () => {
 test('a row that does not fit is scaled down, but not below 0.75', () => {
   assert.deepEqual(rowLayout(566, 4), { scale: 0.75, beatWidth: 133.5, width: 534 });
   assert.deepEqual(rowLayout(432, 4), { scale: 0.75, beatWidth: 100, width: 400 });
+});
+
+test('the triangles are closest to the line exactly on each beat', () => {
+  assert.equal(bounce(0), 0);
+  assert.equal(bounce(3), 0);
+  assert.equal(bounce(-4), 0);
+});
+
+test('the triangles are furthest from the line halfway between beats', () => {
+  assert.equal(bounce(0.5), 1);
+  assert.equal(bounce(-2.5), 1);
+  assert.equal(bounce(1.25), 0.75);
+});
+
+test('the bounce is the same through the count-in as in the song', () => {
+  assert.equal(bounce(-3.75), bounce(0.25));
+});
+
+test('the display area reaches past the modifier marks on every screen', () => {
+  // The marks reach 26 px above the head.
+  assert.equal(rowSpace(false).reach, 40);
+  assert.equal(rowSpace(true).reach, 30);
+});
+
+test('rows are 16 px apart on every screen', () => {
+  assert.equal(rowSpace(false).gap, 16);
+  assert.equal(rowSpace(true).gap, 16);
+});
+
+test('short screens keep less space above the first row', () => {
+  assert.equal(rowSpace(false).top, 40);
+  assert.equal(rowSpace(true).top, 24);
+});
+
+test('on short screens a row keeps its narrowest width', () => {
+  assert.deepEqual(rowLayout(884, 4, true), { scale: 1, beatWidth: 178, width: 712 });
+  assert.deepEqual(rowLayout(566, 4, true), { scale: 0.75, beatWidth: 133.5, width: 534 });
+});
+
+test('the triangles squash fully as they touch on the beat', () => {
+  assert.equal(squash(0), 1);
+  assert.equal(squash(-2), 1);
+});
+
+test('the triangles are back in shape for the middle of the bounce', () => {
+  assert.equal(squash(0.5), 0);
+  assert.equal(squash(0.25), 0);
+  assert.ok(squash(0.05) > 0 && squash(0.05) < 1);
 });
