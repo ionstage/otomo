@@ -59,6 +59,19 @@ export function scrollRows(beat, beatsPerRow) {
   return Math.max(0, beat / beatsPerRow - 1);
 }
 
+// One row holds one bar group of `beatsPerGroup` beats, keeping a sixteenth
+// note wide enough for a head and its tail. If the group does not fit,
+// everything is scaled down. The group takes the spare width up to a maximum,
+// and the row is centred in what is left. `width` is the canvas width.
+export function rowLayout(width, beatsPerGroup) {
+  const usable = Math.max(1, width - 2 * SIDE_MARGIN);
+  const minSixteenth = HEAD_SIZE * (1 + SIXTEENTH_TAIL) + BAR_GAP;
+  const minWidth = (minSixteenth / SIXTEENTH) * beatsPerGroup;
+  const scale = clamp(usable / minWidth, MIN_SCALE, 1);
+  const rowWidth = Math.min(usable, minWidth * scale * MAX_STRETCH);
+  return { scale, beatWidth: rowWidth / beatsPerGroup, width: rowWidth };
+}
+
 // The two ends can have their own radius, so a bar can start or end square.
 function roundedRect(context, x, y, width, height, leftRadius, rightRadius = leftRadius) {
   const left = Math.min(leftRadius, width / 2, height / 2);
@@ -136,21 +149,16 @@ export class Roll {
     }
   }
 
-  // Each row holds as many whole bar groups as fit, keeping a sixteenth note
-  // wide enough for a head and its tail. If not even one group fits,
-  // everything is scaled down. Groups share out the spare width up to a
-  // maximum, and the rows are centred in what is left.
+  // Each row holds one bar group. See rowLayout.
   layout() {
-    const usable = Math.max(1, this.width - 2 * SIDE_MARGIN);
-    const minSixteenth = HEAD_SIZE * (1 + SIXTEENTH_TAIL) + BAR_GAP;
-    const minGroupWidth = (minSixteenth / SIXTEENTH) * this.song.beatsPerGroup;
-    this.scale = clamp(usable / minGroupWidth, MIN_SCALE, 1);
-    const groups = Math.max(1, Math.floor(usable / (minGroupWidth * this.scale)));
-    this.beatsPerRow = groups * this.song.beatsPerGroup;
-    const maxBeatWidth = (minGroupWidth * this.scale * MAX_STRETCH) / this.song.beatsPerGroup;
-    this.beatWidth = Math.min(usable / this.beatsPerRow, maxBeatWidth);
-    this.left = (this.width - this.beatWidth * this.beatsPerRow) / 2;
-    this.onLayout?.(this.beatWidth * this.beatsPerRow);
+    const row = rowLayout(this.width, this.song.beatsPerGroup);
+    this.scale = row.scale;
+    this.beatsPerRow = this.song.beatsPerGroup;
+    this.beatWidth = row.beatWidth;
+    this.left = (this.width - row.width) / 2;
+    // The buttons keep the width of a row of 4/4 in every song, so they do
+    // not change size from song to song.
+    this.onLayout?.(rowLayout(this.width, 4).width);
     // The empty count-in bars come first, in the same rows as the song.
     this.rows = Math.ceil((this.song.countIn.beats + this.song.lengthBeats) / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the

@@ -103,19 +103,21 @@ What "the pitch they pressed" means in each mode:
 The screen shows the player's own part as a piano roll laid out like sheet
 music.
 
-- The part is split into rows. Each row holds a whole number of bars, as many
-  as fit the screen width. If not even one bar fits, the whole roll is drawn
-  smaller, down to three quarters of full size. Below that, short notes are
-  squeezed.
-- The bars in a row share out the spare width, but a bar grows to at most
-  1.25 times its narrowest width, so that wide screens do not ask for too
-  much eye movement. The rows are then centred, and the margins on either
-  side are plain background with no frame. This was chosen by comparing
-  caps of 1, 1.1, 1.25 and 1.5 times and no cap.
+- The part is split into rows of one bar each, so that following the music
+  across a row break needs little eye movement. Several bars to a row made
+  the eye scan a wider area at each break. If the bar does not fit the
+  screen width, the whole roll is drawn smaller, down to three quarters of
+  full size. Below that, short notes are squeezed.
+- The bar takes the spare width, but grows to at most 1.25 times its
+  narrowest width, so that wide screens do not ask for too much eye
+  movement. The rows are then centred, and the margins on either side are
+  plain background with no frame. This was chosen by comparing caps of 1,
+  1.1, 1.25 and 1.5 times and no cap.
 - Bar lines follow the song's own time signature, so a song in 2/4 has a
   bar line every two beats. Rows of a 2/4 song are laid out the same way as
-  those of a 4/4 song: they hold whole pairs of bars, counted from the start
-  of the song, so a pair takes the width of one bar of 4/4.
+  those of a 4/4 song: each holds a pair of bars, counted from the start of
+  the song, so a pair takes the width of one bar of 4/4. A row of a 3/4 song
+  holds one bar of 3/4, three quarters as wide as a bar of 4/4.
 - Notes are horizontal bars. Their length shows duration. They do not move.
 - Each bar is a square head at its left end that curves into a slightly
   thinner tail, drawn as one shape. The head always takes up the same share of
@@ -225,9 +227,10 @@ The note buttons sit side by side with no gap, like piano keys. Their top
 corners are square and their bottom corners rounded, and neighbours share one
 border line. A single line across the full width of the screen separates the
 roll from the buttons, in place of a top border on each note button. The
-buttons are no wider than the roll's rows and centred below them, so on wide
-screens their outer edges line up with the rows' edges. The line stays full
-width.
+buttons are no wider than a row of 4/4 would be on that screen, and centred
+below the roll, so they are the same width in every song. On wide screens
+their outer edges line up with the rows' edges in 4/4 and 2/4 songs, and
+reach beyond the narrower rows of a 3/4 song. The line stays full width.
 
 A finger or mouse held on a note button can slide onto another without lifting:
 - Entering another note button presses it, exactly as a new press would. The
