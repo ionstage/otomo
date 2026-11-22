@@ -116,8 +116,9 @@ doing anything larger, because the project is being developed by discussion.
   minuet with each half played once, without the repeats (bars 1 to 32). The
   notes follow the public-domain Mutopia Project edition (piece 75, typeset
   from the Bach-Gesellschaft edition). The melody is the right hand without
-  the grace note and ornaments, and the bass is the lowest left-hand note. The original has only two voices, so the harmony is
-  written for this project: a middle voice in quarter and half notes.
+  the grace note and ornaments, and the bass is the lowest left-hand note.
+  The original has only two voices, so the harmony is written for this
+  project: a middle voice in quarter and half notes.
 - It is in G major with Do on G throughout, so the C♯ in the second half uses
   "♯". Do moves by octaves at phrase starts so that the low notes stay
   reachable. The harmony needs no shift. The tempo is 112, a comfortable speed
