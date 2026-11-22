@@ -8,15 +8,23 @@ const OVERLAP_TOLERANCE = 1e-9;
 // A beat is a quarter note, and a sixteenth note is the shortest note allowed.
 export const SIXTEENTH = 0.25;
 
-// Before every song comes a count-in of twelve beats, timed as three bars of
-// 4/4 whatever the song's own time signature. It is not part of the song data
-// and holds no notes: the roll shows it as empty bars, with bar lines in the
-// song's own time signature (six bars of 2/4, for example), and the counts are
-// heard as clicks. The first 4/4 bar is silent, the second counts two half
-// notes, the third four quarter notes. Every click sounds the same. Click
-// beats are counted from the start of the song, so they are negative.
-export const COUNT_IN_BEATS = 12;
-export const COUNT_IN_CLICKS = [-8, -6, -4, -3, -2, -1];
+// Before every song comes a count-in of three bars. It is not part of the
+// song data and holds no notes: the roll shows it as empty bars, with bar
+// lines in the song's own time signature, and the counts are heard as clicks.
+// Every click sounds the same. Click beats are counted from the start of the
+// song, so they are negative.
+//
+// A 3/4 song counts in with three bars of 3/4: the first is silent, the
+// second counts beats 1 and 3, the third every beat. Any other song, 2/4
+// included, counts in with three bars of 4/4: the first is silent, the second
+// counts two half notes, the third four quarter notes. Before a 2/4 song the
+// roll shows that as six bars of 2/4.
+const COUNT_IN_3_4 = { beats: 9, clicks: [-6, -4, -3, -2, -1] };
+const COUNT_IN_4_4 = { beats: 12, clicks: [-8, -6, -4, -3, -2, -1] };
+
+export function countIn(beatsPerBar) {
+  return beatsPerBar === 3 ? COUNT_IN_3_4 : COUNT_IN_4_4;
+}
 
 // A note starts and ends on the sixteenth-note grid, or both on the triplet
 // grid that splits each beat into three. JSON cannot hold a third exactly, so a
@@ -91,6 +99,7 @@ export function resolveSong(data) {
     tempo: data.tempo,
     beatsPerBar: data.beatsPerBar,
     beatsPerGroup,
+    countIn: countIn(data.beatsPerBar),
     secondsPerBeat,
     lengthBeats,
     length: lengthBeats * secondsPerBeat,

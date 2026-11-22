@@ -2,7 +2,7 @@
 // current-position line. See section 4 of docs/design.md.
 
 import { heldToEnd } from './judge.js';
-import { COUNT_IN_BEATS, SIXTEENTH } from './song.js';
+import { SIXTEENTH } from './song.js';
 
 // Sizes are at full scale. The whole roll shrinks when a bar group does not
 // fit. A group is one bar, or two bars of 2/4 (see song.js).
@@ -152,7 +152,7 @@ export class Roll {
     this.left = (this.width - this.beatWidth * this.beatsPerRow) / 2;
     this.onLayout?.(this.beatWidth * this.beatsPerRow);
     // The empty count-in bars come first, in the same rows as the song.
-    this.rows = Math.ceil((COUNT_IN_BEATS + this.song.lengthBeats) / this.beatsPerRow);
+    this.rows = Math.ceil((this.song.countIn.beats + this.song.lengthBeats) / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the
     // next note.
     this.headSize = (this.beatWidth * SIXTEENTH - this.size(BAR_GAP)) / (1 + SIXTEENTH_TAIL);
@@ -172,11 +172,11 @@ export class Roll {
   // Beats are song beats, so the count-in has negative beats and the first
   // row starts before the song does.
   rowStart(row) {
-    return row * this.beatsPerRow - COUNT_IN_BEATS;
+    return row * this.beatsPerRow - this.song.countIn.beats;
   }
 
   rowOf(beat) {
-    return Math.floor((beat + COUNT_IN_BEATS) / this.beatsPerRow);
+    return Math.floor((beat + this.song.countIn.beats) / this.beatsPerRow);
   }
 
   x(beat, row) {
@@ -184,7 +184,7 @@ export class Roll {
   }
 
   position(time) {
-    const beat = clamp(time / this.song.secondsPerBeat, -COUNT_IN_BEATS, this.song.lengthBeats);
+    const beat = clamp(time / this.song.secondsPerBeat, -this.song.countIn.beats, this.song.lengthBeats);
     const row = Math.min(this.rowOf(beat), this.rows - 1);
     return { beat, row };
   }
@@ -219,7 +219,7 @@ export class Roll {
     context.fillRect(0, 0, this.width, this.height);
     // Whole device pixels, so text and grid lines do not shimmer as the view
     // moves.
-    const scrolled = scrollRows(beat + COUNT_IN_BEATS, this.beatsPerRow) * this.rowHeight - this.size(TOP_MARGIN);
+    const scrolled = scrollRows(beat + this.song.countIn.beats, this.beatsPerRow) * this.rowHeight - this.size(TOP_MARGIN);
     const top = Math.round(scrolled * this.ratio) / this.ratio;
     context.translate(0, -top);
 

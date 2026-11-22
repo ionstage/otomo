@@ -2,7 +2,6 @@
 // The audio clock is the game's single time reference.
 
 import { midiToFrequency } from './pitch.js';
-import { COUNT_IN_BEATS, COUNT_IN_CLICKS } from './song.js';
 
 const SCHEDULE_AHEAD = 0.15;
 const TICK_INTERVAL = 25;
@@ -48,8 +47,8 @@ export class AudioEngine {
   startSong(song, autoplayParts) {
     this.stopSong();
     const beatLength = song.secondsPerBeat;
-    this.songStart = this.context.currentTime + START_DELAY + COUNT_IN_BEATS * beatLength;
-    for (const beat of COUNT_IN_CLICKS) {
+    this.songStart = this.context.currentTime + START_DELAY + song.countIn.beats * beatLength;
+    for (const beat of song.countIn.clicks) {
       this.click(this.songStart + beat * beatLength);
     }
     this.queue = autoplayParts

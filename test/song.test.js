@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { COUNT_IN_BEATS, COUNT_IN_CLICKS, SongError, doAt, resolveSong } from '../js/song.js';
+import { SongError, countIn, doAt, resolveSong } from '../js/song.js';
 
 function songWith(events, overrides = {}) {
   return {
@@ -165,6 +165,17 @@ test('Ode to Joy has the expected melody', () => {
 });
 
 test('the count-in is three 4/4 bars: silent, two half notes, four quarter notes', () => {
-  assert.equal(COUNT_IN_BEATS, 12);
-  assert.deepEqual(COUNT_IN_CLICKS, [-8, -6, -4, -3, -2, -1]);
+  for (const beatsPerBar of [2, 4]) {
+    assert.deepEqual(countIn(beatsPerBar), { beats: 12, clicks: [-8, -6, -4, -3, -2, -1] });
+  }
+});
+
+test('a 3/4 song counts in with three 3/4 bars: silent, beats 1 and 3, every beat', () => {
+  assert.deepEqual(countIn(3), { beats: 9, clicks: [-6, -4, -3, -2, -1] });
+});
+
+test('resolveSong attaches the count-in for its time signature', () => {
+  const events = [{ at: 0, do: 'C4' }, { at: 0, length: 1, button: 1 }];
+  assert.equal(resolveSong(songWith(events, { beatsPerBar: 3 })).countIn.beats, 9);
+  assert.equal(resolveSong(songWith(events)).countIn.beats, 12);
 });
