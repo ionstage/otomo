@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { keyControl, modifierTarget, slideTarget } from '../js/input.js';
+import { MAX_EVENT_AGE, eventTime, keyControl, modifierTarget, slideTarget } from '../js/input.js';
 
 // Eight buttons, each 100 wide and side by side, from y 0 to 60.
 const rects = Array.from({ length: 8 }, (_, i) => ({
@@ -64,4 +64,27 @@ test('the zone at the shared edge holds both modifiers', () => {
 test('a finger leaving the modifiers keeps what it held', () => {
   assert.deepEqual(modifierTarget(both, { x: 100, y: 30 }, modifierRect), both);
   assert.deepEqual(modifierTarget(sharp, { x: 900, y: 90 }, modifierRect), sharp);
+});
+
+test('a recent event time stamp is used', () => {
+  assert.equal(eventTime(1000, 1012), 1000);
+  assert.equal(eventTime(1000, 1000), 1000);
+  assert.equal(eventTime(1000, 1000 + MAX_EVENT_AGE), 1000);
+});
+
+test('an old event time stamp gives way to the handling time', () => {
+  assert.equal(eventTime(1000, 1001 + MAX_EVENT_AGE), 1001 + MAX_EVENT_AGE);
+  assert.equal(eventTime(1000, 3000), 3000);
+});
+
+test('a time stamp from the future gives way to the handling time', () => {
+  assert.equal(eventTime(1010, 1000), 1000);
+});
+
+// Touches logged on an iPad in Safari while a finger held the octave button.
+// Each is [time stamp, handled at]. The first is the octave press; the next
+// three were given its time stamp again, though they came later.
+test('copied time stamps from Safari on iPad give way to the handling time', () => {
+  const touches = [[38018, 38029], [38018, 38298], [38018, 38762], [38018, 38880], [39331, 39346]];
+  assert.deepEqual(touches.map(([stamp, now]) => eventTime(stamp, now)), [38018, 38298, 38762, 38880, 39331]);
 });

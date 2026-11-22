@@ -62,7 +62,12 @@ Each step ends with something that can be checked.
   from a repeating timer. Do not rely on timer accuracy for when notes sound.
 - **Input time.** Judge presses on the audio clock. `event.timeStamp` is on the
   `performance.now()` clock, and `audioContext.getOutputTimestamp()` gives a
-  matching pair of times for converting between the two.
+  matching pair of times for converting between the two. Use an event's time
+  stamp only when it is at most 50 ms old, and the time it is handled
+  otherwise. Safari on iPad sometimes gives a touch the time stamp of an
+  earlier event while another finger is on the screen, such as one holding a
+  modifier, up to seconds old. Measured on an iPad, genuine touches arrived a
+  median 12 ms after their time stamp, and 99% within 28 ms.
 - **Keys.** Use `event.code` (`Digit1` to `Digit8`, `KeyC`, `KeyV`) so keyboard layout and held modifier keys do not change which key
   is seen. Ignore events where `event.repeat` is true.
 - **Touch.** Use pointer events with `touch-action: none`. Several buttons are

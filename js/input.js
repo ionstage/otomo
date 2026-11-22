@@ -59,11 +59,27 @@ export function modifierTarget(held, point, rect) {
   return offset < 0 ? { sharp: true, octave: false } : { sharp: false, octave: true };
 }
 
-// Event time stamps share the performance.now() clock in current browsers.
-// Fall back to the handling time if one does not look like it.
-function eventTime(event) {
-  const now = performance.now();
-  return Math.abs(event.timeStamp - now) < 1000 ? event.timeStamp : now;
+// How old an event time stamp may be, in milliseconds, and still be used. An
+// event normally arrives well within this, so its time stamp is used, which is
+// more accurate than the time it is handled.
+//
+// Safari on iPad sometimes gives a touch the time stamp of an earlier event
+// while another finger is on the screen, up to seconds old. Such a stamp is
+// past this age, so the handling time is used instead. One that slips under it
+// is at most this far out, the width of the perfect window, so the press still
+// matches its note.
+export const MAX_EVENT_AGE = 50;
+
+// The time of an event with time stamp `timeStamp` handled at `now`, both on
+// the performance.now() clock: the time stamp if it is recent, otherwise the
+// handling time.
+export function eventTime(timeStamp, now) {
+  const age = now - timeStamp;
+  return age >= 0 && age <= MAX_EVENT_AGE ? timeStamp : now;
+}
+
+function timeOf(event) {
+  return eventTime(event.timeStamp, performance.now());
 }
 
 export class Input {
@@ -129,13 +145,13 @@ export class Input {
     }
     event.preventDefault();
     if (!event.repeat) {
-      this.down(`key:${event.code}`, control, eventTime(event));
+      this.down(`key:${event.code}`, control, timeOf(event));
     }
   }
 
   handleKeyUp(event) {
     if (keyControl(event.code)) {
-      this.up(`key:${event.code}`, eventTime(event));
+      this.up(`key:${event.code}`, timeOf(event));
     }
   }
 
@@ -154,10 +170,10 @@ export class Input {
       }
       event.preventDefault();
       element.setPointerCapture(event.pointerId);
-      this.down(`pointer:${event.pointerId}`, control, eventTime(event));
+      this.down(`pointer:${event.pointerId}`, control, timeOf(event));
     });
     listen('pointermove', (event) => this.slide(event));
-    const end = (event) => this.up(`pointer:${event.pointerId}`, eventTime(event));
+    const end = (event) => this.up(`pointer:${event.pointerId}`, timeOf(event));
     listen('pointerup', end);
     listen('pointercancel', end);
     listen('lostpointercapture', end);
@@ -192,7 +208,7 @@ export class Input {
       const held = modifierTarget(control, point, this.modifierArea.getBoundingClientRect());
       if (held.sharp !== control.sharp || held.octave !== control.octave) {
         this.sources.set(id, { type: 'modifier', sharp: held.sharp, octave: held.octave });
-        this.changed(eventTime(event));
+        this.changed(timeOf(event));
       }
       return;
     }
@@ -202,7 +218,7 @@ export class Input {
       return;
     }
     this.sources.delete(id);
-    this.down(id, { type: 'note', button }, eventTime(event));
+    this.down(id, { type: 'note', button }, timeOf(event));
   }
 
   up(id, time) {
