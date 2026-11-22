@@ -164,6 +164,25 @@ test('Ode to Joy has the expected melody', () => {
   }
 });
 
+test('Minuet in G has the expected melody', () => {
+  const song = resolveSong(readSong('minuet-in-g.json'));
+  assert.deepEqual(song.parts.map((part) => part.name), ['Melody', 'Harmony', 'Bass']);
+  const melody = song.parts[0].notes.map((note) => note.midi);
+  // D G A B C | D G G
+  assert.deepEqual(melody.slice(0, 8), [74, 67, 69, 71, 72, 74, 67, 67]);
+  // The second half opens on B and passes through C♯.
+  const secondHalf = song.parts[0].notes.find((note) => note.startBeat === 48);
+  assert.equal(secondHalf.midi, 83);
+  assert.ok(melody.includes(73));
+  // Each half is played once, without repeats: 32 bars of 3/4.
+  assert.equal(song.lengthBeats, 96);
+  assert.equal(song.countIn.beats, 9);
+  for (const part of song.parts) {
+    const last = part.notes[part.notes.length - 1];
+    assert.equal(last.startBeat + last.lengthBeats, 96, part.name);
+  }
+});
+
 test('the count-in is three 4/4 bars: silent, two half notes, four quarter notes', () => {
   for (const beatsPerBar of [2, 4]) {
     assert.deepEqual(countIn(beatsPerBar), { beats: 12, clicks: [-8, -6, -4, -3, -2, -1] });

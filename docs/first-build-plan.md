@@ -23,7 +23,8 @@ js/input.js     keyboard and pointer events as presses and releases stamped
                 with audio-clock time
 js/roll.js      piano-roll drawing and feedback
 songs/ode-to-joy.json
-songs/semitone-test.json
+songs/rondo-alla-turca.json
+songs/minuet-in-g.json
 test/*.test.js
 ```
 
@@ -49,7 +50,7 @@ Each step ends with something that can be checked.
    end-of-song score.
 6. **Touch.** On-screen buttons and the phone layout. Check: playable on a real
    phone, which the user will need to try.
-7. **Songs.** The full three-part "Ode to Joy" and the semitone test piece. An
+7. **Songs.** The full three-part "Ode to Joy". An
    early stub of the melody is enough for steps 2 to 6.
 
 ## Technical notes
@@ -98,8 +99,6 @@ doing anything larger, because the project is being developed by discussion.
   using the octave button. Place the shift at a phrase boundary, never around
   the single note. The user accepts shifts only where they feel natural for the
   phrase.
-- The semitone test piece only needs to be a few bars that use "♯" alone and
-  together with "↑".
 - "Rondo alla Turca" (Mozart, K. 331) was added to check how sixteenth notes
   look. It is the first A-minor section (bars 1 to 24), with the repeat of
   bars 9 to 24 written out. The data starts with the pickup bar, so the pickup
@@ -111,6 +110,17 @@ doing anything larger, because the project is being developed by discussion.
 - It is in A minor with Do on C, since the buttons have no flat, so G♯ and D♯
   use "♯". Do moves at phrase starts so that the low notes stay reachable. The
   tempo is slowed to 80 so the sixteenths stay playable.
+- "Minuet in G" (BWV Anh. 114, now attributed to Christian Petzold) replaced
+  the semitone test piece, and is the first song in 3/4. It is the whole
+  minuet with each half played once, without the repeats (bars 1 to 32). The
+  notes follow the public-domain Mutopia Project edition (piece 75, typeset
+  from the Bach-Gesellschaft edition). The melody is the right hand without
+  the grace note and ornaments, and the bass is the lowest left-hand note. The original has only two voices, so the harmony is
+  written for this project: a middle voice in quarter and half notes.
+- It is in G major with Do on G throughout, so the C♯ in the second half uses
+  "♯". Do moves by octaves at phrase starts so that the low notes stay
+  reachable. The harmony needs no shift. The tempo is 112, a comfortable speed
+  for the eighth notes.
 
 ## After the first build
 

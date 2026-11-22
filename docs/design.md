@@ -439,8 +439,8 @@ Included:
 - Scoring and an end-of-song score.
 - Autoplay for the other parts.
 - "Ode to Joy" in a three-part arrangement written for this project: melody,
-  harmony and bass. The song has no accidentals, so a short separate test
-  piece exercises the semitone button.
+  harmony and bass. The song has no accidentals, so the semitone button is
+  exercised by the other songs: "Rondo alla Turca" and "Minuet in G".
 
 Not included:
 
