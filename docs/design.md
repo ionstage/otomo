@@ -191,23 +191,24 @@ modifier buttons are on screen in advanced mode only. They light up when
 pressed, including when the press comes from the keyboard.
 
 Touch layout (needs testing on real phones): landscape
-orientation, the eight note buttons in a row near the bottom, and the two
-modifier buttons in a row below them. Each modifier button is as wide as four
-note buttons: semitone below buttons 1 to 4, octave below buttons 5 to 8. In
+orientation, the eight note buttons in a row along the bottom, and the two
+modifier buttons in a row above them. Each modifier button is as wide as four
+note buttons: semitone above buttons 1 to 4, octave above buttons 5 to 8. In
 beginner and intermediate modes, where the modifier buttons are hidden, the
 note buttons grow taller to fill their space.
 
 In advanced mode the modifier buttons join the note buttons with no gap. The
 note buttons keep their rounded bottom corners, and the modifier buttons'
 top corners are rounded as described under
-[Button colours](#button-colours). For touch, each button's whole rectangle is its
+[Button colours](#button-colours). The modifiers sit above the note
+buttons as their marks sit above the note heads on the roll. For touch, each button's whole rectangle is its
 own, so the small notches left by rounded corners belong to the button whose
 corner they are: a note button's to that note button, a modifier button's to
-that modifier button. The modifier
-buttons reach down to the bottom of
-the screen with no padding below, so that space is part of them too. They are
-62 px tall (54 px on short screens), which takes in the gap and padding they
-replaced, so the roll keeps its height.
+that modifier button. The note buttons
+reach down to the bottom of the screen with no padding below, so that space
+is part of them too. The modifier buttons are 62 px tall (54 px on short
+screens), the height of the gap and padding they replaced when they were
+below the note buttons, so the roll keeps its height.
 
 The two modifier buttons sit side by side with no gap. A third button, one
 note button wide, is laid over the centre where they meet. It holds both
@@ -215,7 +216,9 @@ modifiers at once, so "♯↑" needs one finger. It has no text or symbol: its
 left half is pink and its right half blue-grey, and lines along its top,
 left and right edges show that the central area is one place to press. The
 two modifier buttons have the same lines along their top and outer edges.
-The lines are 2 px at the sides and 1 px along the top. Where they
+The lines are 2 px at the sides and 1 px along the top. The line between
+the modifier buttons and the note buttons is 1 px, a little darker than the
+usual border colour. Where they
 meet, the "♯↑" button covers them, so it stays one undivided area.
 
 The note buttons sit side by side with no gap, like piano keys. Their top

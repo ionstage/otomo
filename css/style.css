@@ -285,7 +285,8 @@ legend {
   gap: 6px;
   padding: 0 16px 12px;
   /* One line across the whole width separates the roll from the controls. The
-     note buttons below it have no top border of their own. */
+     note buttons have no top border of their own: the line is above them, or
+     above the modifiers in advanced mode. */
   border-top: 1px solid var(--border);
 }
 
@@ -346,6 +347,7 @@ legend {
   border-top: 1px solid var(--muted);
   border-left: 2px solid var(--muted);
   border-right: 2px solid var(--muted);
+  border-bottom: 1px solid var(--modifier-divider);
 }
 
 .modifiers .control[data-modifier="sharp"] {
@@ -360,24 +362,28 @@ legend {
 
 .modifiers {
   --modifier-radius: 24px;
+  /* The line between the modifiers and the note buttons, between the usual
+     border colour and the modifiers' outlines. */
+  --modifier-divider: color-mix(in srgb, var(--border), var(--muted));
 }
 
 .modifiers .control[data-modifier="sharp"].down {
   background: var(--sharp-held);
-  border-bottom-color: var(--border);
+  border-bottom-color: var(--modifier-divider);
   color: var(--fg);
 }
 
 .modifiers .control[data-modifier="octave"].down {
   background: var(--octave-held);
-  border-bottom-color: var(--border);
+  border-bottom-color: var(--modifier-divider);
   color: var(--fg);
 }
 
-/* In advanced mode the modifiers join the note buttons with no gap, and reach
-   down to the bottom edge, so the padding below is part of them. They take
-   the gap's height as well. The note buttons keep their rounded bottom
-   corners. */
+/* The modifiers sit above the note buttons. In advanced mode they join them
+   with no gap, and the note buttons reach down to the bottom edge with no
+   padding below. The modifiers keep the height they had below the note
+   buttons, so the roll keeps its height. The note buttons keep their rounded
+   bottom corners. */
 .play[data-difficulty="advanced"] .controls {
   gap: 0;
   padding-bottom: 0;
@@ -406,7 +412,8 @@ legend {
   width: calc(100% / 8);
   background: linear-gradient(to right, var(--left) 50%, var(--right) 50%);
   border: 0 solid var(--muted);
-  border-width: 1px 2px 0;
+  border-width: 1px 2px;
+  border-bottom-color: var(--modifier-divider);
   border-radius: var(--modifier-radius) var(--modifier-radius) 0 0;
   pointer-events: none;
 }
