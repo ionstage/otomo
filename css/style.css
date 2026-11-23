@@ -7,6 +7,9 @@
   --border: #d6d4cc;
   --accent: #2f6fde;
   --accent-fg: #ffffff;
+  /* Actions that throw something away, such as quitting a song. */
+  --danger: #c92a2a;
+  --danger-fg: #ffffff;
   --roll-bg: #ffffff;
   /* The square behind a number, on bars and held buttons. */
   --badge: #ffffff;
@@ -43,6 +46,8 @@
     --border: #3a3a40;
     --accent: #5b8ff0;
     --accent-fg: #ffffff;
+    --danger: #e5484d;
+    --danger-fg: #ffffff;
     --roll-bg: #1c1c1f;
     --badge: #1c1c1f;
     --badge-text: #ececee;
@@ -104,6 +109,13 @@ button.primary {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-fg);
+  font-weight: 600;
+}
+
+button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--danger-fg);
   font-weight: 600;
 }
 
@@ -256,6 +268,26 @@ legend {
 
 .play-header button {
   padding: 0.2em 0.8em;
+}
+
+/* Quit confirmation, shown over the paused play screen. */
+.quit-dialog {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+}
+
+.quit-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.quit-dialog p {
+  margin: 0 0 1.25rem;
+  font-weight: 600;
 }
 
 .rotate-hint {

@@ -94,7 +94,7 @@ doing anything larger, because the project is being developed by discussion.
 | Setup screen (choosing song, part and difficulty) | One simple screen with three choices and a start button. |
 | Result screen | The song score out of 100 and a way to play again. |
 | Pressing a second note button while one is held | The new note replaces the old one, because a part is monophonic. The old note's duration stops counting. |
-| Pause and restart during a song | A way to quit to the setup screen. No pause. |
+| Pause and restart during a song | Decided: Quit pauses the song and asks for confirmation. See "Quitting a song" in section 4 of the design. |
 | Volume balance between the player and autoplay | The player's part slightly louder. |
 | How many beats of width a row uses | Wide enough that a sixteenth note holds a head of full size and its short tail (a quarter of the head's width), whatever the part's shortest note. Each row holds one bar (a pair of bars in 2/4). If it does not fit, the roll is scaled down (to 0.75 at most). The bar takes the spare width up to 1.25 times its narrowest (not at all on short screens), and the rows are centred. The buttons keep the width of a 4/4 row in every song: see "Layout" in section 4 of the design. |
 

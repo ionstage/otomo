@@ -59,6 +59,13 @@ export class AudioEngine {
     this.timer = setInterval(() => this.schedule(), TICK_INTERVAL);
   }
 
+  // Suspending the context freezes its clock, so the song time, the
+  // scheduled notes and the count-in all stop where they are and carry on
+  // from there on resume.
+  pause() {
+    return this.context.suspend();
+  }
+
   stopSong() {
     clearInterval(this.timer);
     this.timer = null;
@@ -98,10 +105,14 @@ export class AudioEngine {
     return this.audibleTime(performanceTime) - this.songStart;
   }
 
+  // Never later than the context's clock. Just after a resume, the output
+  // timestamp can still be the one from before the pause, and extrapolating
+  // from it would jump ahead by the length of the pause.
   audibleTime(performanceTime) {
     const stamp = this.context.getOutputTimestamp?.();
     if (stamp && stamp.contextTime > 0 && stamp.performanceTime > 0) {
-      return stamp.contextTime + (performanceTime - stamp.performanceTime) / 1000;
+      return Math.min(stamp.contextTime + (performanceTime - stamp.performanceTime) / 1000,
+        this.context.currentTime);
     }
     const latency = (this.context.outputLatency || 0) + (this.context.baseLatency || 0);
     return this.context.currentTime - latency - (performance.now() - performanceTime) / 1000;

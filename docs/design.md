@@ -414,6 +414,23 @@ set its timing. It is not part of the song data.
 - The count-in ends at beat 0 of the song data, so a song whose data starts
   with empty beats before a pickup keeps them after the count-in.
 
+### Quitting a song
+
+A Quit button is at the top of the play screen. Pressing it pauses the song
+(the music, the count-in and the roll all stop where they are) and asks
+"Quit this song?" with two choices:
+
+- **Keep playing** (the default, also chosen by Escape) carries on from
+  exactly where the song paused, with no count-in.
+- **Quit** ends the song with no score and returns to the setup screen.
+
+"Keep playing" is a plain button and "Quit" is filled red, to mark it as the
+choice that throws the run away. Inside the dialog, red is not mistaken for
+a note button's colour.
+
+A note held when Quit is pressed is released at that moment, and its
+duration stops counting there. There is no separate pause button.
+
 ## 5. Scoring
 
 Scoring rewards matching the written notes in pitch, timing and duration. The

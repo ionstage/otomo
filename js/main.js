@@ -29,6 +29,7 @@ const modifierButtons = [...modifierArea.querySelectorAll('[data-modifier]')];
 const bothLabel = modifierArea.querySelector('.both');
 const scoreText = document.getElementById('score');
 const resultTitle = document.getElementById('result-title');
+const quitDialog = document.getElementById('quit-dialog');
 
 const roll = new Roll(document.getElementById('roll'));
 // The buttons are no wider than the roll's rows, so their edges line up.
@@ -101,6 +102,7 @@ function startGame({ song, partIndex, difficulty }) {
     held: null,
     shownPosition: null,
     frame: 0,
+    paused: false,
   };
   playTitle.textContent = `${song.title} · ${part.name} · ${DIFFICULTY_NAMES[difficulty]}`;
   screens.play.dataset.difficulty = difficulty;
@@ -132,6 +134,45 @@ function stopGame() {
   game.voice?.release();
   audio.stopSong();
   game = null;
+}
+
+// Quit pauses the song and asks for confirmation. Disabling input first
+// releases any held note while the song time is still running, so its
+// duration stops counting at the pause.
+function pauseGame() {
+  if (!game || game.paused) {
+    return;
+  }
+  game.paused = true;
+  input.disable();
+  cancelAnimationFrame(game.frame);
+  audio.pause();
+  quitDialog.showModal();
+}
+
+// Carries on from exactly where the song paused, with no count-in.
+// Called from the user gesture, which resuming audio needs.
+async function resumeGame() {
+  quitDialog.close();
+  if (!game?.paused) {
+    return;
+  }
+  game.paused = false;
+  const resumed = game;
+  await audio.resume();
+  if (game !== resumed || game.paused) {
+    return;
+  }
+  input.enable(game.difficulty === 'advanced');
+  game.frame = requestAnimationFrame(frame);
+}
+
+function quitGame() {
+  quitDialog.close();
+  if (game) {
+    stopGame();
+  }
+  show('setup');
 }
 
 function finishGame(time) {
@@ -238,9 +279,13 @@ screens.play.addEventListener('touchstart', (event) => {
   }
 }, { passive: false });
 
-document.getElementById('quit-button').addEventListener('click', () => {
-  stopGame();
-  show('setup');
+document.getElementById('quit-button').addEventListener('click', pauseGame);
+document.getElementById('keep-playing-button').addEventListener('click', resumeGame);
+document.getElementById('confirm-quit-button').addEventListener('click', quitGame);
+// Escape keeps playing, like the button that has focus.
+quitDialog.addEventListener('cancel', (event) => {
+  event.preventDefault();
+  resumeGame();
 });
 
 document.getElementById('again-button').addEventListener('click', () => {
