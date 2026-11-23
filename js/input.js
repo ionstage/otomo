@@ -15,10 +15,12 @@ const NOTE_KEYS = {
   Digit1: 1, Digit2: 2, Digit3: 3, Digit4: 4, Digit5: 5, Digit6: 6, Digit7: 7, Digit8: 8,
 };
 // Physical keys, so the layout does not matter. With fingers on 1 to 8, C and
-// V sit under the thumbs.
+// V sit under the thumbs. 9 and 0, next to 8 on the number row, do the same.
 const MODIFIER_KEYS = {
   KeyC: { sharp: true, octave: false },
   KeyV: { sharp: false, octave: true },
+  Digit9: { sharp: true, octave: false },
+  Digit0: { sharp: false, octave: true },
 };
 
 // The width of the zone at the shared edge of the modifier buttons that holds

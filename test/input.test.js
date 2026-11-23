@@ -29,7 +29,7 @@ test('leaving the buttons keeps the held button', () => {
 test('number keys play buttons 1 to 8', () => {
   assert.deepEqual(keyControl('Digit1'), { type: 'note', button: 1 });
   assert.deepEqual(keyControl('Digit8'), { type: 'note', button: 8 });
-  assert.equal(keyControl('Digit9'), null);
+  assert.equal(keyControl('Minus'), null);
 });
 
 test('C raises a semitone and V an octave', () => {
@@ -38,6 +38,11 @@ test('C raises a semitone and V an octave', () => {
   for (const code of ['KeyZ', 'KeyX', 'Comma', 'Period']) {
     assert.equal(keyControl(code), null);
   }
+});
+
+test('9 raises a semitone and 0 an octave', () => {
+  assert.deepEqual(keyControl('Digit9'), { type: 'modifier', sharp: true, octave: false });
+  assert.deepEqual(keyControl('Digit0'), { type: 'modifier', sharp: false, octave: true });
 });
 
 // The modifiers span 0 to 800 across, below the note buttons. The zone that

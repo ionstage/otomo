@@ -41,13 +41,14 @@ once.
 
 | Modifier | Effect | Symbol | Keys |
 |---|---|---|---|
-| Semitone | Raises the note by a semitone | ♯ | `C` |
-| Octave | Raises the note by an octave | ↑ | `V` |
+| Semitone | Raises the note by a semitone | ♯ | `C`, `9` |
+| Octave | Raises the note by an octave | ↑ | `V`, `0` |
 
 The keys are for playing with both hands on the number keys: the left hand's
 little to index fingers on 1 to 4, the right hand's index to little fingers on
 5 to 8. That leaves the thumbs free for C and V, below the middle of that row.
-They are physical keys, so the keyboard layout does not change them. Ctrl, Alt
+9 and 0, next to 8 on the number row, do the same as C and V. They are
+physical keys, so the keyboard layout does not change them. Ctrl, Alt
 and Cmd are not used because browsers combine them with number keys to switch
 tabs.
 

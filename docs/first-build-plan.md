@@ -70,7 +70,7 @@ Each step ends with something that can be checked.
   earlier event while another finger is on the screen, such as one holding a
   modifier, up to seconds old. Measured on an iPad, genuine touches arrived a
   median 12 ms after their time stamp, and 99% within 28 ms.
-- **Keys.** Use `event.code` (`Digit1` to `Digit8`, `KeyC`, `KeyV`) so keyboard layout and held modifier keys do not change which key
+- **Keys.** Use `event.code` (`Digit1` to `Digit8`, `KeyC`, `KeyV`, `Digit9`, `Digit0`) so keyboard layout and held modifier keys do not change which key
   is seen. Ignore events where `event.repeat` is true.
 - **Touch.** Use pointer events with `touch-action: none`. Several buttons are
   held at once, so track each pointer separately. Suppress text selection, the
