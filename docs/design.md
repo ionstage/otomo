@@ -452,6 +452,10 @@ a note button's colour.
 A note held when Quit is pressed is released at that moment, and its
 duration stops counting there. There is no separate pause button.
 
+The sound fades out over about 25 ms as the song pauses, and fades back in
+on Keep playing, so stopping and starting the sound does not pop. The song
+runs on for that short fade before it stops.
+
 ### End of a song
 
 When the song ends, the result screen shows the song and part, and the

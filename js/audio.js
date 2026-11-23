@@ -12,6 +12,10 @@ const PLAYER_LEVEL = 0.3;
 const AUTOPLAY_LEVEL = 0.2;
 const CLICK_LEVEL = 0.25;
 
+// Pausing fades all output out over this time before freezing the clock,
+// and resuming fades it back in. Stopping the output mid-waveform pops.
+const PAUSE_FADE = 0.025;
+
 const SOUNDS = {
   lead: {
     oscillators: [{ type: 'triangle', gain: 0.8 }, { type: 'square', gain: 0.1 }],
@@ -31,7 +35,9 @@ export class AudioEngine {
   constructor() {
     this.context = new AudioContext({ latencyHint: 'interactive' });
     this.output = this.context.createDynamicsCompressor();
-    this.output.connect(this.context.destination);
+    this.master = this.context.createGain();
+    this.output.connect(this.master).connect(this.context.destination);
+    this.pausing = null;
     this.voices = new Set();
     this.timer = null;
     this.queue = [];
@@ -39,8 +45,11 @@ export class AudioEngine {
     this.songStart = 0;
   }
 
-  // Must be called from a user gesture.
+  // Must be called from a user gesture. The fade in is scheduled on the
+  // clock as it stands, so it plays as soon as the clock runs again.
   resume() {
+    this.pausing = null;
+    this.fadeMaster(1);
     return this.context.resume();
   }
 
@@ -61,9 +70,25 @@ export class AudioEngine {
 
   // Suspending the context freezes its clock, so the song time, the
   // scheduled notes and the count-in all stop where they are and carry on
-  // from there on resume.
+  // from there on resume. The song runs on for the length of the fade out
+  // first. A resume during the fade cancels the suspend.
   pause() {
-    return this.context.suspend();
+    const pausing = {};
+    this.pausing = pausing;
+    this.fadeMaster(0);
+    return new Promise((resolve) => setTimeout(resolve, (PAUSE_FADE + 0.01) * 1000)).then(() => {
+      if (this.pausing === pausing) {
+        return this.context.suspend();
+      }
+    });
+  }
+
+  fadeMaster(level) {
+    const now = this.context.currentTime;
+    const gain = this.master.gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(gain.value, now);
+    gain.linearRampToValueAtTime(level, now + PAUSE_FADE);
   }
 
   stopSong() {
