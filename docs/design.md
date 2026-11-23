@@ -151,7 +151,9 @@ What "the pitch they pressed" means in each mode:
   [Difficulty](#difficulty)) sounds exactly the written pitch, including its
   semitone and octave, even for button 1 against a written 8 or the reverse.
   Any other button sounds with the written note's octave modifier and no
-  semitone.
+  semitone. With no note in range, only the written button of the nearest
+  note sounds its pitch, so button 8 is always an octave above button 1
+  except when matched to a written 1 or 8.
 - **Advanced:** exactly the button and modifiers pressed.
 
 ## 4. Screen

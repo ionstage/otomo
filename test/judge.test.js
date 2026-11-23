@@ -132,6 +132,28 @@ test('intermediate accepts buttons 1 and 8 for each other and sounds the written
   }
 });
 
+test('intermediate sounds button 8 an octave above button 1 unless matched to 1 or 8', () => {
+  // Do is C4, so button 1 is C4 (60).
+  const one = { button: 1, sharp: false, octave: false };
+  const eight = { button: 8, sharp: false, octave: false };
+  const cases = [
+    // A note that is neither 1 nor 8.
+    [{ button: 3 }, 1, 60, 72],
+    [{ button: 3, octave: true }, 1, 72, 84],
+    // No note in range: the nearest note is 1, 1↑ or 8.
+    [{ button: 1 }, null, 60, 72],
+    [{ button: 1, octave: true }, null, 72, 84],
+    [{ button: 8 }, null, 60, 72],
+  ];
+  for (const [written, at, low, high] of cases) {
+    const part = partWith([{ at: 1, length: 1, ...written }]);
+    const matched = at === null ? null : part.notes[0];
+    const time = at ?? 3;
+    assert.equal(pressPitch(part, 'intermediate', one, matched, time), low, `1 ${JSON.stringify(written)}`);
+    assert.equal(pressPitch(part, 'intermediate', eight, matched, time), high, `8 ${JSON.stringify(written)}`);
+  }
+});
+
 test('a press with no note in range is ignored for scoring', () => {
   const part = partWith([{ at: 1, length: 1, button: 1 }]);
   const judge = createJudge(part.notes, 'advanced');

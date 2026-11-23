@@ -178,9 +178,14 @@ export function pressPitch(part, difficulty, input, matchedNote, time) {
     case 'beginner':
       return reference.midi;
     case 'intermediate':
-      // The right note of the scale, including 1 for 8 or 8 for 1, sounds the
-      // written pitch. Any other button gets the written octave modifier.
-      if (sameScaleNote(input.button, reference.button)) {
+      // The written button sounds the written pitch, and so does 1 for 8 or 8
+      // for 1 when matched to the note. Otherwise, as with no note to match,
+      // the button gets the written octave modifier, so 8 stays an octave
+      // above 1.
+      if (
+        input.button === reference.button ||
+        (matchedNote && sameScaleNote(input.button, reference.button))
+      ) {
         return reference.midi;
       }
       return buttonMidi(reference.position, input.button, false, reference.octave);
