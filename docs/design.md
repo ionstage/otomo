@@ -24,13 +24,15 @@ end.
 
 ### Note buttons
 
-Eight buttons, numbered 1 to 8, correspond to Do, Re, Mi, Fa, Sol, La, Ti, Do.
+Eight buttons, numbered 1 to 8, play eight consecutive notes of a major scale,
+rising from button 1. Button 8 is an octave above button 1.
 
 - Keyboard: number keys `1` to `8`.
 - Touch and mouse: eight on-screen buttons.
 
-The scale is **movable Do**: button 1 is whatever pitch the part currently
-defines as Do. See [Do position](#do-position).
+The scale is **movable**: the part sets which major scale the buttons play and
+which note of it is on button 1. Button 1 does not have to be Do. See
+[Scale position](#scale-position).
 
 ### Modifier buttons
 
@@ -57,16 +59,60 @@ together in any order. Timing is still measured from the note button. After
 those 60 ms, changing a modifier does not affect the sounding note, so a
 modifier can be held down early for the next note.
 
-### Do position
+### Scale position
 
-A part can change the pitch of Do at any point in the song. This one mechanism
-covers both key changes and moving the playable range up or down. Each part has
-its own Do position, since parts sit in different ranges.
+A part's scale position is two things: the pitch of Do, which picks the major
+scale, and the note of that scale on button 1. For example, with Do on D4 and
+button 1 on the Sol below it, the buttons play A3, B3, C♯4, D4, E4, F♯4, G4
+and A4.
 
-Shifts should be rare, and placed where they feel natural for the phrase. They
-are not announced on screen. Instead, each on-screen button shows its current
-pitch name in small text beside the number (for example "1" with a small "D"),
-and that text updates when Do moves.
+A minor song uses the major scale of its relative major with button 1 on La.
+A minor is Do on C with button 1 on A, which gives the natural minor scale.
+Other scale patterns, such as harmonic minor, are not used for now.
+
+A part can change its scale position at any point in the song. This one
+mechanism covers both key changes and moving the playable range up or down.
+Each part has its own scale position, since parts sit in different ranges.
+
+The arranger chooses the scale position, and how each note is played. The
+tool `tools/arrange-songs.js` applies the rules below to parts without shifts,
+and reports the counts for each part. Do is the song's key, or the relative
+major for a minor song. Two rules about shifts come first, strictly:
+
+1. Never shift in the middle of a phrase. Shifts go where they feel natural
+   for the phrase.
+2. Use as few shifts as possible. A shift is used only when a note cannot be
+   reached otherwise, with the octave modifier if needed. Saving other costs
+   is not a reason to shift.
+
+Within those, the note on button 1 and the way each note is played are chosen
+for the lowest total of these costs:
+
+| Cost | Weight |
+|---|---|
+| Pressing the octave modifier (once for a run of notes it is held through) | 2 |
+| Each note with the semitone modifier | 2 |
+| Each wide jump: consecutive notes five or more buttons apart, such as between buttons 1 or 2 and 7 or 8 | 1 |
+| Each note with the octave modifier | 0.4 |
+
+- A modifier needed by several notes in a row can be held through them, so a
+  run of octave notes costs one press. Rests do not break a run.
+- The same pitch can often be played two ways, such as button 8 or button 1
+  with "↑", and "8♯" or "1♯↑". The cheaper one is used. Inside a run held with
+  "↑", "1♯↑" saves a press, and next to button 2 it also allows a slide, where
+  button 8 would be a wide jump.
+- Sliding only works between neighbouring buttons, and buttons 1 to 4 and 5 to
+  8 are played by different hands on the keyboard, so wide jumps are hard,
+  especially repeated ones.
+- The cost of each note with "↑" stops a part from holding it through almost
+  the whole song, which would be a shift in disguise.
+- The weights are a starting point, to be adjusted after the songs have been
+  played. If the costs tie, Do goes on button 1, otherwise the highest tied
+  note.
+
+Shifts are not announced on screen. Instead, each on-screen button shows its
+current pitch name in small text beside the number (for example "1" with a
+small "D"), and that text updates when the scale position moves.
 
 ### Difficulty
 
@@ -285,15 +331,16 @@ A finger or mouse held on a note button can slide onto another without lifting:
 
 ### Button colours
 
-Each note button has its own colour, a rainbow by scale step, so a bar and the
-button that plays it can be matched at a glance:
+Each note button has its own colour, a rainbow by button position, so a bar
+and the button that plays it can be matched at a glance:
 
 | Button | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 |---|---|---|---|---|---|---|---|---|
 | Colour | Red | Orange | Yellow | Green | Teal | Blue | Purple | Magenta |
 
 - The colour belongs to the button number, not to a pitch, so it stays the same
-  when Do moves. Button 8 has its own colour rather than repeating button 1's.
+  when the scale position moves. Button 8 has its own colour rather than
+  repeating button 1's.
 - Modifiers do not change a note's colour. The "♯" and "↑" marks show them.
 - The modifiers have colours of their own, paler and greyer than any note
   colour so that they cannot be taken for a note button: light pink for
@@ -437,9 +484,13 @@ later composition tool and MIDI converter will address.
   (written to at least three decimals, such as `0.333` or `1.6667`) is read as
   that grid position. Composition and conversion tools are expected to write
   positions this precisely.
-- A `do` event sets the pitch of button 1 from that point on. The note name
-  (such as `"D4"` or `"Bb3"`) also tells the game how to spell the pitch names
-  shown on the buttons.
+- A `do` event sets the pitch of Do from that point on. The note name (such
+  as `"D4"` or `"Bb3"`) also tells the game how to spell the pitch names shown
+  on the buttons.
+- A `do` event may also have `button1`, the note on button 1, such as
+  `{ "at": 0, "do": "D4", "button1": "A3" }`. It must be a note of Do's major
+  scale, and then only Do's note matters, not its octave. Without it, Do is on
+  button 1.
 - A note event has a `button` (1 to 8) and optional `sharp` and `octave` flags.
 - Notes in a part must not overlap. Each part is monophonic.
 - `buttons` says what the eight buttons mean. Only `"scale"` exists now. The
@@ -519,3 +570,7 @@ Not included:
    library the project comes to depend on requires it. No `LICENSE` file has
    been added yet.
 4. **Multi-device connection method.** See section 9.
+5. **Arrangement weights and shifts.** The costs in
+   [Scale position](#scale-position) are starting points. After the songs
+   have been played, the weights may change, and a shift at a phrase boundary
+   may be allowed where a part has long runs of held octave presses.

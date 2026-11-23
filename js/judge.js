@@ -163,9 +163,9 @@ export function createJudge(notes, difficulty) {
 }
 
 // The pitch a press sounds, following section 3 of docs/design.md. The
-// reference is the matched note, or the note starting nearest in time. Its Do
-// position is used, so a slightly early press across a Do change still sounds
-// in the right octave.
+// reference is the matched note, or the note starting nearest in time. Its
+// scale position is used, so a slightly early press across a change still
+// sounds in the right octave.
 export function pressPitch(part, difficulty, input, matchedNote, time) {
   const reference = matchedNote ?? nearestNote(part.notes, time);
   switch (difficulty) {
@@ -173,13 +173,13 @@ export function pressPitch(part, difficulty, input, matchedNote, time) {
       return reference.midi;
     case 'intermediate':
       return buttonMidi(
-        reference.doMidi,
+        reference.position,
         input.button,
         input.button === reference.button && reference.sharp,
         reference.octave,
       );
     default:
-      return buttonMidi(reference.doMidi, input.button, input.sharp, input.octave);
+      return buttonMidi(reference.position, input.button, input.sharp, input.octave);
   }
 }
 

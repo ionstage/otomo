@@ -163,7 +163,7 @@ test('pressPitch follows the rules for each difficulty', () => {
   assert.equal(pressPitch(part, 'intermediate', { button: 4, sharp: false, octave: false }, raised, 1), 78);
   // Advanced sounds exactly what is pressed.
   assert.equal(pressPitch(part, 'advanced', { button: 2, sharp: true, octave: false }, raised, 1), 63);
-  // Without a matched note, the nearest note's Do position applies.
+  // Without a matched note, the nearest note's scale position applies.
   assert.equal(pressPitch(part, 'advanced', two, null, 3.9), 50);
   assert.equal(pressPitch(part, 'intermediate', two, null, 3.9), low.midi);
 });

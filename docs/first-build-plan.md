@@ -14,7 +14,7 @@ This is a suggestion. Change it if a better split appears.
 index.html
 css/style.css
 js/main.js      wiring and screens (setup, play, result)
-js/pitch.js     note names, MIDI numbers, scale offsets, button pitch names
+js/pitch.js     note names, MIDI numbers, scale positions, button pitch names
 js/song.js      load and validate a song, resolve events to notes with
                 absolute pitch and time in seconds
 js/judge.js     match presses to notes and score them
@@ -25,6 +25,8 @@ js/roll.js      piano-roll drawing and feedback
 songs/ode-to-joy.json
 songs/rondo-alla-turca.json
 songs/minuet-in-g.json
+tools/arrange.js        score and choose a part's scale position (pure)
+tools/arrange-songs.js  re-arrange the song files with it
 test/*.test.js
 ```
 
@@ -99,11 +101,9 @@ doing anything larger, because the project is being developed by discussion.
 - "Ode to Joy" is public domain. The three-part arrangement (melody, harmony,
   bass) is to be written for this project, not copied from a modern edition.
 - The original key is D major.
-- The melody dips once to the Sol below Do. In advanced mode this needs the Do
-  position to sit an octave lower for that phrase, with the other notes played
-  using the octave button. Place the shift at a phrase boundary, never around
-  the single note. The user accepts shifts only where they feel natural for the
-  phrase.
+- The melody runs from the Sol below Do to the Sol above it, so button 1 is
+  on that low Sol (A3). The melody then needs no shifts and no octave presses.
+  The harmony and bass have Do on button 1.
 - "Rondo alla Turca" (Mozart, K. 331) was added to check how sixteenth notes
   look. It is the first A-minor section (bars 1 to 24), with the repeat of
   the pickup and bars 1 to 8 written out, and bars 9 to 24 played once. The
@@ -113,9 +113,9 @@ doing anything larger, because the project is being developed by discussion.
   note, without the grace notes, and with the trill near the end played as a
   plain note. The harmony is the upper note of each left-hand chord, and the
   bass is the lowest left-hand note.
-- It is in A minor with Do on C, since the buttons have no flat, so G♯ and D♯
-  use "♯". Do moves at phrase starts so that the low notes stay reachable. The
-  tempo is slowed to 80 so the sixteenths stay playable.
+- It is in A minor, played on the C major scale, so G♯ and D♯ use "♯". There
+  are no shifts. Button 1 is G4 in the melody, G3 in the harmony and A2 in the
+  bass. The tempo is slowed to 80 so the sixteenths stay playable.
 - "Minuet in G" (BWV Anh. 114, now attributed to Christian Petzold) replaced
   the semitone test piece, and is the first song in 3/4. It is the whole
   minuet with each half played once, without the repeats (bars 1 to 32). The
@@ -124,10 +124,9 @@ doing anything larger, because the project is being developed by discussion.
   the grace note and ornaments, and the bass is the lowest left-hand note.
   The original has only two voices, so the harmony is written for this
   project: a middle voice in quarter and half notes.
-- It is in G major with Do on G throughout, so the C♯ in the second half uses
-  "♯". Do moves by octaves at phrase starts so that the low notes stay
-  reachable. The harmony needs no shift. The tempo is 112, a comfortable speed
-  for the eighth notes.
+- It is in G major, so the C♯ in the second half uses "♯". There are no
+  shifts. Button 1 is D4 in the melody and Do (G3 and G2) in the harmony and
+  bass. The tempo is 112, a comfortable speed for the eighth notes.
 
 ## After the first build
 

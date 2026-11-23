@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { SongError, countIn, doAt, resolveSong } from '../js/song.js';
+import { SongError, countIn, positionAt, resolveSong } from '../js/song.js';
 
 function songWith(events, overrides = {}) {
   return {
@@ -28,7 +28,30 @@ test('resolveSong converts beats to seconds and pitches to MIDI', () => {
   assert.equal(song.secondsPerBeat, 0.5);
   assert.deepEqual([first.start, first.end, first.midi], [0, 0.5, 66]);
   assert.deepEqual([second.start, second.end, second.midi], [1, 1.25, 80]);
-  assert.equal(second.doMidi, 62);
+  assert.equal(second.position.doName, 'D4');
+});
+
+test('button1 puts another note of the scale on button 1', () => {
+  const song = resolveSong(songWith([
+    { at: 0, do: 'D4', button1: 'A3' },
+    { at: 0, length: 1, button: 1 },
+    { at: 1, length: 1, button: 4 },
+    { at: 2, length: 1, button: 8, octave: true },
+  ]));
+  assert.deepEqual(song.parts[0].notes.map((note) => note.midi), [57, 62, 81]);
+  assert.equal(song.parts[0].positions[0].step, 4);
+});
+
+test('button1 must be a note of the scale, on an event that sets Do', () => {
+  const invalid = [
+    [{ at: 0, do: 'C4', button1: 'F#3' }, { at: 0, length: 1, button: 1 }],
+    [{ at: 0, do: 'C4', button1: 'X3' }, { at: 0, length: 1, button: 1 }],
+    [{ at: 0, do: 'C4', button1: 3 }, { at: 0, length: 1, button: 1 }],
+    [{ at: 0, do: 'C4' }, { at: 0, length: 1, button: 1, button1: 'A3' }],
+  ];
+  for (const events of invalid) {
+    assert.throws(() => resolveSong(songWith(events)), SongError, JSON.stringify(events));
+  }
 });
 
 test('resolveSong rounds the length up to a whole bar', () => {
@@ -44,7 +67,7 @@ test('resolveSong lays out 2/4 rows in groups of four beats', () => {
   assert.equal(resolveSong(songWith(events)).beatsPerGroup, 4);
 });
 
-test('a Do change applies to a note on the same beat, whatever the order', () => {
+test('a scale position change applies to a note on the same beat, whatever the order', () => {
   const song = resolveSong(songWith([
     { at: 0, do: 'C4' },
     { at: 4, length: 1, button: 1 },
@@ -53,7 +76,7 @@ test('a Do change applies to a note on the same beat, whatever the order', () =>
   assert.equal(song.parts[0].notes[0].midi, 48);
 });
 
-test('doAt returns the Do position in effect', () => {
+test('positionAt returns the scale position in effect', () => {
   const song = resolveSong(songWith([
     { at: 0, do: 'C4' },
     { at: 0, length: 1, button: 1 },
@@ -61,9 +84,9 @@ test('doAt returns the Do position in effect', () => {
     { at: 4, length: 1, button: 1 },
   ]));
   const part = song.parts[0];
-  assert.equal(doAt(part, -1).name, 'C4');
-  assert.equal(doAt(part, 1.9).name, 'C4');
-  assert.equal(doAt(part, 2).name, 'G3');
+  assert.equal(positionAt(part, -1).doName, 'C4');
+  assert.equal(positionAt(part, 1.9).doName, 'C4');
+  assert.equal(positionAt(part, 2).doName, 'G3');
 });
 
 test('a sixteenth note is the shortest note allowed', () => {

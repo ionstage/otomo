@@ -5,7 +5,7 @@ import { Input } from './input.js';
 import { LATE_MODIFIER_WINDOW, createJudge, pressPitch } from './judge.js';
 import { buttonPitchName } from './pitch.js';
 import { Roll } from './roll.js';
-import { doAt, resolveSong } from './song.js';
+import { positionAt, resolveSong } from './song.js';
 
 // Time after the last bar before the result screen, so the last notes can
 // finish sounding.
@@ -99,7 +99,7 @@ function startGame({ song, partIndex, difficulty }) {
     judge: createJudge(part.notes, difficulty),
     voice: null,
     held: null,
-    shownDo: null,
+    shownPosition: null,
     frame: 0,
   };
   playTitle.textContent = `${song.title} · ${part.name} · ${DIFFICULTY_NAMES[difficulty]}`;
@@ -201,13 +201,13 @@ function showLit({ buttons, sharp, octave }) {
 }
 
 function showPitchNames(time) {
-  const change = doAt(game.part, time);
-  if (change === game.shownDo) {
+  const change = positionAt(game.part, time);
+  if (change === game.shownPosition) {
     return;
   }
-  game.shownDo = change;
+  game.shownPosition = change;
   for (const element of noteButtons) {
-    element.querySelector('.name').textContent = buttonPitchName(change.name, Number(element.dataset.button));
+    element.querySelector('.name').textContent = buttonPitchName(change, Number(element.dataset.button));
   }
 }
 

@@ -1,7 +1,7 @@
 // Loads and validates song data, and resolves each part's events into notes
 // with absolute pitch and time. See section 6 of docs/design.md.
 
-import { buttonMidi, parseNoteName } from './pitch.js';
+import { buttonMidi, scalePosition } from './pitch.js';
 
 const OVERLAP_TOLERANCE = 1e-9;
 
@@ -132,30 +132,41 @@ function resolvePart(part, index, secondsPerBeat) {
     if (typeof event.at !== 'number' || !Number.isFinite(event.at) || event.at < 0) {
       fail(`${label}: event ${order + 1} needs an "at" of zero or more.`);
     }
-    // A Do change is snapped too, so that it lands where the note does.
+    // A scale position change is snapped too, so that it lands where the note
+    // does.
     const at = GRID_DIVISIONS.map((division) => snap(event.at, division)).find((beat) => beat !== null) ?? event.at;
     return { event, at, order, isDo: 'do' in event };
   });
-  // A Do position applies to notes starting on the same beat, whatever the
+  // A scale position applies to notes starting on the same beat, whatever the
   // order in the file.
   events.sort((a, b) => a.at - b.at || b.isDo - a.isDo || a.order - b.order);
 
-  const doChanges = [];
+  const positions = [];
   const notes = [];
-  let currentDo = null;
+  let current = null;
   for (const { event, at, isDo } of events) {
     const where = `${label}, beat ${event.at}`;
     if (isDo) {
       if ('button' in event) {
         fail(`${where}: an event cannot set Do and play a note.`);
       }
-      const parsed = typeof event.do === 'string' ? parseNoteName(event.do) : null;
-      if (!parsed) {
+      if (typeof event.do !== 'string' || !scalePosition(event.do)) {
         fail(`${where}: "${event.do}" is not a note name.`);
       }
-      currentDo = { beat: at, time: at * secondsPerBeat, name: event.do, midi: parsed.midi };
-      doChanges.push(currentDo);
+      const button1 = event.button1 ?? event.do;
+      if (typeof button1 !== 'string' || !scalePosition(button1)) {
+        fail(`${where}: "${event.button1}" is not a note name.`);
+      }
+      const position = scalePosition(event.do, button1);
+      if (!position) {
+        fail(`${where}: ${button1} is not in the major scale of ${event.do}.`);
+      }
+      current = { beat: at, time: at * secondsPerBeat, ...position };
+      positions.push(current);
       continue;
+    }
+    if ('button1' in event) {
+      fail(`${where}: button1 belongs on an event that sets Do.`);
     }
     if (!isPositiveNumber(event.length)) {
       fail(`${where}: the note needs a positive length.`);
@@ -175,8 +186,8 @@ function resolvePart(part, index, secondsPerBeat) {
     if (!isOptionalBoolean(event.sharp) || !isOptionalBoolean(event.octave)) {
       fail(`${where}: sharp and octave must be true or false.`);
     }
-    if (!currentDo) {
-      fail(`${where}: the note comes before any Do position.`);
+    if (!current) {
+      fail(`${where}: the note comes before any scale position.`);
     }
     const previous = notes[notes.length - 1];
     if (previous && at < previous.startBeat + previous.lengthBeats - OVERLAP_TOLERANCE) {
@@ -184,7 +195,7 @@ function resolvePart(part, index, secondsPerBeat) {
     }
     const sharp = event.sharp === true;
     const octave = event.octave === true;
-    const midi = buttonMidi(currentDo.midi, event.button, sharp, octave);
+    const midi = buttonMidi(current, event.button, sharp, octave);
     if (midi < 0 || midi > 127) {
       fail(`${where}: the note is out of range.`);
     }
@@ -199,20 +210,20 @@ function resolvePart(part, index, secondsPerBeat) {
       sharp,
       octave,
       midi,
-      doMidi: currentDo.midi,
+      position: current,
     });
   }
   if (notes.length === 0) {
     fail(`${label}: the part has no notes.`);
   }
-  return { name: part.name, buttons: part.buttons, sound: part.sound, notes, doChanges };
+  return { name: part.name, buttons: part.buttons, sound: part.sound, notes, positions };
 }
 
-// The Do position in effect at `time` seconds. Before the first change, the
-// first change applies.
-export function doAt(part, time) {
-  let found = part.doChanges[0];
-  for (const change of part.doChanges) {
+// The scale position in effect at `time` seconds. Before the first change,
+// the first change applies.
+export function positionAt(part, time) {
+  let found = part.positions[0];
+  for (const change of part.positions) {
     if (change.time > time) {
       break;
     }
