@@ -127,6 +127,15 @@ level.
 
 The modifier buttons are hidden in beginner and intermediate modes.
 
+Buttons 1 and 8 are the same note of the scale an octave apart, and some
+pitches can be played more than one way. What counts as the right note:
+
+- **Intermediate:** the written button, or button 1 for a written 8 and button
+  8 for a written 1, since the game supplies the octave.
+- **Advanced:** any button and modifiers that play the written pitch. For
+  example 1↑ for 8, 8 for 1↑, 1♯↑ for 8♯, or 3♯ for 4 where 3 and 4 are a
+  semitone apart. The roll shows the way the arranger chose.
+
 ## 3. Sound
 
 - The player hears the pitch they actually pressed, even when it is wrong.
@@ -138,8 +147,11 @@ What "the pitch they pressed" means in each mode:
 
 - **Beginner:** any button sounds the pitch of the written note nearest in
   time, so the player is always in tune.
-- **Intermediate:** the pressed button sounds in the octave of the nearest
-  written note. The semitone is applied only when the button matches that note.
+- **Intermediate:** a press of the right note (see
+  [Difficulty](#difficulty)) sounds exactly the written pitch, including its
+  semitone and octave, even for button 1 against a written 8 or the reverse.
+  Any other button sounds with the written note's octave modifier and no
+  semitone.
 - **Advanced:** exactly the button and modifiers pressed.
 
 ## 4. Screen
@@ -416,8 +428,10 @@ numbers below will need tuning by playing.
 ### Score for one note (0 to 100)
 
 A note scores 0 if it was missed or the wrong note was pressed. "Wrong" depends
-on difficulty: any button is right in beginner, the button number must match in
-intermediate, and the button and both modifiers must match in advanced.
+on difficulty: any button is right in beginner, the button must be the same
+note of the scale (1 and 8 count as the same) in intermediate, and the button
+and modifiers must play the written pitch in advanced (see
+[Difficulty](#difficulty)).
 
 Otherwise the score is the average of two parts:
 

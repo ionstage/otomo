@@ -92,6 +92,46 @@ test('what counts as correct depends on difficulty', () => {
   }
 });
 
+test('advanced accepts any way of playing the written pitch', () => {
+  // Do is C4, so button 1 is C4 (60).
+  const cases = [
+    [{ button: 8 }, { button: 1, sharp: false, octave: true }, true],
+    [{ button: 1, octave: true }, { button: 8, sharp: false, octave: false }, true],
+    [{ button: 8, sharp: true }, { button: 1, sharp: true, octave: true }, true],
+    [{ button: 4 }, { button: 3, sharp: true, octave: false }, true],
+    [{ button: 8 }, { button: 7, sharp: true, octave: false }, true],
+    [{ button: 1, octave: true }, { button: 8, sharp: false, octave: true }, false],
+    [{ button: 8 }, { button: 1, sharp: false, octave: false }, false],
+  ];
+  for (const [written, input, expected] of cases) {
+    const judge = createJudge(partWith([{ at: 1, length: 1, ...written }]).notes, 'advanced');
+    assert.equal(judge.press(1, input).correct, expected, `${JSON.stringify(written)} ${JSON.stringify(input)}`);
+  }
+});
+
+test('advanced accepts the octave modifier added just after button 1 for a written 8', () => {
+  const judge = createJudge(partWith([{ at: 1, length: 1, button: 8 }]).notes, 'advanced');
+  assert.equal(judge.press(1, plain).correct, false);
+  assert.equal(judge.amend(1.03, { sharp: false, octave: true }).correct, true);
+});
+
+test('intermediate accepts buttons 1 and 8 for each other and sounds the written pitch', () => {
+  const cases = [
+    [{ button: 1 }, 8, 60],
+    [{ button: 1, octave: true }, 8, 72],
+    [{ button: 8 }, 1, 72],
+    [{ button: 8, octave: true }, 1, 84],
+    [{ button: 8, sharp: true }, 1, 73],
+  ];
+  for (const [written, button, midi] of cases) {
+    const part = partWith([{ at: 1, length: 1, ...written }]);
+    const input = { button, sharp: false, octave: false };
+    const result = createJudge(part.notes, 'intermediate').press(1, input);
+    assert.equal(result.correct, true, JSON.stringify(written));
+    assert.equal(pressPitch(part, 'intermediate', input, result.note, 1), midi, JSON.stringify(written));
+  }
+});
+
 test('a press with no note in range is ignored for scoring', () => {
   const part = partWith([{ at: 1, length: 1, button: 1 }]);
   const judge = createJudge(part.notes, 'advanced');

@@ -48,14 +48,20 @@ export function durationScore(note, pressTime, releaseTime) {
   return Math.min(100, Math.max(0, held * 100));
 }
 
+// Buttons 1 and 8 are the same note of the scale an octave apart.
+function sameScaleNote(a, b) {
+  return (a - b) % 7 === 0;
+}
+
 export function isCorrect(note, input, difficulty) {
   switch (difficulty) {
     case 'beginner':
       return true;
     case 'intermediate':
-      return input.button === note.button;
+      return sameScaleNote(input.button, note.button);
     default:
-      return input.button === note.button && input.sharp === note.sharp && input.octave === note.octave;
+      // Any way of playing the written pitch, such as 1↑ for 8, or 3♯ for 4.
+      return buttonMidi(note.position, input.button, input.sharp, input.octave) === note.midi;
   }
 }
 
@@ -172,12 +178,12 @@ export function pressPitch(part, difficulty, input, matchedNote, time) {
     case 'beginner':
       return reference.midi;
     case 'intermediate':
-      return buttonMidi(
-        reference.position,
-        input.button,
-        input.button === reference.button && reference.sharp,
-        reference.octave,
-      );
+      // The right note of the scale, including 1 for 8 or 8 for 1, sounds the
+      // written pitch. Any other button gets the written octave modifier.
+      if (sameScaleNote(input.button, reference.button)) {
+        return reference.midi;
+      }
+      return buttonMidi(reference.position, input.button, false, reference.octave);
     default:
       return buttonMidi(reference.position, input.button, input.sharp, input.octave);
   }
