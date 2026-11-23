@@ -578,16 +578,21 @@ Not included:
 ## 10. Open questions
 
 1. **Tuning after play.** The scoring windows and weights in section 5 and the
-   touch layout in section 4 are agreed as starting points. They may change
-   once the first build has been played, including on a real phone.
+   touch layout in section 4 are agreed as starting points. The first build
+   has been played, including on a real phone, with no issues so far. They
+   may still be adjusted after further play.
 2. **Latency calibration.** Some devices, and all Bluetooth speakers and
-   headphones, delay sound noticeably. A per-device offset setting may be
-   needed. Whether it is will be clearer after the first build runs on phones.
-3. **Licence.** The MIT License is intended. It may change if the licence of a
-   library the project comes to depend on requires it. No `LICENSE` file has
-   been added yet.
+   headphones, delay sound noticeably. On a phone's own speakers the first
+   build's timing feels fine, so no offset setting is planned for now.
+   Bluetooth audio is left for later. A tap-along calibration (the player
+   taps to a steady click and the median offset is saved per device) is the
+   likely approach if it is taken up.
+3. **Licence.** The project uses the MIT License (see `LICENSE`). It may
+   change if the licence of a library the project comes to depend on requires
+   it.
 4. **Multi-device connection method.** See section 9.
 5. **Arrangement weights and shifts.** The costs in
-   [Scale position](#scale-position) are starting points. After the songs
-   have been played, the weights may change, and a shift at a phrase boundary
+   [Scale position](#scale-position) are starting points. The songs have
+   been played with no issues so far. The weights may still change, and a
+   shift at a phrase boundary
    may be allowed where a part has long runs of held octave presses.

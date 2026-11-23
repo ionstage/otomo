@@ -4,7 +4,9 @@ This is the handoff for implementing the first build described in section 8 of
 [design.md](design.md). The design document says what to build. This document
 suggests how, and lists what the design leaves undecided.
 
-Nothing has been implemented yet. The repository contains only documents.
+All seven steps below have been implemented, and the user has made the checks
+for steps 2, 3, 4 and 6, including on a real phone, with no particular issues.
+What remains is the tuning described in "After the first build".
 
 ## Suggested file layout
 
