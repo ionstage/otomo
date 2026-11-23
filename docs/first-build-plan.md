@@ -84,19 +84,21 @@ Each step ends with something that can be checked.
 
 ## Not yet decided
 
-The design does not cover these. Each has a suggested default. Small ones can
-be implemented with the default and reported to the user. Ask the user before
-doing anything larger, because the project is being developed by discussion.
+These were left open by the design, each with a suggested default. All have
+now been implemented and recorded in the design as agreed, so this table only
+points to where. For any new gap, implement a small default and report it to
+the user, and ask before doing anything larger, because the project is being
+developed by discussion.
 
 | Topic | Suggested default |
 |---|---|
-| Visual style (fonts, the hit effect) | Plain and minimal. Ask before investing in a look. Note button colours are decided: see "Button colours" in section 4 of the design. The size and weight of the numbers and symbols are decided: see "Layout" in section 4 of the design. |
-| Setup screen (choosing song, part and difficulty) | One simple screen with three choices and a start button. |
-| Result screen | The song score out of 100 and a way to play again. |
-| Pressing a second note button while one is held | The new note replaces the old one, because a part is monophonic. The old note's duration stops counting. |
+| Visual style (fonts, the hit effect) | Decided: plain and minimal, in the system font. See the start of section 4 of the design, "Button colours" for the hit effect, and "Layout". Ask before investing in a different look. |
+| Setup screen (choosing song, part and difficulty) | Decided: see "Setup screen" in section 4 of the design. |
+| Result screen | Decided: see "End of a song" in section 4 of the design. |
+| Pressing a second note button while one is held | Decided: the new note replaces the old one. See "Note buttons" in section 2 of the design. |
 | Pause and restart during a song | Decided: Quit pauses the song and asks for confirmation. See "Quitting a song" in section 4 of the design. |
-| Volume balance between the player and autoplay | The player's part slightly louder. |
-| How many beats of width a row uses | Wide enough that a sixteenth note holds a head of full size and its short tail (a quarter of the head's width), whatever the part's shortest note. Each row holds one bar (a pair of bars in 2/4). If it does not fit, the roll is scaled down (to 0.75 at most). The bar takes the spare width up to 1.25 times its narrowest (not at all on short screens), and the rows are centred. The buttons keep the width of a 4/4 row in every song: see "Layout" in section 4 of the design. |
+| Volume balance between the player and autoplay | Decided: the player's part slightly louder. See section 3 of the design. |
+| How many beats of width a row uses | Decided: see "Layout" in section 4 of the design. |
 
 ## Arrangement notes
 

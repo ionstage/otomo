@@ -34,6 +34,11 @@ The scale is **movable**: the part sets which major scale the buttons play and
 which note of it is on button 1. Button 1 does not have to be Do. See
 [Scale position](#scale-position).
 
+A part is monophonic, so only one note sounds at a time. Pressing a note
+button while another is held replaces the held note: the old note stops
+sounding and its held time stops counting at that press. Releasing the
+replaced button afterwards does nothing.
+
 ### Modifier buttons
 
 Two modifiers can be held together with a note button, separately or both at
@@ -143,6 +148,7 @@ pitches can be played more than one way. What counts as the right note:
 - A note that is not pressed is silent. Autoplay never covers for a player.
 - A note sounds for as long as its button is held.
 - Sounds are synthesised with the Web Audio API. There are no audio files.
+- The player's own part is slightly louder than the autoplay parts.
 
 What "the pitch they pressed" means in each mode:
 
@@ -158,6 +164,21 @@ What "the pitch they pressed" means in each mode:
 - **Advanced:** exactly the button and modifiers pressed.
 
 ## 4. Screen
+
+The look is plain and minimal, in the system font with no font files, with
+light and dark versions that follow the device's setting.
+
+### Setup screen
+
+The game opens on one setup screen with three choices and a Start button:
+
+- **Song**, from the list of songs.
+- **Part**, from the chosen song's parts.
+- **Difficulty**: Beginner, Intermediate or Advanced, each with a one-line
+  description.
+
+Below them, a short help text lists the keys. Start begins the song with its
+count-in (see [Start of a song](#start-of-a-song)).
 
 ### Layout
 
@@ -430,6 +451,16 @@ a note button's colour.
 
 A note held when Quit is pressed is released at that moment, and its
 duration stops counting there. There is no separate pause button.
+
+### End of a song
+
+When the song ends, the result screen shows the song and part, and the
+player's song score out of 100 (see
+[Song and group scores](#song-and-group-scores)). It has two buttons:
+
+- **Play again** starts the same song, part and difficulty again, with the
+  count-in.
+- **Change song** returns to the setup screen.
 
 ## 5. Scoring
 
