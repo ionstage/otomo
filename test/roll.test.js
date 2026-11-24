@@ -78,9 +78,23 @@ test('short screens keep less space above the first row', () => {
   assert.equal(rowSpace(true).top, 24);
 });
 
-test('on short screens a row keeps its narrowest width', () => {
-  assert.deepEqual(rowLayout(884, 4, true), { scale: 1, beatWidth: 178, width: 712 });
-  assert.deepEqual(rowLayout(566, 4, true), { scale: 0.75, beatWidth: 133.5, width: 534 });
+// A row is the head plus the space above and below it and the gap: 34 + 80 +
+// 16 = 130 px at its narrowest, or 34 + 60 + 16 = 110 px on short screens.
+test('a row grows only while two and a half rows still show', () => {
+  // On a short screen 309 px tall, (309 - 24) / 2.5 = 114 px a row leaves a
+  // 38 px head, so a sixteenth note of 49.5 px and a row of 792 px.
+  assert.deepEqual(rowLayout(1600, 4, true, 309), { scale: 1, beatWidth: 198, width: 792 });
+  // The same head with the larger space: (375 - 40) / 2.5 = 134 px a row.
+  assert.deepEqual(rowLayout(1600, 4, false, 375), { scale: 1, beatWidth: 198, width: 792 });
+});
+
+test('a tall enough roll still caps a row at 1.25 times its narrowest', () => {
+  assert.deepEqual(rowLayout(1600, 4, true, 1000), { scale: 1, beatWidth: 222.5, width: 890 });
+});
+
+test('a short roll does not make a row narrower than its narrowest', () => {
+  assert.deepEqual(rowLayout(1600, 4, true, 200), { scale: 1, beatWidth: 178, width: 712 });
+  assert.deepEqual(rowLayout(566, 4, true, 200), { scale: 0.75, beatWidth: 133.5, width: 534 });
 });
 
 test('the triangles squash fully as they touch on the beat', () => {

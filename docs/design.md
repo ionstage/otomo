@@ -194,10 +194,15 @@ music.
   narrowest width, so that wide screens do not ask for too much eye
   movement. The rows are then centred, and the margins on either side are
   plain background with no frame. This was chosen by comparing caps of 1,
-  1.1, 1.25 and 1.5 times and no cap. On short screens (420 px tall or
-  less, such as phones in landscape) the bar does not grow at all. Wider
-  bars mean larger heads and taller rows, and on those screens taller rows
-  bring the next row into view too late.
+  1.1, 1.25 and 1.5 times and no cap. Wider bars mean larger heads and
+  taller rows, so the bar also grows only while the roll still shows two
+  and a half rows below the space above the first row. The next row is
+  then fully in view by halfway through the current one. The bar is not
+  made narrower than its narrowest to reach that.
+- Short screens are those 500 px tall or less, which includes every phone
+  in landscape. They keep less space around the rows and have lower
+  buttons. The line was first at 420 px, but a 956×440 screen then got the
+  larger space and buttons and showed fewer rows than an 852×393 one.
 - Bar lines follow the song's own time signature, so a song in 2/4 has a
   bar line every two beats. Rows of a 2/4 song are laid out the same way as
   those of a 4/4 song: each holds a pair of bars, counted from the start of
@@ -285,9 +290,9 @@ music.
 - Row height is fixed, and does not grow to fill a tall screen. It is the same
   in every mode, even where there are no marks, so that the roll does not
   change with the difficulty. On short screens the rows are smaller, but on
-  some phones the next row still comes into view only after the current
-  row's last beat has started. Removing the gap between rows would fix that,
-  but was not chosen.
+  the shortest phones the roll still shows a little under two and a half
+  rows, so the next row comes fully into view later in the current row.
+  Removing the gap between rows would fix that, but was not chosen.
 - The current row stays near the top of the screen with the upcoming rows
   visible below. The view scrolls continuously at a slow, steady pace of one
   row per row of music, a row behind the line: the current row slides from

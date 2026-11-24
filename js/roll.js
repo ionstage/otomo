@@ -44,11 +44,15 @@ const MARK_GAP = 6;
 // Below this the numbers get too small to read, so short notes squeeze instead.
 const MIN_SCALE = 0.75;
 // How much wider than its narrowest a bar group may grow, so that bars on
-// wide screens do not ask for too much eye movement. On short screens, such as
-// phones in landscape, it does not grow at all, which keeps the heads and so
-// the rows small enough for the next row to come into view in time.
+// wide screens do not ask for too much eye movement.
 const MAX_STRETCH = 1.25;
-export const SHORT_SCREEN = '(max-height: 420px)';
+// Wider bars mean larger heads and taller rows. A bar grows only while the
+// roll still shows this many rows below the space above the first, so that
+// the next row is fully in view by halfway through the current one.
+const MIN_ROWS_SHOWN = 2.5;
+// Short screens, which include every phone in landscape, keep less space
+// around the rows and have lower buttons.
+export const SHORT_SCREEN = '(max-height: 500px)';
 const FADED_ALPHA = 0.3;
 const HIT_DURATION = 400;
 // How far each row's display area reaches above and below its notes: the
@@ -125,14 +129,20 @@ export function squash(beat) {
 // One row holds one bar group of `beatsPerGroup` beats, keeping a sixteenth
 // note wide enough for a head and its tail. If the group does not fit,
 // everything is scaled down. The group takes the spare width up to a maximum,
-// except on short screens, and the row is centred in what is left. `width` is
-// the canvas width.
-export function rowLayout(width, beatsPerGroup, short = false) {
+// and the row is centred in what is left. It grows only while the roll still
+// shows MIN_ROWS_SHOWN rows, but is not made smaller than its narrowest to
+// reach that. `width` and `height` are the canvas's.
+export function rowLayout(width, beatsPerGroup, short = false, height = Infinity) {
   const usable = Math.max(1, width - 2 * SIDE_MARGIN);
-  const minSixteenth = HEAD_SIZE * (1 + SIXTEENTH_TAIL) + BAR_GAP;
-  const minWidth = (minSixteenth / SIXTEENTH) * beatsPerGroup;
+  const sixteenthFor = (head) => head * (1 + SIXTEENTH_TAIL) + BAR_GAP;
+  const minWidth = (sixteenthFor(HEAD_SIZE) / SIXTEENTH) * beatsPerGroup;
   const scale = clamp(usable / minWidth, MIN_SCALE, 1);
-  const rowWidth = Math.min(usable, minWidth * scale * (short ? 1 : MAX_STRETCH));
+  // Rows grow only at full scale, so the space around the head is not scaled.
+  const space = rowSpace(short);
+  const maxHead = (height - space.top) / MIN_ROWS_SHOWN - 2 * space.reach - space.gap;
+  const tallestWidth = (sixteenthFor(maxHead) / SIXTEENTH) * beatsPerGroup;
+  const grown = clamp(tallestWidth, minWidth * scale, minWidth * scale * MAX_STRETCH);
+  const rowWidth = Math.min(usable, grown);
   return { scale, beatWidth: rowWidth / beatsPerGroup, width: rowWidth };
 }
 
@@ -220,7 +230,7 @@ export class Roll {
   // Each row holds one bar group. See rowLayout.
   layout() {
     const short = matchMedia(SHORT_SCREEN).matches;
-    const row = rowLayout(this.width, this.song.beatsPerGroup, short);
+    const row = rowLayout(this.width, this.song.beatsPerGroup, short, this.height);
     this.scale = row.scale;
     this.beatsPerRow = this.song.beatsPerGroup;
     this.beatWidth = row.beatWidth;
@@ -231,7 +241,7 @@ export class Roll {
     this.titleHeight = this.title.offsetHeight;
     // The buttons keep the width of a row of 4/4 in every song, so they do
     // not change size from song to song.
-    this.onLayout?.(rowLayout(this.width, 4, short).width);
+    this.onLayout?.(rowLayout(this.width, 4, short, this.height).width);
     // The empty count-in bars come first, in the same rows as the song.
     this.rows = Math.ceil((this.song.countIn.beats + this.song.lengthBeats) / this.beatsPerRow);
     // A sixteenth note is a head and a short tail, then the gap before the

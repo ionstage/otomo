@@ -608,7 +608,9 @@ legend {
   color: var(--muted);
 }
 
-@media (max-height: 420px) {
+/* Short screens, which include every phone in landscape. Keep in step with
+   SHORT_SCREEN in js/roll.js. */
+@media (max-height: 500px) {
   .modifiers .control {
     height: 36px;
   }
