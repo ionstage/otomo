@@ -29,7 +29,7 @@ const JOIN_LENGTH = 4;
 const BADGE_INSET = 3;
 const BADGE_RADIUS = 4;
 // The number at the smallest head size, and the modifier symbols above a bar.
-const FONT_SIZE = 20;
+const FONT_SIZE = 24;
 const SYMBOL_SIZE = 18;
 // The modifiers' mark above a head: as wide as the head, in the space above
 // it with a small gap. Its top corner is rounded on the left for semitone, on

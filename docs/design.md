@@ -230,7 +230,7 @@ music.
   held, only "♯↑" marks move, and marks for only one modifier stay up. This is being tried and may
   change after play.
 - Numbers and symbols are drawn large so they read at a glance, in the system
-  font (no font file). On a bar, the number is semibold (600) and 20/34 of the
+  font (no font file). On a bar, the number is semibold (600) and 24/34 of the
   head's size, and the symbols are bold (700) at 18 px at full scale. On the
   on-screen buttons, the numbers are bold (700) at 1.75rem (1.5rem on short
   screens in advanced mode, where the buttons are lower) and the modifier
