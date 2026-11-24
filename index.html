@@ -41,12 +41,19 @@
   </main>
 
   <section id="play" class="screen play" hidden>
-    <header class="play-header">
-      <span id="play-title"></span>
-      <button id="quit-button" type="button">Quit</button>
-    </header>
     <p class="rotate-hint">Turn your device sideways for more room.</p>
-    <div class="roll"><canvas id="roll"></canvas></div>
+    <div class="roll">
+      <canvas id="roll"></canvas>
+      <div id="play-title" class="roll-title">
+        <span id="play-song" class="song"></span>
+        <span id="play-part" class="part"></span>
+      </div>
+      <button id="quit-button" type="button" class="back-button" aria-label="Quit">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
     <div class="controls">
       <div class="modifiers">
         <button type="button" class="control" data-modifier="sharp" tabindex="-1" aria-label="Semitone up">♯</button>

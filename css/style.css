@@ -256,20 +256,6 @@ legend {
   -webkit-touch-callout: none;
 }
 
-.play-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 6px 16px;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.play-header button {
-  padding: 0.2em 0.8em;
-}
-
 /* Quit confirmation, shown over the paused play screen. */
 .quit-dialog {
   background: var(--surface);
@@ -308,6 +294,7 @@ legend {
   position: relative;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .roll canvas {
@@ -315,6 +302,62 @@ legend {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+/* The song and part, above the first row. The roll moves it up with the
+   rows as the view scrolls, so it leaves the screen during the count-in.
+   It starts at the rows' left edge, but no further left than the back
+   button's right edge. Each line is cut short if it does not fit, so the
+   block keeps the same height. */
+.roll-title {
+  position: absolute;
+  top: 0;
+  left: max(var(--row-left, 16px), 56px);
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+  line-height: 1.3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.roll-title span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.roll-title .song {
+  font-weight: 600;
+}
+
+.roll-title .part {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Quit, as a back icon in the corner. Faint, so it does not draw the eye
+   from the music, but a full 44 px to press. It does not scroll. */
+.back-button {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  color: var(--fg);
+  opacity: 0.4;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  opacity: 0.8;
 }
 
 .controls {
@@ -566,10 +609,6 @@ legend {
 }
 
 @media (max-height: 420px) {
-  .play-header {
-    padding: 2px 16px;
-  }
-
   .modifiers .control {
     height: 36px;
   }

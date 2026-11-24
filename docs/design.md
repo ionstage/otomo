@@ -274,6 +274,14 @@ music.
 - Above the first row there is 40 px of space (24 px on short screens), so
   that the top triangle has clear space above it. The view keeps this space
   as it scrolls.
+- The play screen has no header, so the roll has the most height on short
+  screens. Above that space, before the first row, the song title is shown
+  on one line and the part name directly below it, smaller and muted.
+  Titles can be long, so each has its own line, cut short with "…" if it
+  does not fit. The title starts at the rows' left edge, but is indented to
+  clear the back button (see [Quitting a song](#quitting-a-song)). It
+  scrolls with the rows and leaves the screen during the count-in, since it
+  is only needed at the start.
 - Row height is fixed, and does not grow to fill a tall screen. It is the same
   in every mode, even where there are no marks, so that the roll does not
   change with the difficulty. On short screens the rows are smaller, but on
@@ -285,8 +293,11 @@ music.
   row per row of music, a row behind the line: the current row slides from
   the second slot up to the top slot as it is played, so the row just
   finished stays visible above it until the next row reaches the top. The
-  first row stays at the top until the line reaches the second row. The line
-  itself still jumps from the end of one row to the start of the next.
+  view starts with the title at the top and begins to move at the same
+  pace just early enough that the title has left the screen when the line
+  reaches the second row, so the title and the rows scroll at one constant
+  pace. The line itself still jumps from the end of one row to the start
+  of the next.
 
 ### Feedback while playing
 
@@ -437,7 +448,14 @@ set its timing. It is not part of the song data.
 
 ### Quitting a song
 
-A Quit button is at the top of the play screen. Pressing it pauses the song
+A back icon button, named "Quit" for screen readers, is in the top-left
+corner of the roll. It does not scroll. It is faint and semi-transparent,
+growing clearer on hover or focus, so that it does not draw attention from
+the music, but its touch area is a full 44 px. The top-left is a familiar
+place for a back button, and the player's eye moves from the lower left
+towards the upper right as the roll scrolls up, so it is the corner least
+likely to cover what they are reading: the top row there has already been
+played. Pressing it pauses the song
 (the music, the count-in and the roll all stop where they are) and asks
 "Quit this song?" with two choices:
 

@@ -11,8 +11,6 @@ import { positionAt, resolveSong } from './song.js';
 // finish sounding.
 const END_DELAY = 0.5;
 
-const DIFFICULTY_NAMES = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
-
 const screens = {
   setup: document.getElementById('setup'),
   play: document.getElementById('play'),
@@ -22,7 +20,8 @@ const setupForm = document.getElementById('setup-form');
 const songSelect = document.getElementById('song-select');
 const partSelect = document.getElementById('part-select');
 const setupMessage = document.getElementById('setup-message');
-const playTitle = document.getElementById('play-title');
+const playSong = document.getElementById('play-song');
+const playPart = document.getElementById('play-part');
 const noteButtons = [...document.querySelectorAll('[data-button]')];
 const modifierArea = document.querySelector('.modifiers');
 const modifierButtons = [...modifierArea.querySelectorAll('[data-modifier]')];
@@ -31,7 +30,7 @@ const scoreText = document.getElementById('score');
 const resultTitle = document.getElementById('result-title');
 const quitDialog = document.getElementById('quit-dialog');
 
-const roll = new Roll(document.getElementById('roll'));
+const roll = new Roll(document.getElementById('roll'), document.getElementById('play-title'));
 // The buttons are no wider than the roll's rows, so their edges line up.
 const controls = document.querySelector('.controls');
 roll.onLayout = (width) => controls.style.setProperty('--row-width', `${width}px`);
@@ -104,7 +103,8 @@ function startGame({ song, partIndex, difficulty }) {
     frame: 0,
     paused: false,
   };
-  playTitle.textContent = `${song.title} · ${part.name} · ${DIFFICULTY_NAMES[difficulty]}`;
+  playSong.textContent = song.title;
+  playPart.textContent = part.name;
   screens.play.dataset.difficulty = difficulty;
   for (const button of modifierButtons) {
     button.disabled = difficulty !== 'advanced';

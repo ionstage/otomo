@@ -89,11 +89,16 @@ function clamp(value, min, max) {
 
 // How far the view has scrolled, in rows. It moves at a steady pace of one
 // row per row of music, a row behind the line, so the current row slides from
-// the second slot up to the top slot as it is played. The first row stays at
-// the top until the line reaches the second. `beat` counts from the start of
-// the roll, which is the start of the count-in.
-export function scrollRows(beat, beatsPerRow) {
-  return Math.max(0, beat / beatsPerRow - 1);
+// the second slot up to the top slot as it is played. `beat` counts from the
+// start of the roll, which is the start of the count-in.
+// The title sits above the first row, `lead` rows tall. The view starts on
+// it and begins to move that much earlier, at the same pace, so the title
+// has just left the top when the line reaches the second row. With no title
+// the first row stays at the top until then. A title taller than a row
+// would start partly scrolled off.
+export function scrollRows(beat, beatsPerRow, lead = 0) {
+  // 0 - lead, not -lead, so that no title gives 0 rather than -0.
+  return Math.max(0 - lead, beat / beatsPerRow - 1);
 }
 
 // The bounce of the line's triangles at `beat`, from 0 on a beat to 1
@@ -156,8 +161,10 @@ function topRoundedRect(context, x, y, width, height, leftRadius, rightRadius) {
 }
 
 export class Roll {
-  constructor(canvas) {
+  // `title` is the element above the first row, moved up with the rows.
+  constructor(canvas, title) {
     this.canvas = canvas;
+    this.title = title;
     this.context = canvas.getContext('2d');
     this.song = null;
     this.effects = [];
@@ -218,6 +225,10 @@ export class Roll {
     this.beatsPerRow = this.song.beatsPerGroup;
     this.beatWidth = row.beatWidth;
     this.left = (this.width - row.width) / 2;
+    // The title starts at the rows' left edge, and its height comes after
+    // that, since it can change with the width.
+    this.title.style.setProperty('--row-left', `${this.left}px`);
+    this.titleHeight = this.title.offsetHeight;
     // The buttons keep the width of a row of 4/4 in every song, so they do
     // not change size from song to song.
     this.onLayout?.(rowLayout(this.width, 4, short).width);
@@ -293,9 +304,13 @@ export class Roll {
     context.fillRect(0, 0, this.width, this.height);
     // Whole device pixels, so text and grid lines do not shimmer as the view
     // moves.
-    const scrolled = scrollRows(beat + this.song.countIn.beats, this.beatsPerRow) * this.rowHeight - this.size(this.space.top);
+    const lead = this.titleHeight / this.rowHeight;
+    const space = this.size(this.space.top);
+    const scrolled = scrollRows(beat + this.song.countIn.beats, this.beatsPerRow, lead) * this.rowHeight - space;
     const top = Math.round(scrolled * this.ratio) / this.ratio;
     context.translate(0, -top);
+    // The title's bottom edge sits the top space above the first row.
+    this.title.style.transform = `translateY(${-space - this.titleHeight - top}px)`;
 
     const firstRow = Math.max(0, Math.floor(top / this.rowHeight));
     const lastRow = Math.min(this.rows - 1, Math.floor((top + this.height) / this.rowHeight));
