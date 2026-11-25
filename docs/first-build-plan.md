@@ -4,9 +4,10 @@ This is the handoff for implementing the first build described in section 8 of
 [design.md](design.md). The design document says what to build. This document
 suggests how, and lists what the design leaves undecided.
 
-All seven steps below have been implemented, and the user has made the checks
-for steps 2, 3, 4 and 6, including on a real phone, with no particular issues.
-What remains is the tuning described in "After the first build".
+The first build is complete. All seven steps below have been implemented, the
+user has made the checks for steps 2, 3, 4 and 6, including on a real phone,
+and the round of tuning described in "After the first build" is done. This
+document is kept as a record.
 
 ## Suggested file layout
 
@@ -134,5 +135,6 @@ developed by discussion.
 
 ## After the first build
 
-The user plans to play it and then adjust scoring numbers, the touch layout and
-other details. Expect a round of tuning before any work on multiple devices.
+The user played it and adjusted the scoring numbers, the touch layout and
+other details. That round of tuning is complete, and work moves on to section
+9 of the design, starting with multiple devices.

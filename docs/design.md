@@ -327,8 +327,7 @@ The eight note buttons are always on screen, on desktop as well. The two
 modifier buttons are on screen in advanced mode only. They light up when
 pressed, including when the press comes from the keyboard.
 
-Touch layout (needs testing on real phones): landscape
-orientation, the eight note buttons in a row along the bottom, and the two
+Touch layout, checked on a real phone: landscape orientation, the eight note buttons in a row along the bottom, and the two
 modifier buttons in a row above them. Each modifier button is as wide as four
 note buttons: semitone above buttons 1 to 4, octave above buttons 5 to 8. In
 beginner and intermediate modes, where the modifier buttons are hidden, the
@@ -594,7 +593,8 @@ later composition tool and MIDI converter will address.
 
 - Plain JavaScript using ES modules, with no framework and no build step.
 - The game is a set of static files. Playing alone, with every other part on
-  autoplay, runs entirely on one device.
+  autoplay, runs entirely on one device. Several devices connect directly to
+  each other (see section 9), so no server is needed then either.
 - Because ES modules and `fetch` do not work from `file://`, the files must be
   served over HTTP, by any static file server or a static host.
 - The game is published with GitHub Pages at https://www.ionstage.org/otomo/.
@@ -607,8 +607,12 @@ later composition tool and MIDI converter will address.
 - Scoring and pitch calculation are kept as pure functions, separate from
   audio and display, so they can be unit tested with Node's built-in test
   runner without adding dependencies.
-- The project has no third-party dependencies. Adding one needs agreement
-  first, partly because its licence could affect the project's licence.
+- Third-party code needs agreement first, partly because its licence could
+  affect the project's licence. Two libraries are agreed, for multiple
+  devices: jsQR (Apache-2.0) to read QR codes from the camera, and Nayuki's
+  QR Code generator (MIT) to draw them. Each is kept in the repository as a
+  plain JavaScript file with its licence beside it, with no package manager
+  and no build step.
 
 ## 8. First build
 
@@ -635,37 +639,70 @@ Not included:
 
 ## 9. Later
 
-- **Multiple devices.** Further players connect to the first player's device.
-  A browser page cannot accept incoming connections, so this needs either a
-  small server program on the first player's computer (WebSocket, works without
-  internet, host must be a computer) or WebRTC (any device can host, needs a
-  small helper server on the internet to introduce the devices). The network
-  only carries clock sync, the start signal and scores. Undecided.
+These are taken up in the order listed. Multiple devices come first, as the
+point of the game and its largest technical risk. Percussion and chord parts
+are designed together, since both give the `buttons` field a new meaning.
+The song tools follow once the format has settled.
+
+- **Multiple devices.** Further players connect to the first player's
+  device, the host. The network only carries clock sync, the start signal and
+  scores. The plan for this work is in `docs/multi-device-plan.md`. Agreed so
+  far:
+  - The devices connect directly over WebRTC data channels on the local
+    network, with no server of any kind. Each guest connects to the host
+    only, so the host is the hub.
+  - The connection details are passed by QR code. The host shows a code
+    holding a link to the game, such as `…/otomo/#join=<data>`, and the guest
+    scans it with the phone's own camera app, which also opens the game. The
+    guest's screen then shows a reply code, which the host scans in the
+    game. The host shows a fresh code for each guest.
+  - Only the fields that differ between connections are sent (the ICE user
+    fragment and password, the DTLS fingerprint and the candidates), and the
+    rest of the session description is rebuilt on the other side, so the
+    codes stay small and easy to scan.
+  - The same data can also be shown as a link to copy, for testing with two
+    windows on one computer and for sharing through AirDrop or a messaging
+    app.
+  - All devices must be on a network that lets them reach each other. Guest
+    and public Wi-Fi often does not, and a phone's hotspot is the usual way
+    round that. The page itself is loaded from the web the first time.
+  - Every device plays the parts nobody has taken. Their volume is lowered
+    as devices join, for example divided by the square root of the number
+    of devices, so that each player's own part stays slightly louder than
+    autoplay. Identical sound from several speakers shows timing differences
+    as phasing, so this is reviewed after the trial. If it does not sound
+    right, each untaken part is played by one device only.
+  - The work starts with a trial: two phones connecting by QR code on home
+    Wi-Fi and on a hotspot, and a measure of how closely their clocks agree,
+    before the game screens depend on it.
 - **Percussion parts**, where each of the eight buttons is a different
   percussive sound.
 - **Chord parts**, where each of the eight buttons is one of the chords used in
   the song.
-- **Composition tool** for writing songs in the format.
 - **MIDI conversion** into the format.
+- **Composition tool** for writing songs in the format.
 - **Sampled instrument sounds.**
 - **Online play.** Deferred because of network latency.
 
 ## 10. Open questions
 
-1. **Tuning after play.** The scoring windows and weights in section 5 and the
-   touch layout in section 4 are agreed as starting points. The first build
-   has been played, including on a real phone, with no issues so far. They
-   may still be adjusted after further play.
+1. **Tuning after play.** The first build has been played, including on a
+   real phone, and the round of tuning after it is complete. The scoring
+   windows and weights in section 5 and the touch layout in section 4 may
+   still be adjusted after further play.
 2. **Latency calibration.** Some devices, and all Bluetooth speakers and
    headphones, delay sound noticeably. On a phone's own speakers the first
    build's timing feels fine, so no offset setting is planned for now.
    Bluetooth audio is left for later. A tap-along calibration (the player
    taps to a steady click and the median offset is saved per device) is the
    likely approach if it is taken up.
-3. **Licence.** The project uses the MIT License (see `LICENSE`). It may
-   change if the licence of a library the project comes to depend on requires
-   it.
-4. **Multi-device connection method.** See section 9.
+3. **Licence.** The project uses the MIT License (see `LICENSE`). jsQR's
+   Apache-2.0 licence is compatible with it and only needs its licence text
+   to be kept with the file. The project's licence may change if a library
+   it comes to depend on requires it.
+4. **Multiple devices.** The connection method is decided (see section 9).
+   The questions still open, such as late joining and sharing a part, are
+   listed in `docs/multi-device-plan.md`.
 5. **Arrangement weights and shifts.** The costs in
    [Scale position](#scale-position) are starting points. The songs have
    been played with no issues so far. The weights may still change, and a
