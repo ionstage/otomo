@@ -92,17 +92,22 @@ Each step ends with something that can be checked.
    sounds right from two devices. Then decide whether to go on as agreed, or
    change the approach (see "After the trial").
 3. **Joining.** The setup screen gains a way to host and to join. The host
-   sees who has joined. A guest who opens a `#join=` link goes straight to
-   showing the reply code.
-4. **Playing together.** The host starts the song, every device counts in
-   and plays together, every device plays the untaken parts at the lowered
-   volume, and each plays its own player's part. Check: two people play a
+   sees who has joined, and shows its code only between songs. A guest who
+   opens a `#join=` link goes straight to showing the reply code.
+4. **Choosing and starting.** The lobby, as in section 9 of the design: the
+   turn to choose the song, choosing a part and a difficulty as the ready
+   tap, and the start when everyone is ready. Check: three devices take
+   turns through a few songs, and the song starts when the last player
+   chooses, or when a player who has not chosen disconnects.
+5. **Playing together.** Every device counts in and plays together, plays
+   the untaken parts at the lowered volume, and plays its own player's part.
+   Quit as the design describes, with no pause. Check: two people play a
    song together on two phones.
-5. **Scores.** Each device sends its song score to the host, which sends the
-   group score back to everyone. The result screen shows both. Check: the
-   group score is the average of the players' song scores.
-6. **Dropping out.** Behaviour when a guest or the host disconnects, as
-   decided (see "Not yet decided").
+6. **Scores and lost connections.** Each device sends its song score to the
+   host, which sends the group score back to everyone. A device that loses
+   its connection plays on and shows only its own score. Check: the group
+   score is the average of the players' song scores, and turning a guest's
+   Wi-Fi off mid-song leaves the others' result correct.
 
 ## Technical notes
 
@@ -149,19 +154,16 @@ Each step ends with something that can be checked.
 
 ## Not yet decided
 
-The trial does not depend on any of these, so they can be decided while it
-runs. Each has a suggested default. Ask the user before implementing any of
-them, since several change how the game is played.
+How the group plays together was decided with the user and is in section 9
+of the design. These smaller points remain, each with a suggested default.
+Use the default and report it, unless it turns out to need more than that.
 
 | Topic | Suggested default |
 |---|---|
-| Who chooses the song | The host chooses the song. Each player chooses their own part and difficulty on their own device. |
-| Two players on the same part | Allowed. Both play it, each hearing their own, and it is not autoplayed. |
-| Joining late | Only in the lobby, between songs. |
-| A guest disconnects mid-song | The song carries on for everyone. That player's part goes silent, since autoplay never covers for a player, and their score is left out of the group score. |
-| The host disconnects mid-song | Guests play to the end on their own clocks and see only their own score. |
-| Playing again | The host chooses the next song, or the same one again, and everyone stays connected. |
-| Group score on the result screen | Shown below the player's own score, with the number of players, once every score has arrived. |
+| Showing who is ready | Every device lists the players and which of them are ready. |
+| The result screen with several devices | One button, Continue, back to the lobby for the next player's turn, and a way to leave the group. Play again and Change song stay as they are for one device. |
+| The chooser leaves before choosing | The turn passes to the next player. |
+| Changing a choice after being ready | Allowed until the song starts. The player stays ready. |
 | Latency calibration (open question 2 of the design) | Not for now. Compensate with the reported output latency and revisit after the trial. |
 | Number of players | No fixed limit. Test with three or four. |
 

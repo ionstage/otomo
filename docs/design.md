@@ -672,6 +672,32 @@ The song tools follow once the format has settled.
     autoplay. Identical sound from several speakers shows timing differences
     as phasing, so this is reviewed after the trial. If it does not sound
     right, each untaken part is played by one device only.
+  - Players join only between songs. The host's code is not shown during a
+    song.
+  - Players take turns choosing the song: the host chooses the first, and
+    after each song the turn passes to the next player in the order they
+    joined. Anyone who has left is skipped, and anyone who joins goes to the
+    end of the order.
+  - Every player chooses their own part and difficulty for every song. Two
+    players may take the same part. Each hears only their own, and the part
+    is not autoplayed.
+  - Neither a part nor a difficulty is chosen when a song is chosen, so each
+    player chooses both afresh for every song. Choosing both marks the player
+    ready, and the tap also starts the device's audio.
+  - The song starts as soon as every player is ready, with no warning beyond
+    the count-in. There is no time limit: the players are in one room, so
+    they can ask anyone who has not chosen yet. A player whose device
+    disconnects, for example because it went to sleep, is no longer waited
+    for.
+  - Nothing pauses with several devices. A guest's Quit asks to confirm with
+    the music still playing, and takes only that player out of the song. The
+    host's Quit ends the song for everyone.
+  - A device that loses its connection plays on to the end on its own clock.
+    It then sees only its own score and is left out of the group score, and
+    the player rejoins by scanning the host's code again. If the host's
+    connection is lost, every guest is in that position.
+  - The result screen shows the player's own score and, below it, the group
+    score with the number of players, once every score has arrived.
   - The work starts with a trial: two phones connecting by QR code on home
     Wi-Fi and on a hotspot, and a measure of how closely their clocks agree,
     before the game screens depend on it.
