@@ -1,6 +1,8 @@
-// Wires the screens together: setup, play and result.
+// Wires the screens together: setup, play and result, and a guest's screen
+// when playing together.
 
 import { AudioEngine } from './audio.js';
+import { Group } from './group.js';
 import { Input } from './input.js';
 import { LATE_MODIFIER_WINDOW, createJudge, pressPitch } from './judge.js';
 import { buttonPitchName } from './pitch.js';
@@ -13,6 +15,7 @@ const END_DELAY = 0.5;
 
 const screens = {
   setup: document.getElementById('setup'),
+  guest: document.getElementById('guest'),
   play: document.getElementById('play'),
   result: document.getElementById('result'),
 };
@@ -47,6 +50,7 @@ let songs = [];
 let audio = null;
 let game = null;
 let lastSettings = null;
+const group = new Group({ show });
 
 function show(name) {
   for (const [key, element] of Object.entries(screens)) {
@@ -92,6 +96,7 @@ function showParts() {
 function startGame({ song, partIndex, difficulty }) {
   const part = song.parts[partIndex];
   lastSettings = { song, partIndex, difficulty };
+  group.songStarting();
   game = {
     song,
     part,
@@ -296,3 +301,4 @@ document.getElementById('again-button').addEventListener('click', () => {
 document.getElementById('change-button').addEventListener('click', () => show('setup'));
 
 loadSongs();
+group.openJoinLink();

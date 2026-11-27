@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import {
   SignalError,
   buildDescription,
+  findPackedText,
   fromBase64url,
   packDescription,
   packFields,
@@ -117,4 +118,13 @@ test('rejects a description it cannot pack', () => {
   assert.throws(() => parseDescription(sdp.replace(/a=ice-pwd:.*\r\n/, '')), SignalError);
   assert.throws(() => parseDescription(sdp.replace('sha-256', 'sha-1')), SignalError);
   assert.throws(() => parseDescription(sdp.replace('a=setup:actpass', 'a=setup:holdconn')), SignalError);
+});
+
+test('finds the packed text in a link or on its own', () => {
+  assert.equal(findPackedText('https://www.ionstage.org/otomo/#join=EATQ-_x'), 'EATQ-_x');
+  assert.equal(findPackedText('  EATQ-_x\n'), 'EATQ-_x');
+  assert.equal(findPackedText('Join me: https://example.org/otomo/#join=abc'), 'abc');
+  assert.equal(findPackedText('not a code'), null);
+  assert.equal(findPackedText(''), null);
+  assert.equal(findPackedText(undefined), null);
 });

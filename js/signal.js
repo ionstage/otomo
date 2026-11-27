@@ -405,3 +405,17 @@ export function packDescription(description) {
 export function unpackDescription(text) {
   return buildDescription(unpackFields(fromBase64url(text)));
 }
+
+// The packed text in something a player pasted: a link with #join=, or the
+// packed text alone. Returns null if there is none.
+export function findPackedText(text) {
+  if (typeof text !== 'string') {
+    return null;
+  }
+  const trimmed = text.trim();
+  const fragment = /#join=([A-Za-z0-9_-]+)/.exec(trimmed);
+  if (fragment) {
+    return fragment[1];
+  }
+  return /^[A-Za-z0-9_-]+$/.test(trimmed) ? trimmed : null;
+}

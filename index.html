@@ -32,12 +32,74 @@
       <button type="submit" class="primary">Start</button>
     </form>
     <p id="setup-message" class="message" role="alert"></p>
+    <section id="together" class="together" aria-labelledby="together-title">
+      <h2 id="together-title">Play together</h2>
+      <div id="together-start">
+        <p class="hint">Each player uses their own device, on the same Wi-Fi.
+          One hosts, and the others scan the host's code with their camera app.</p>
+        <div class="buttons">
+          <button id="host-button" type="button">Host</button>
+          <button id="join-button" type="button">Join with a link</button>
+        </div>
+        <div id="join-paste" class="stack" hidden>
+          <label>The host's link
+            <textarea id="join-input" rows="2" spellcheck="false" autocapitalize="off"></textarea></label>
+          <div class="buttons"><button id="join-input-button" type="button" class="primary">Join</button></div>
+        </div>
+      </div>
+      <div id="group" hidden>
+        <ul id="player-list" class="players"></ul>
+        <div id="group-buttons" class="buttons">
+          <button id="add-player-button" type="button" class="primary">Add a player</button>
+          <button id="end-group-button" type="button">End the group</button>
+        </div>
+        <div id="invite" class="invite stack" hidden>
+          <p class="hint">The new player scans this with their camera app, or opens the link.</p>
+          <canvas id="invite-code" class="code" role="img" aria-label="QR code for joining"></canvas>
+          <div class="buttons">
+            <button id="invite-copy" type="button">Copy link</button>
+            <button id="invite-share" type="button" hidden>Share</button>
+          </div>
+          <textarea id="invite-text" rows="3" readonly spellcheck="false" hidden></textarea>
+          <p class="hint">Their device then shows a code. Scan it here, or paste it.</p>
+          <div class="buttons">
+            <button id="scan-button" type="button" class="primary">Scan their code</button>
+            <button id="scan-stop" type="button" hidden>Stop the camera</button>
+          </div>
+          <video id="scan-video" class="camera" playsinline muted hidden></video>
+          <label>Their code
+            <textarea id="reply-input" rows="2" spellcheck="false" autocapitalize="off"></textarea></label>
+          <div class="buttons">
+            <button id="reply-button" type="button">Connect</button>
+            <button id="invite-cancel" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <p id="together-message" class="message" role="alert"></p>
+    </section>
     <section class="help">
       <h2>Keys</h2>
       <p><kbd>1</kbd>–<kbd>8</kbd> play the notes of a scale, from low to high.</p>
       <p><kbd>C</kbd> or <kbd>9</kbd> raises a semitone (♯). <kbd>V</kbd> or <kbd>0</kbd> raises an octave (↑).
         Hold them while pressing a number, or press them just after it.</p>
     </section>
+  </main>
+
+  <main id="guest" class="screen setup guest" hidden>
+    <h1>Otomo</h1>
+    <p class="tagline">Play music together.</p>
+    <div id="guest-reply" class="stack" hidden>
+      <p>Show this code to the host, who scans it in Otomo.</p>
+      <canvas id="reply-code" class="code" role="img" aria-label="QR code for the host"></canvas>
+      <div class="buttons">
+        <button id="reply-copy" type="button">Copy code</button>
+        <button id="reply-share" type="button" hidden>Share</button>
+      </div>
+      <textarea id="reply-text" rows="2" readonly spellcheck="false" hidden></textarea>
+    </div>
+    <p id="guest-status" class="status" aria-live="polite"></p>
+    <p id="guest-message" class="message" role="alert"></p>
+    <div class="buttons"><button id="leave-button" type="button">Leave</button></div>
   </main>
 
   <section id="play" class="screen play" hidden>
