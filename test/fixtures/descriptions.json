@@ -1,0 +1,35 @@
+{
+  "chrome-mdns": {
+    "source": "Captured from Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
+    "offer": {
+      "type": "offer",
+      "sdp": "v=0\r\no=- 7124044484023794811 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=candidate:3696520274 1 udp 2113937151 13a1db6a-ce74-4890-9031-33b22a846ef6.local 52216 typ host generation 0 network-cost 999\r\na=ice-ufrag:0IbL\r\na=ice-pwd:m3HhOfeU/ra6MUNsHcehmv+c\r\na=ice-options:trickle\r\na=fingerprint:sha-256 4D:0D:2E:65:BD:D4:C0:0C:43:79:4A:88:C9:AA:C0:CF:68:F8:F8:2E:A2:73:CC:70:01:5B:03:81:D3:F2:46:0B\r\na=setup:actpass\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+    },
+    "answer": {
+      "type": "answer",
+      "sdp": "v=0\r\no=- 371280321068386957 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=candidate:3893155401 1 udp 2113937151 13a1db6a-ce74-4890-9031-33b22a846ef6.local 59898 typ host generation 0 network-cost 999\r\na=ice-ufrag:Z3bY\r\na=ice-pwd:SBxlGiyIsRgsz3wQ1O8AW6/f\r\na=ice-options:trickle\r\na=fingerprint:sha-256 B8:61:A3:84:9C:18:D5:41:76:63:C9:60:1B:3F:FF:B2:F1:15:FA:43:C5:5C:FE:4A:C5:56:9E:D0:7C:E0:84:37\r\na=setup:active\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+    }
+  },
+  "chrome-ip": {
+    "source": "Captured from Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36 with mDNS names turned off, as for a page with camera permission. The LAN address was replaced with 192.168.1.20.",
+    "offer": {
+      "type": "offer",
+      "sdp": "v=0\r\no=- 2425283477749361014 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 54353 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.1.20\r\na=candidate:263781333 1 udp 2113937151 192.168.1.20 54353 typ host generation 0 network-cost 999\r\na=ice-ufrag:apN1\r\na=ice-pwd:2M4atPkwWqysb9n3JqU4vRJc\r\na=ice-options:trickle\r\na=fingerprint:sha-256 46:B0:EB:CE:6D:ED:DD:62:BC:EF:1C:42:E6:AA:51:E7:D9:56:B6:9B:30:5F:6B:72:F9:72:22:6B:49:FD:A1:AF\r\na=setup:actpass\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+    },
+    "answer": {
+      "type": "answer",
+      "sdp": "v=0\r\no=- 4979836103078820936 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 61476 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.1.20\r\na=candidate:611259276 1 udp 2113937151 192.168.1.20 61476 typ host generation 0 network-cost 999\r\na=ice-ufrag:p67D\r\na=ice-pwd:6AHDAQfIXzTn2liIXQiT17np\r\na=ice-options:trickle\r\na=fingerprint:sha-256 51:B2:2F:07:FB:BF:0A:46:46:63:B9:92:C9:9E:C6:41:93:FF:2A:D4:22:0C:1F:86:6B:AE:70:1F:57:28:4A:33\r\na=setup:active\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+    }
+  },
+  "firefox-format": {
+    "source": "Written by hand in the form Firefox gives, not captured. Replace with a capture from Firefox.",
+    "offer": {
+      "type": "offer",
+      "sdp": "v=0\r\no=mozilla...THIS_IS_SDPARTA-133.0 4875385934727394000 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 4A:0B:9E:21:7C:55:D3:18:E0:6F:92:AB:3C:47:81:D9:05:E6:7B:CA:12:F8:60:3D:AE:94:2F:71:C8:5B:E3:06\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 52143 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.1.21\r\na=candidate:0 1 UDP 2122252543 192.168.1.21 52143 typ host\r\na=candidate:1 1 UDP 2122187007 fd00:1:2:3:4c3a:9ff:fe12:3456 60412 typ host\r\na=candidate:2 1 TCP 2105524479 192.168.1.21 9 typ host tcptype active\r\na=candidate:3 1 TCP 2105458943 fd00:1:2:3:4c3a:9ff:fe12:3456 9 typ host tcptype active\r\na=sendrecv\r\na=end-of-candidates\r\na=ice-pwd:6c5f1e0a9b3d47e28f01c9a4b7d2e356\r\na=ice-ufrag:3f8a1c2e\r\na=mid:0\r\na=setup:actpass\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"
+    },
+    "answer": {
+      "type": "answer",
+      "sdp": "v=0\r\no=mozilla...THIS_IS_SDPARTA-133.0 4875385934727394000 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\na=fingerprint:sha-256 4A:0B:9E:21:7C:55:D3:18:E0:6F:92:AB:3C:47:81:D9:05:E6:7B:CA:12:F8:60:3D:AE:94:2F:71:C8:5B:E3:06\r\na=group:BUNDLE 0\r\na=ice-options:trickle\r\na=msid-semantic:WMS *\r\nm=application 58920 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.1.21\r\na=candidate:0 1 UDP 2122252543 192.168.1.21 58920 typ host\r\na=candidate:1 1 UDP 2122187007 fd00:1:2:3:4c3a:9ff:fe12:3456 61007 typ host\r\na=candidate:2 1 TCP 2105524479 192.168.1.21 9 typ host tcptype active\r\na=candidate:3 1 TCP 2105458943 fd00:1:2:3:4c3a:9ff:fe12:3456 9 typ host tcptype active\r\na=sendrecv\r\na=end-of-candidates\r\na=ice-pwd:e2a7c05d31f84b9a6d0e1c7f2b5a8e43\r\na=ice-ufrag:9d04b7e1\r\na=mid:0\r\na=setup:active\r\na=sctp-port:5000\r\na=max-message-size:1073741823\r\n"
+    }
+  }
+}
