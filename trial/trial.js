@@ -17,8 +17,10 @@ const ESTIMATE_WINDOW = 20;
 // Seconds between points on the chart, and kept for the drift.
 const HISTORY_INTERVAL = 5;
 const TICK_INTERVAL = 25;
-// Clicks are scheduled this far ahead, in seconds.
-const CLICK_AHEAD = 0.2;
+// Clicks are scheduled this far ahead, in seconds. Far enough that a
+// browser running timers only once a second, as in a background tab, still
+// schedules every click in time.
+const CLICK_AHEAD = 1.2;
 // Seconds from the tap to the song's first count-in beat.
 const SONG_LEAD = 1.5;
 
@@ -57,6 +59,10 @@ let clockSource = '—';
 let lead = null;
 let clicksOn = false;
 let nextClick = null;
+// The first few clicks after the clicks start are logged, to check their
+// timing on a device.
+let clicksToLog = 0;
+let waitingLogged = false;
 let wakeLock = null;
 
 // Host
@@ -152,6 +158,10 @@ function tick() {
 function scheduleClicks() {
   const offset = scheduleOffset();
   if (offset === null) {
+    if (!waitingLogged) {
+      waitingLogged = true;
+      log('The clicks wait for a clock estimate.');
+    }
     return;
   }
   const now = audio.context.currentTime;
@@ -161,6 +171,10 @@ function scheduleClicks() {
     if (at > now) {
       audio.click(at);
     }
+    if (clicksToLog > 0) {
+      clicksToLog--;
+      log(`Click for host second ${second}: ${at > now ? 'scheduled' : 'skipped, too late'} at context time ${at.toFixed(3)}, now ${now.toFixed(3)}, heard time ${audibleNow().toFixed(3)}, offset ${ms(offset)}, audio ${audio.context.state}.`);
+    }
     second++;
   }
   nextClick = second;
@@ -169,6 +183,8 @@ function scheduleClicks() {
 function setClicks(on) {
   clicksOn = on;
   nextClick = null;
+  clicksToLog = on ? 3 : 0;
+  waitingLogged = false;
   $('clicks-button').textContent = on ? 'Stop the clicks' : 'Start the clicks';
   log(on ? 'Clicks on.' : 'Clicks off.');
 }
@@ -197,7 +213,9 @@ function stopSong() {
 }
 
 function showAudio() {
-  $('audio-state').textContent = `${audio.context.state}, ${audio.context.sampleRate} Hz`;
+  const stamp = audio.context.getOutputTimestamp?.();
+  const stampText = stamp ? `output timestamp ${stamp.contextTime?.toFixed(3)} at ${stamp.performanceTime?.toFixed(1)} ms` : 'no output timestamp';
+  $('audio-state').textContent = `${audio.context.state}, ${audio.context.sampleRate} Hz; context time ${audio.context.currentTime.toFixed(3)}, heard time ${audibleNow().toFixed(3)}; ${stampText}; performance.now ${performance.now().toFixed(1)} ms`;
   const output = audio.context.outputLatency;
   $('audio-latency').textContent = `${ms(reportedLatency())} (output ${output === undefined ? 'not reported' : ms(output)}, base ${ms(audio.context.baseLatency)}); measured lead ${ms(lead)}`;
   $('audio-clock').textContent = clockSource;
@@ -603,6 +621,14 @@ $('latency-on').addEventListener('change', () => {
   nextClick = null;
   log($('latency-on').checked ? 'Allowing for output latency.' : 'Not allowing for output latency.');
 });
+$('test-sound').addEventListener('click', () => {
+  if (!audio) {
+    startAudio();
+  }
+  const at = audio.context.currentTime + 0.05;
+  audio.click(at);
+  log(`Test click at context time ${at.toFixed(3)}, audio ${audio.context.state}, master gain ${audio.master.gain.value.toFixed(2)}.`);
+});
 $('raw-button').addEventListener('click', () => {
   $('raw-text').value = rawDescriptions();
   copyText($('raw-text'));
@@ -618,6 +644,10 @@ document.addEventListener('pointerdown', () => {
     audio.resume().then(applySound);
   }
 });
+
+// Errors are shown in the log, since phones have no console to hand.
+window.addEventListener('error', (event) => log(`Error: ${event.message}`));
+window.addEventListener('unhandledrejection', (event) => log(`Error: ${event.reason?.message ?? event.reason}`));
 
 loadSongs();
 
