@@ -98,6 +98,11 @@ Each step ends with something that can be checked.
    opens a `#join=` link goes straight to showing the reply code. When a
    connection does not open, both devices say so, and mention the Local
    Network permission on a Mac.
+
+   Done, and checked by the user on an iPad, an iPhone and a Mac: joining by
+   camera, a third device, leaving, ending the group, the layout on a phone
+   and playing alone. Until step 4, a guest waits, and the host can still
+   play alone.
 4. **Choosing and starting.** The lobby, as in section 9 of the design: the
    turn to choose the song, choosing a part and a difficulty as the ready
    tap, and the start when everyone is ready. Check: three devices take
