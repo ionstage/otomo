@@ -134,7 +134,12 @@ function scheduleOffset() {
 
 // ---- Audio
 
+// Called during a user gesture. As in the game, the page plays like a music
+// player, so iOS does not mute it in silent mode.
 function startAudio() {
+  if (navigator.audioSession) {
+    navigator.audioSession.type = 'playback';
+  }
   if (!audio) {
     audio = new TrialAudio();
     setInterval(tick, TICK_INTERVAL);
