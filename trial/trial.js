@@ -57,8 +57,6 @@ let songs = [];
 let clockSource = '—';
 // How far the context's render clock runs ahead of what is heard, smoothed.
 let lead = null;
-// How far the render clock runs ahead of the output timestamp, smoothed.
-let stampLead = null;
 let clicksOn = false;
 let nextClick = null;
 // The first few clicks after the clicks start are logged, to check their
@@ -96,47 +94,20 @@ function ms(seconds, digits = 1) {
 
 // ---- Clocks
 
-function reportedLatency() {
-  return (audio.context.outputLatency || 0) + (audio.context.baseLatency || 0);
-}
-
 // This device's clock: the context time of the sound leaving the speaker
-// now. A note scheduled at context time T is heard when this reads T.
-//
-// Chrome's output timestamp allows for the output latency, Bluetooth
-// included. Safari's does not: it runs level with currentTime even when the
-// reported latency is 190 ms. So the latency the timestamp leaves out, the
-// reported latency less its lead, is taken off. On Chrome that is a couple
-// of milliseconds.
+// now. A note scheduled at context time T is heard when this reads T. See
+// AudioEngine.audibleTime for how the output latency is allowed for.
 function audibleNow() {
-  const context = audio.context;
-  const stamped = stampTime();
-  if (stamped === null) {
-    clockSource = 'currentTime less the reported latency';
-    return context.currentTime - reportedLatency();
-  }
-  const missing = Math.max(0, reportedLatency() - (stampLead ?? reportedLatency()));
-  clockSource = `getOutputTimestamp, less ${ms(missing)} it leaves out`;
-  return stamped - missing;
-}
-
-// The context time being heard now by the output timestamp, or null.
-function stampTime() {
-  const stamp = audio.context.getOutputTimestamp?.();
-  if (stamp && stamp.contextTime > 0 && stamp.performanceTime > 0) {
-    return stamp.contextTime + (performance.now() - stamp.performanceTime) / 1000;
-  }
-  return null;
+  const stamped = audio.context.getOutputTimestamp?.()?.contextTime > 0;
+  clockSource = stamped
+    ? `getOutputTimestamp, less ${ms(audio.missingLatency())} it leaves out`
+    : 'currentTime less the reported latency';
+  return audio.audibleTime(performance.now());
 }
 
 function updateLead() {
   if (audio.context.state !== 'running') {
     return;
-  }
-  const stamped = stampTime();
-  if (stamped !== null) {
-    const value = audio.context.currentTime - stamped;
-    stampLead = stampLead === null ? value : stampLead * 0.95 + value * 0.05;
   }
   const value = audio.context.currentTime - audibleNow();
   lead = lead === null ? value : lead * 0.95 + value * 0.05;
@@ -245,7 +216,7 @@ function showAudio() {
   const stampText = stamp ? `output timestamp ${stamp.contextTime?.toFixed(3)} at ${stamp.performanceTime?.toFixed(1)} ms` : 'no output timestamp';
   $('audio-state').textContent = `${audio.context.state}, ${audio.context.sampleRate} Hz; context time ${audio.context.currentTime.toFixed(3)}, heard time ${audibleNow().toFixed(3)}; ${stampText}; performance.now ${performance.now().toFixed(1)} ms`;
   const output = audio.context.outputLatency;
-  $('audio-latency').textContent = `${ms(reportedLatency())} (output ${output === undefined ? 'not reported' : ms(output)}, base ${ms(audio.context.baseLatency)}); timestamp lead ${ms(stampLead)}, measured lead ${ms(lead)}`;
+  $('audio-latency').textContent = `${ms(audio.reportedLatency())} (output ${output === undefined ? 'not reported' : ms(output)}, base ${ms(audio.context.baseLatency)}); timestamp lead ${ms(audio.stampLead)}, measured lead ${ms(lead)}`;
   $('audio-clock').textContent = clockSource;
 }
 

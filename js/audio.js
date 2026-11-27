@@ -16,6 +16,11 @@ const CLICK_LEVEL = 0.25;
 // and resuming fades it back in. Stopping the output mid-waveform pops.
 const PAUSE_FADE = 0.025;
 
+// The output timestamp's lead is smoothed by this share of each new value,
+// and values further than this from zero, in seconds, are ignored.
+const STAMP_LEAD_SMOOTHING = 0.05;
+const STAMP_LEAD_LIMIT = 1;
+
 const SOUNDS = {
   lead: {
     oscillators: [{ type: 'triangle', gain: 0.8 }, { type: 'square', gain: 0.1 }],
@@ -43,6 +48,7 @@ export class AudioEngine {
     this.queue = [];
     this.queueIndex = 0;
     this.songStart = 0;
+    this.stampLead = null;
   }
 
   // Must be called from a user gesture. The fade in is scheduled on the
@@ -130,17 +136,46 @@ export class AudioEngine {
     return this.audibleTime(performanceTime) - this.songStart;
   }
 
+  // The context time of the sound heard at `performanceTime`.
+  //
   // Never later than the context's clock. Just after a resume, the output
   // timestamp can still be the one from before the pause, and extrapolating
   // from it would jump ahead by the length of the pause.
+  //
+  // Chrome's output timestamp allows for the output latency, Bluetooth
+  // included. Safari's does not: it runs level with currentTime even with a
+  // Bluetooth speaker reporting 190 ms. So the part of the reported latency
+  // that the timestamp does not cover is taken off as well.
   audibleTime(performanceTime) {
-    const stamp = this.context.getOutputTimestamp?.();
+    const context = this.context;
+    const stamp = context.getOutputTimestamp?.();
     if (stamp && stamp.contextTime > 0 && stamp.performanceTime > 0) {
+      this.trackStampLead(context.currentTime
+        - (stamp.contextTime + (performance.now() - stamp.performanceTime) / 1000));
       return Math.min(stamp.contextTime + (performanceTime - stamp.performanceTime) / 1000,
-        this.context.currentTime);
+        context.currentTime) - this.missingLatency();
     }
-    const latency = (this.context.outputLatency || 0) + (this.context.baseLatency || 0);
-    return this.context.currentTime - latency - (performance.now() - performanceTime) / 1000;
+    return context.currentTime - this.reportedLatency() - (performance.now() - performanceTime) / 1000;
+  }
+
+  reportedLatency() {
+    return (this.context.outputLatency || 0) + (this.context.baseLatency || 0);
+  }
+
+  // How far the context's clock runs ahead of the output timestamp, smoothed
+  // over calls, since currentTime moves in steps of a render quantum. A
+  // stale timestamp just after a resume gives a value well out of range,
+  // which is ignored.
+  trackStampLead(value) {
+    if (this.context.state !== 'running' || value < -STAMP_LEAD_LIMIT || value > STAMP_LEAD_LIMIT) {
+      return;
+    }
+    this.stampLead = this.stampLead === null ? value : this.stampLead + (value - this.stampLead) * STAMP_LEAD_SMOOTHING;
+  }
+
+  // The output latency the output timestamp leaves out.
+  missingLatency() {
+    return this.stampLead === null ? 0 : Math.max(0, this.reportedLatency() - this.stampLead);
   }
 
   startVoice(soundName, midi, time, level) {
