@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Otomo connection trial</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="trial.css">
+  <script type="module" src="trial.js"></script>
+</head>
+<body>
+  <main class="trial">
+    <h1>Otomo connection trial</h1>
+    <p class="note">A test page for playing on several devices. It is not part of the game.
+      See step 2 of <code>docs/multi-device-plan.md</code>.</p>
+
+    <section id="start" class="card">
+      <h2>Start</h2>
+      <p>One device hosts. The others join by scanning the host's code with the camera app,
+        or by opening the host's link.</p>
+      <div class="actions">
+        <button id="host-button" type="button" class="primary">Host</button>
+        <button id="join-manual-button" type="button">Join with a link</button>
+      </div>
+      <div id="join-manual" class="stack" hidden>
+        <label>Host's link or code
+          <textarea id="join-input" rows="3" spellcheck="false" autocapitalize="off"></textarea></label>
+        <div class="actions"><button id="join-input-button" type="button" class="primary">Join</button></div>
+      </div>
+    </section>
+
+    <section id="join-link" class="card" hidden>
+      <h2>Join</h2>
+      <p>This page was opened from a host's code. Tap to join and turn on the sound.</p>
+      <div class="actions"><button id="join-link-button" type="button" class="primary">Join</button></div>
+    </section>
+
+    <section id="host" class="card" hidden>
+      <h2>Host</h2>
+      <div id="invite" class="stack" hidden>
+        <p>For one guest: scan this with the guest's camera app, or send the link.</p>
+        <canvas id="invite-code" class="code"></canvas>
+        <p id="invite-size" class="small"></p>
+        <textarea id="invite-text" rows="3" readonly spellcheck="false"></textarea>
+        <div class="actions">
+          <button id="invite-copy" type="button">Copy link</button>
+          <button id="invite-share" type="button" hidden>Share</button>
+        </div>
+        <p>Then read the guest's reply code.</p>
+        <div class="actions">
+          <button id="scan-button" type="button" class="primary">Scan the reply</button>
+          <button id="scan-stop" type="button" hidden>Stop the camera</button>
+        </div>
+        <video id="scan-video" class="camera" playsinline muted hidden></video>
+        <label>Or paste the reply
+          <textarea id="reply-input" rows="2" spellcheck="false" autocapitalize="off"></textarea></label>
+        <div class="actions"><button id="reply-button" type="button">Connect</button></div>
+      </div>
+      <div class="actions"><button id="invite-button" type="button" hidden>Invite another guest</button></div>
+      <h3>Guests</h3>
+      <p id="no-guests" class="small">None yet.</p>
+      <ul id="guests" class="guests"></ul>
+      <h3>Play together</h3>
+      <div class="actions">
+        <button id="clicks-button" type="button">Start the clicks</button>
+      </div>
+      <div class="actions">
+        <select id="song-select"></select>
+        <button id="song-button" type="button">Play the song</button>
+        <button id="song-stop" type="button">Stop</button>
+      </div>
+      <p class="small">Clicks sound every second on every device. The song plays with every part
+        on autoplay on every device, starting about two seconds after the tap.</p>
+    </section>
+
+    <section id="guest" class="card" hidden>
+      <h2>Guest</h2>
+      <div id="reply" class="stack" hidden>
+        <p>Show this to the host, who scans it in this page. Or copy it and send it.</p>
+        <canvas id="reply-code" class="code"></canvas>
+        <p id="reply-size" class="small"></p>
+        <textarea id="reply-text" rows="2" readonly spellcheck="false"></textarea>
+        <div class="actions">
+          <button id="reply-copy" type="button">Copy reply</button>
+          <button id="reply-share" type="button" hidden>Share</button>
+        </div>
+      </div>
+      <dl class="facts">
+        <dt>Connection</dt><dd id="guest-state">—</dd>
+        <dt>Candidates used</dt><dd id="guest-candidates">—</dd>
+      </dl>
+      <h3>Clock</h3>
+      <dl class="facts">
+        <dt>Offset to the host</dt><dd id="clock-offset">—</dd>
+        <dt>Round trip, fastest used</dt><dd id="clock-rtt">—</dd>
+        <dt>Round trip, median</dt><dd id="clock-median">—</dd>
+        <dt>Change since the first estimate</dt><dd id="clock-change">—</dd>
+        <dt>Drift</dt><dd id="clock-drift">—</dd>
+        <dt>Pings</dt><dd id="clock-count">—</dd>
+      </dl>
+      <canvas id="clock-chart" class="chart"></canvas>
+      <p class="small">The chart shows how the offset has changed since the first estimate, in
+        milliseconds, over the minutes since joining. Points every five seconds.</p>
+    </section>
+
+    <section id="sound" class="card" hidden>
+      <h2>This device</h2>
+      <label class="check"><input id="sound-on" type="checkbox" checked> Play sound on this device</label>
+      <label class="check"><input id="latency-on" type="checkbox" checked> Allow for output latency</label>
+      <dl class="facts">
+        <dt>Audio</dt><dd id="audio-state">—</dd>
+        <dt>Output latency reported</dt><dd id="audio-latency">—</dd>
+        <dt>Clock source</dt><dd id="audio-clock">—</dd>
+      </dl>
+      <p class="small">With output latency allowed for, each device times its sound by when it
+        leaves the speaker. Without it, by when the browser renders it. Turn it off on one
+        device and listen for the difference.</p>
+      <div class="actions"><button id="raw-button" type="button">Copy raw descriptions</button></div>
+      <p class="small">For the tests: copies this browser's session descriptions, to send to the
+        developer.</p>
+      <textarea id="raw-text" rows="4" readonly spellcheck="false" hidden></textarea>
+    </section>
+
+    <section class="card">
+      <h2>Log</h2>
+      <ol id="log" class="log"></ol>
+    </section>
+  </main>
+</body>
+</html>
