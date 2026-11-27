@@ -21,6 +21,17 @@
       "sdp": "v=0\r\no=- 4979836103078820936 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 61476 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 192.168.1.20\r\na=candidate:611259276 1 udp 2113937151 192.168.1.20 61476 typ host generation 0 network-cost 999\r\na=ice-ufrag:p67D\r\na=ice-pwd:6AHDAQfIXzTn2liIXQiT17np\r\na=ice-options:trickle\r\na=fingerprint:sha-256 51:B2:2F:07:FB:BF:0A:46:46:63:B9:92:C9:9E:C6:41:93:FF:2A:D4:22:0C:1F:86:6B:AE:70:1F:57:28:4A:33\r\na=setup:active\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
     }
   },
+  "safari": {
+    "source": "Captured from one connection in the trial: the offer from Safari 27.2 on an iPad (which reports a Mac user agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15), the answer from Safari 27.2 on an iPhone (Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1). The answer was made from the offer as rebuilt by signal.js.",
+    "offer": {
+      "type": "offer",
+      "sdp": "v=0\r\no=- 3587524531698372803 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=candidate:3594396655 1 udp 2113937151 972ce278-e9c6-43c6-b04a-02f9ac5f3922.local 55345 typ host generation 0 network-cost 999\r\na=ice-ufrag:GnNK\r\na=ice-pwd:MTpKSON8Tem5Sc/oxRSmveij\r\na=ice-options:trickle\r\na=fingerprint:sha-256 A4:54:6E:B9:55:30:CB:F3:34:1B:AB:25:07:C5:F6:74:1B:B1:3A:BA:DF:B6:D9:DD:E4:68:ED:EF:AE:9A:10:C1\r\na=setup:actpass\r\na=mid:0\r\na=sctp-port:5000\r\na=max-message-size:262144\r\n"
+    },
+    "answer": {
+      "type": "answer",
+      "sdp": "v=0\r\no=- 119102246363393021 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=msid-semantic: WMS\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\nc=IN IP4 0.0.0.0\r\na=candidate:3567688108 1 udp 2113937151 169e8268-5ba7-4a19-bae5-7e607a0748a2.local 63739 typ host generation 0 network-cost 999\r\na=ice-ufrag:TMtl\r\na=ice-pwd:/dHMSZDaWxdNOsXnittIQ9ZM\r\na=ice-options:trickle\r\na=fingerprint:sha-256 FF:05:E2:C7:8E:94:C5:2A:7E:56:88:CF:A6:0E:75:CA:BA:20:2A:6D:4A:A8:37:45:4D:6E:80:5B:9A:EB:F1:3C\r\na=setup:active\r\na=mid:0\r\na=sctp-port:5000\r\n"
+    }
+  },
   "firefox-format": {
     "source": "Written by hand in the form Firefox gives, not captured. Replace with a capture from Firefox.",
     "offer": {
