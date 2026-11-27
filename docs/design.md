@@ -600,7 +600,9 @@ later composition tool and MIDI converter will address.
 - The game is published with GitHub Pages at https://www.ionstage.org/otomo/.
   A workflow deploys each push to `main`, copying only the files the game
   needs to run (`index.html`, `css/`, `js/`, `songs/`). Documentation and
-  tests are left out.
+  tests are left out. While the trial for multiple devices runs, the workflow also
+  publishes the trial page (`trial/`), at
+  https://www.ionstage.org/otomo/trial/, and stops once the trial is over.
 - The Web Audio clock is the single time reference. Autoplay
   notes are scheduled slightly ahead on that clock, and key and touch events
   are converted to the same clock for judging.
