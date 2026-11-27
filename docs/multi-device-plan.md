@@ -91,9 +91,13 @@ Each step ends with something that can be checked.
    guest. Listen to whether the clicks sound as one, and whether the song
    sounds right from two devices. Then decide whether to go on as agreed, or
    change the approach (see "After the trial").
+
+   Steps 1 and 2 are done. The outcome is under "After the trial".
 3. **Joining.** The setup screen gains a way to host and to join. The host
    sees who has joined, and shows its code only between songs. A guest who
-   opens a `#join=` link goes straight to showing the reply code.
+   opens a `#join=` link goes straight to showing the reply code. When a
+   connection does not open, both devices say so, and mention the Local
+   Network permission on a Mac.
 4. **Choosing and starting.** The lobby, as in section 9 of the design: the
    turn to choose the song, choosing a part and a difficulty as the ready
    tap, and the start when everyone is ready. Check: three devices take
@@ -101,6 +105,8 @@ Each step ends with something that can be checked.
    chooses, or when a player who has not chosen disconnects.
 5. **Playing together.** Every device counts in and plays together, plays
    the untaken parts at the lowered volume, and plays its own player's part.
+   The guests keep pinging during the song and correct their timing from
+   the latest offset, since the trial measured drift of up to 170 ppm.
    Quit as the design describes, with no pause. Check: two people play a
    song together on two phones.
 6. **Scores and lost connections.** Each device sends its song score to the
@@ -164,12 +170,12 @@ Use the default and report it, unless it turns out to need more than that.
 | The result screen with several devices | One button, Continue, back to the lobby for the next player's turn, and a way to leave the group. Play again and Change song stay as they are for one device. |
 | The chooser leaves before choosing | The turn passes to the next player. |
 | Changing a choice after being ready | Allowed until the song starts. The player stays ready. |
-| Latency calibration (open question 2 of the design) | Not for now. Compensate with the reported output latency and revisit after the trial. |
+| Latency calibration (open question 2 of the design) | Not for now. The reported output latency is allowed for, which the trial showed covers Bluetooth. |
 | Number of players | No fixed limit. Test with three or four. |
 
 ## After the trial
 
-The trial decides whether the agreed approach stands:
+The trial decided whether the agreed approach stands:
 
 - If phones fail to connect on ordinary home Wi-Fi, look at why (mDNS,
   network isolation) before going further. Ask the user before considering a
@@ -179,4 +185,19 @@ The trial decides whether the agreed approach stands:
   happens when that device drops out.
 - If the clocks drift noticeably over a song, correct them during the song.
 
-Record the outcome in section 9 of the design.
+The outcome, recorded in section 9 of the design: the approach stands.
+
+- An iPad with an iPhone, and a Mac running Chrome with an iPhone, connected
+  on home Wi-Fi with mDNS names, by QR code and by copied text. Chrome on
+  the Mac first needed the Local Network permission. Android phones and
+  hotspots were not available, and are looked at if problems arise.
+- Clicks and songs sounded as one, and the doubled autoplay did not phase.
+- Round trips were 4 to 12 ms. The clocks drifted by 13 ppm (iPad and
+  iPhone) and 170 ppm (Mac and iPhone), so drift is corrected during the
+  song, in step 5.
+- Timing sound by when it is heard brought a Bluetooth speaker, 190 to
+  200 ms late, back into line. Safari's output timestamp leaves the output
+  latency out, so `AudioEngine.audibleTime` takes off what it misses. That
+  fix also corrected the scoring when playing alone on Bluetooth.
+- The trial page stays in `trial/`, no longer published. Serve the
+  repository and open `/trial/` to use it again.

@@ -600,9 +600,8 @@ later composition tool and MIDI converter will address.
 - The game is published with GitHub Pages at https://www.ionstage.org/otomo/.
   A workflow deploys each push to `main`, copying only the files the game
   needs to run (`index.html`, `css/`, `js/`, `songs/`). Documentation and
-  tests are left out. While the trial for multiple devices runs, the workflow also
-  publishes the trial page (`trial/`), at
-  https://www.ionstage.org/otomo/trial/, and stops once the trial is over.
+  tests are left out. The trial page for multiple devices (`trial/`) is
+  kept in the repository but not published.
 - The Web Audio clock is the single time reference. Autoplay
   notes are scheduled slightly ahead on that clock, and key and touch events
   are converted to the same clock for judging.
@@ -672,7 +671,8 @@ The song tools follow once the format has settled.
     as devices join, for example divided by the square root of the number
     of devices, so that each player's own part stays slightly louder than
     autoplay. Identical sound from several speakers shows timing differences
-    as phasing, so this is reviewed after the trial. If it does not sound
+    as phasing, but in the trial two devices playing the same parts did not
+    phase, so every device plays them. If a larger group does not sound
     right, each untaken part is played by one device only.
   - Players join only between songs. The host's code is not shown during a
     song.
@@ -700,9 +700,23 @@ The song tools follow once the format has settled.
     connection is lost, every guest is in that position.
   - The result screen shows the player's own score and, below it, the group
     score with the number of players, once every score has arrived.
-  - The work starts with a trial: two phones connecting by QR code on home
-    Wi-Fi and on a hotspot, and a measure of how closely their clocks agree,
-    before the game screens depend on it.
+  - The work started with a trial page (`trial/`), before the game screens
+    depended on it. An iPad with an iPhone, and a Mac running Chrome with an
+    iPhone, connected on home Wi-Fi by QR code and by copied text. Clicks
+    and songs on every device sounded as one. Android phones and phone
+    hotspots were not tested, and are looked at if problems arise.
+  - Each device times its sound by when it is heard, allowing for the
+    output latency the browser reports (see open question 2). On a
+    Bluetooth speaker the trial measured 190 to 200 ms, and without this
+    that device's sound came that late.
+  - Two devices' audio clocks drift apart by up to about 170 parts per
+    million (a Mac with an iPhone; an iPad with an iPhone drifted 13), which
+    is about 30 ms over a three-minute song. So the guests keep pinging the
+    host during the song and each device corrects its timing from the
+    latest offset.
+  - A browser on a Mac needs the Local Network permission (System Settings,
+    Privacy & Security) before it can connect. When a connection does not
+    open, the game says so and mentions this.
 - **Percussion parts**, where each of the eight buttons is a different
   percussive sound.
 - **Chord parts**, where each of the eight buttons is one of the chords used in
@@ -728,7 +742,10 @@ The song tools follow once the format has settled.
    devices' sound together. So no offset setting is planned for now. A
    tap-along calibration (the player taps to a steady click and the median
    offset is saved per device) is the likely approach for a device that
-   reports its latency wrongly, if one turns up.
+   reports its latency wrongly, if one turns up. On Bluetooth the scoring is
+   right, but the player's own notes still sound late, since a note cannot
+   start before the button is pressed. The phone's own speakers or wired
+   headphones play best.
 3. **Licence.** The project uses the MIT License (see `LICENSE`). jsQR's
    Apache-2.0 licence is compatible with it and only needs its licence text
    to be kept with the file. The project's licence may change if a library

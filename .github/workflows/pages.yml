@@ -22,13 +22,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # Publish only the files the game needs at run time. The connection
-      # trial (trial/) is published only while the trial runs; see step 2 of
-      # docs/multi-device-plan.md. Remove it from this list afterwards.
+      # Publish only the files the game needs at run time.
       - name: Collect game files
         run: |
           mkdir _site
-          cp -R index.html css js songs trial _site/
+          cp -R index.html css js songs _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
