@@ -719,11 +719,16 @@ The song tools follow once the format has settled.
    windows and weights in section 5 and the touch layout in section 4 may
    still be adjusted after further play.
 2. **Latency calibration.** Some devices, and all Bluetooth speakers and
-   headphones, delay sound noticeably. On a phone's own speakers the first
-   build's timing feels fine, so no offset setting is planned for now.
-   Bluetooth audio is left for later. A tap-along calibration (the player
-   taps to a steady click and the median offset is saved per device) is the
-   likely approach if it is taken up.
+   headphones, delay sound noticeably. The game allows for the output
+   latency the browser reports, which covers Bluetooth: Chrome's output
+   timestamp already includes it, and on Safari, whose timestamp leaves it
+   out, the reported latency is taken off as well. In the trial for
+   multiple devices, Safari on an iPhone reported 190 ms for a Bluetooth
+   speaker and Chrome on a Mac 200 ms, and allowing for them brought the
+   devices' sound together. So no offset setting is planned for now. A
+   tap-along calibration (the player taps to a steady click and the median
+   offset is saved per device) is the likely approach for a device that
+   reports its latency wrongly, if one turns up.
 3. **Licence.** The project uses the MIT License (see `LICENSE`). jsQR's
    Apache-2.0 licence is compatible with it and only needs its licence text
    to be kept with the file. The project's licence may change if a library
