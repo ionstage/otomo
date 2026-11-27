@@ -676,6 +676,15 @@ The song tools follow once the format has settled.
     right, each untaken part is played by one device only.
   - Players join only between songs. The host's code is not shown during a
     song.
+  - Hosting and joining are in a "Play together" section of the setup
+    screen. Once hosting, the section lists the players, and Add a player
+    shows a fresh code for each new player, with Scan their code to read
+    the reply. A guest has a screen of its own, showing its reply code and
+    then that it has joined, with Leave. Playing alone is unchanged.
+  - Players are numbered in the order they joined: the host is Player 1,
+    and the next to join Player 2. A number is not given out again within a
+    group, so the numbers keep showing the order of joining. Players do not
+    type names.
   - Players take turns choosing the song: the host chooses the first, and
     after each song the turn passes to the next player in the order they
     joined. Anyone who has left is skipped, and anyone who joins goes to the
