@@ -5,6 +5,7 @@ import { AudioEngine } from './audio.js';
 import { Group } from './group.js';
 import { Input } from './input.js';
 import { LATE_MODIFIER_WINDOW, createJudge, pressPitch } from './judge.js';
+import { autoplayShare } from './mix.js';
 import { buttonPitchName } from './pitch.js';
 import { Roll } from './roll.js';
 import { positionAt, resolveSong } from './song.js';
@@ -59,6 +60,8 @@ const group = new Group({
   startAudio,
   audio: () => audio,
   onStart: startGroupSong,
+  onRetime: (countInStart) => audio?.retime(countInStart),
+  onStop: stopGroupSong,
 });
 
 function show(name) {
@@ -114,9 +117,10 @@ function startAudio() {
 }
 
 // Alone, every other part is autoplayed and the count-in starts now. In a
-// group, the parts nobody has taken are autoplayed, and the count-in starts
-// when the host said.
-function startGame({ song, partIndex, difficulty, autoplay, countInStart }) {
+// group (`together`), the parts nobody has taken are autoplayed, turned
+// down for the number of devices, and the count-in starts when the host
+// said.
+function startGame({ song, partIndex, difficulty, autoplay, countInStart, devices = 1, together = false }) {
   const part = song.parts[partIndex];
   lastSettings = { song, partIndex, difficulty };
   group.songStarting();
@@ -130,6 +134,8 @@ function startGame({ song, partIndex, difficulty, autoplay, countInStart }) {
     shownPosition: null,
     frame: 0,
     paused: false,
+    together,
+    confirming: false,
   };
   playSong.textContent = song.title;
   playPart.textContent = part.name;
@@ -140,7 +146,7 @@ function startGame({ song, partIndex, difficulty, autoplay, countInStart }) {
   show('play');
   roll.setPart(song, part, difficulty);
   input.enable(difficulty === 'advanced');
-  audio.startSong(song, autoplay ?? song.parts.filter((other) => other !== part), countInStart);
+  audio.startSong(song, autoplay ?? song.parts.filter((other) => other !== part), countInStart, autoplayShare(devices));
   game.frame = requestAnimationFrame(frame);
 }
 
@@ -164,24 +170,50 @@ function stopGame() {
   game = null;
 }
 
+const QUIT_TEXT = {
+  alone: { question: 'Quit this song?', confirm: 'Quit' },
+  guest: { question: 'Leave this song? The others play on.', confirm: 'Leave the song' },
+  host: { question: 'End this song for everyone?', confirm: 'End the song' },
+};
+
+function askToQuit(kind) {
+  document.getElementById('quit-dialog-title').textContent = QUIT_TEXT[kind].question;
+  document.getElementById('confirm-quit-button').textContent = QUIT_TEXT[kind].confirm;
+  quitDialog.showModal();
+}
+
 // Quit pauses the song and asks for confirmation. Disabling input first
 // releases any held note while the song time is still running, so its
 // duration stops counting at the pause.
+//
+// With several devices nothing pauses: the question is asked with the
+// music playing, and the song carries on behind it.
 function pauseGame() {
-  if (!game || game.paused) {
+  if (!game || game.paused || game.confirming) {
+    return;
+  }
+  if (game.together) {
+    game.confirming = true;
+    input.disable();
+    askToQuit(group.role === 'host' ? 'host' : 'guest');
     return;
   }
   game.paused = true;
   input.disable();
   cancelAnimationFrame(game.frame);
   audio.pause();
-  quitDialog.showModal();
+  askToQuit('alone');
 }
 
 // Carries on from exactly where the song paused, with no count-in.
 // Called from the user gesture, which resuming audio needs.
 async function resumeGame() {
   quitDialog.close();
+  if (game?.confirming) {
+    game.confirming = false;
+    input.enable(game.difficulty === 'advanced');
+    return;
+  }
   if (!game?.paused) {
     return;
   }
@@ -195,7 +227,7 @@ async function resumeGame() {
   game.frame = requestAnimationFrame(frame);
 }
 
-function startGroupSong({ file, partIndex, difficulty, takenParts, countInStart }) {
+function startGroupSong({ file, partIndex, difficulty, takenParts, devices, countInStart }) {
   const song = songEntries.find((entry) => entry.file === file)?.song;
   if (!song) {
     return;
@@ -209,20 +241,41 @@ function startGroupSong({ file, partIndex, difficulty, takenParts, countInStart 
     difficulty,
     autoplay: song.parts.filter((_, index) => !takenParts.includes(index)),
     countInStart,
+    devices,
+    together: true,
   });
 }
 
+// A guest's Quit takes only that player out of the song. The host's ends
+// it for everyone.
 function quitGame() {
   quitDialog.close();
   if (game) {
+    const together = game.together;
     stopGame();
-    group.songEnded();
+    if (together) {
+      group.quitSong();
+    } else {
+      group.songEnded();
+    }
   }
   show(group.active ? group.homeScreen : 'setup');
 }
 
+// The host ended the song for everyone.
+function stopGroupSong() {
+  if (!game?.together) {
+    return;
+  }
+  quitDialog.close();
+  stopGame();
+  group.songEnded();
+  show(group.homeScreen);
+}
+
 function finishGame(time) {
   const { song, part } = game;
+  quitDialog.close();
   input.disable();
   const { score } = game.judge.finish(time);
   stopGame();

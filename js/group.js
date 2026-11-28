@@ -6,8 +6,9 @@
 // The host keeps the lobby (lobby.js) and sends it to every guest whenever
 // it changes. Guests send their taps to the host.
 //
-// From the host: welcome (the guest's number), lobby, pong, start and end.
-// From a guest: song, choose, ping, synced and leave.
+// From the host: welcome (the guest's number), lobby, pong, start, stop
+// (the host quit the song) and end. From a guest: song, choose, ping,
+// synced and leave.
 
 import { clockSample, estimateOffset, recentSamples, toLocalTime } from './clock.js';
 import {
@@ -41,6 +42,9 @@ const CLOCK_SAMPLES = 8;
 // The host sends the count-in's start this far ahead, in seconds, so that
 // it reaches every guest in time.
 const START_LEAD = 1;
+// During a song, a guest retimes it to the latest offset this often, in
+// milliseconds.
+const RETIME_INTERVAL = 1000;
 
 const CONNECT_HELP = 'Both devices need to be on the same Wi-Fi. Some guest and public Wi-Fi keeps '
   + 'devices apart, and a phone’s hotspot usually works instead. On a Mac, the browser also needs '
@@ -55,15 +59,18 @@ export class Group {
   // songs() lists { file, song } for the loaded songs.
   // startAudio() creates or resumes the audio engine, during a tap, and
   // returns it. audio() returns it, or null before the first tap.
-  // onStart({ file, partIndex, difficulty, takenParts, countInStart })
-  // starts this device's song, with the count-in at countInStart on its
-  // audio clock.
-  constructor({ show, songs, startAudio, audio, onStart }) {
+  // onStart({ file, partIndex, difficulty, takenParts, devices,
+  // countInStart }) starts this device's song, with the count-in at
+  // countInStart on its audio clock. onRetime(countInStart) moves it there
+  // for drift. onStop() ends it when the host quits.
+  constructor({ show, songs, startAudio, audio, onStart, onRetime, onStop }) {
     this.show = show;
     this.songs = songs;
     this.startAudio = startAudio;
     this.audio = audio;
     this.onStart = onStart;
+    this.onRetime = onRetime;
+    this.onStop = onStop;
     this.role = null;
     this.wakeLock = null;
     this.reset();
@@ -131,6 +138,7 @@ export class Group {
   reset() {
     clearInterval(this.pinger);
     this.pinger = null;
+    this.stopRetiming();
     this.roster = null;
     this.lobby = null;
     // Host: the joined players' connections by number, those still
@@ -188,9 +196,18 @@ export class Group {
   // Called when this device's song ends or its player quits. After the
   // host's song, the turn passes on.
   songEnded() {
+    this.stopRetiming();
     if (this.role === 'host' && this.lobby?.phase === 'playing') {
       this.setLobby(finishSong(this.lobby));
     }
+  }
+
+  // The host's Quit ends the song for everyone.
+  quitSong() {
+    if (this.role === 'host') {
+      this.sendAll({ type: 'stop' });
+    }
+    this.songEnded();
   }
 
   message(text) {
@@ -310,6 +327,7 @@ export class Group {
       partIndex: choice.part,
       difficulty: choice.difficulty,
       takenParts: takenParts(this.lobby),
+      devices: this.lobby.players.length,
       countInStart: at,
     });
   }
@@ -556,6 +574,9 @@ export class Group {
       this.pong(message);
     } else if (message.type === 'start') {
       this.startFromHost(message.at);
+    } else if (message.type === 'stop') {
+      this.stopRetiming();
+      this.onStop();
     } else if (message.type === 'end') {
       this.lost('The host ended the group.');
     }
@@ -598,6 +619,20 @@ export class Group {
       return;
     }
     this.startHere(toLocalTime(at, offset));
+    // The clocks drift apart during the song, so it follows the latest
+    // offset.
+    this.stopRetiming();
+    this.retimer = setInterval(() => {
+      const latest = this.offset();
+      if (latest !== null) {
+        this.onRetime(toLocalTime(at, latest));
+      }
+    }, RETIME_INTERVAL);
+  }
+
+  stopRetiming() {
+    clearInterval(this.retimer);
+    this.retimer = null;
   }
 
   status(text) {
@@ -616,6 +651,8 @@ export class Group {
     }
     clearInterval(this.pinger);
     this.pinger = null;
+    // A song being played plays on, on this device's own clock.
+    this.stopRetiming();
     this.lobby = null;
     $('lobby').hidden = true;
     $('guest-reply').hidden = true;

@@ -1,6 +1,7 @@
 // Audio output: synthesised voices, the autoplay scheduler and the count-in.
 // The audio clock is the game's single time reference.
 
+import { retimeStep } from './clock.js';
 import { midiToFrequency } from './pitch.js';
 
 const SCHEDULE_AHEAD = 0.15;
@@ -48,6 +49,8 @@ export class AudioEngine {
     this.queue = [];
     this.queueIndex = 0;
     this.songStart = 0;
+    this.countInLength = 0;
+    this.autoplayLevel = AUTOPLAY_LEVEL;
     this.stampLead = null;
   }
 
@@ -62,12 +65,15 @@ export class AudioEngine {
   // The count-in starts at `countInStart` on the context's clock, or
   // shortly after now. With several devices it is a time the host sent,
   // which may already have passed if the message was slow: anything due
-  // before now is left out.
-  startSong(song, autoplayParts, countInStart = this.context.currentTime + START_DELAY) {
+  // before now is left out. Autoplay plays at `autoplayShare` of its solo
+  // level (see mix.js).
+  startSong(song, autoplayParts, countInStart = this.context.currentTime + START_DELAY, autoplayShare = 1) {
     this.stopSong();
     const beatLength = song.secondsPerBeat;
     const now = this.context.currentTime;
-    this.songStart = countInStart + song.countIn.beats * beatLength;
+    this.countInLength = song.countIn.beats * beatLength;
+    this.songStart = countInStart + this.countInLength;
+    this.autoplayLevel = AUTOPLAY_LEVEL * autoplayShare;
     for (const beat of song.countIn.clicks) {
       const time = this.songStart + beat * beatLength;
       if (time >= now) {
@@ -117,6 +123,16 @@ export class AudioEngine {
     this.queue = [];
   }
 
+  // Moves the song towards a count-in start of `countInStart`, for drift
+  // between devices' clocks, a little at a time (see retimeStep). Notes
+  // already scheduled keep their times, and the rest follow, as do the
+  // roll and the judging, which use the song start too.
+  retime(countInStart) {
+    if (this.timer !== null) {
+      this.songStart = retimeStep(this.songStart, countInStart + this.countInLength);
+    }
+  }
+
   // Schedules autoplay notes a short time ahead, so timer jitter does not
   // affect when they sound.
   schedule() {
@@ -127,7 +143,7 @@ export class AudioEngine {
       if (start > until) {
         break;
       }
-      this.startVoice(sound, note.midi, start, AUTOPLAY_LEVEL).release(this.songStart + note.end);
+      this.startVoice(sound, note.midi, start, this.autoplayLevel).release(this.songStart + note.end);
       this.queueIndex++;
     }
   }

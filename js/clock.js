@@ -63,3 +63,15 @@ export function toLocalTime(hostTime, offset) {
 export function toHostTime(localTime, offset) {
   return localTime + offset;
 }
+
+// Drift correction during a song: the next value of a time that should be
+// `target`. It moves at most `maxStep` seconds a step, so the music never
+// jumps for the small changes drift and noise make. A gap larger than
+// `jump`, as when a device switches its speaker mid-song, is closed at once.
+export function retimeStep(current, target, { maxStep = 0.002, jump = 0.03 } = {}) {
+  const gap = target - current;
+  if (Math.abs(gap) > jump) {
+    return target;
+  }
+  return current + Math.max(-maxStep, Math.min(maxStep, gap));
+}
