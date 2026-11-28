@@ -153,6 +153,12 @@ export class AudioEngine {
     return this.startVoice(sound, midi, this.context.currentTime, PLAYER_LEVEL);
   }
 
+  // Starts another player's note now, as their device sent it, at the
+  // autoplay level, so that this device's own player stays the loudest.
+  otherNoteOn(sound, midi) {
+    return this.startVoice(sound, midi, this.context.currentTime, this.autoplayLevel);
+  }
+
   now() {
     return this.context.currentTime;
   }

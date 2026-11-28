@@ -7,8 +7,9 @@
 // it changes. Guests send their taps to the host.
 //
 // From the host: welcome (the guest's number), lobby, pong, start, stop
-// (the host quit the song) and end. From a guest: song, choose, ping,
-// synced and leave.
+// (the host quit the song), note (another player's note, with whose it is)
+// and end. From a guest: song, choose, ping, synced, note and leave. The
+// host passes each guest's notes on to the other guests.
 
 import { clockSample, estimateOffset, recentSamples, toLocalTime } from './clock.js';
 import {
@@ -62,8 +63,10 @@ export class Group {
   // onStart({ file, partIndex, difficulty, takenParts, devices,
   // countInStart }) starts this device's song, with the count-in at
   // countInStart on its audio clock. onRetime(countInStart) moves it there
-  // for drift. onStop() ends it when the host quits.
-  constructor({ show, songs, startAudio, audio, onStart, onRetime, onStop }) {
+  // for drift. onStop() ends it when the host quits. onNote(number, note)
+  // plays another player's note: { action: "on", "pitch" or "off", midi,
+  // sound }.
+  constructor({ show, songs, startAudio, audio, onStart, onRetime, onStop, onNote }) {
     this.show = show;
     this.songs = songs;
     this.startAudio = startAudio;
@@ -71,6 +74,7 @@ export class Group {
     this.onStart = onStart;
     this.onRetime = onRetime;
     this.onStop = onStop;
+    this.onNote = onNote;
     this.role = null;
     this.wakeLock = null;
     this.reset();
@@ -199,6 +203,15 @@ export class Group {
     this.stopRetiming();
     if (this.role === 'host' && this.lobby?.phase === 'playing') {
       this.setLobby(finishSong(this.lobby));
+    }
+  }
+
+  // Sends this player's note to the other devices.
+  sendNote(note) {
+    if (this.role === 'host') {
+      this.sendAll({ type: 'note', from: HOST, ...note });
+    } else {
+      this.peer?.send({ type: 'note', ...note });
     }
   }
 
@@ -466,6 +479,14 @@ export class Group {
       } else if (message.type === 'synced') {
         this.synced.add(number);
         this.maybeStart();
+      } else if (message.type === 'note') {
+        const note = { type: 'note', from: number, action: message.action, midi: message.midi, sound: message.sound };
+        this.onNote(number, note);
+        for (const [other, otherPeer] of this.guests) {
+          if (other !== number) {
+            otherPeer.send(note);
+          }
+        }
       } else if (message.type === 'leave') {
         this.removeGuest(number);
       } else {
@@ -574,6 +595,10 @@ export class Group {
       this.pong(message);
     } else if (message.type === 'start') {
       this.startFromHost(message.at);
+    } else if (message.type === 'note') {
+      if (message.from !== this.number) {
+        this.onNote(message.from, message);
+      }
     } else if (message.type === 'stop') {
       this.stopRetiming();
       this.onStop();

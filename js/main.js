@@ -62,7 +62,10 @@ const group = new Group({
   onStart: startGroupSong,
   onRetime: (countInStart) => audio?.retime(countInStart),
   onStop: stopGroupSong,
+  onNote: playOtherNote,
 });
+// With several devices, the other players' sounding notes, by player.
+const otherVoices = new Map();
 
 function show(name) {
   for (const [key, element] of Object.entries(screens)) {
@@ -137,6 +140,7 @@ function startGame({ song, partIndex, difficulty, autoplay, countInStart, device
     together,
     confirming: false,
   };
+  otherVoices.clear();
   playSong.textContent = song.title;
   playPart.textContent = part.name;
   screens.play.dataset.difficulty = difficulty;
@@ -262,6 +266,25 @@ function quitGame() {
   show(group.active ? group.homeScreen : 'setup');
 }
 
+// Another player's note, sent from their device, while this device plays
+// the song with them. Each player is monophonic, so a new note replaces
+// their sounding one.
+function playOtherNote(number, { action, midi, sound }) {
+  if (!game?.together) {
+    return;
+  }
+  const valid = Number.isInteger(midi) && midi >= 0 && midi <= 127;
+  if (action === 'on' && valid && typeof sound === 'string') {
+    otherVoices.get(number)?.release();
+    otherVoices.set(number, audio.otherNoteOn(sound, midi));
+  } else if (action === 'pitch' && valid) {
+    otherVoices.get(number)?.setPitch(midi);
+  } else if (action === 'off') {
+    otherVoices.get(number)?.release();
+    otherVoices.delete(number);
+  }
+}
+
 // The host ended the song for everyone.
 function stopGroupSong() {
   if (!game?.together) {
@@ -300,7 +323,11 @@ function handlePress({ button, sharp, octave, time }) {
   const { note, correct } = game.judge.press(songTime, pressed);
   game.voice?.release();
   game.held = { button, note, time: songTime };
-  game.voice = audio.noteOn(game.part.sound, pressPitch(game.part, game.difficulty, pressed, note, songTime));
+  const midi = pressPitch(game.part, game.difficulty, pressed, note, songTime);
+  game.voice = audio.noteOn(game.part.sound, midi);
+  if (game.together) {
+    group.sendNote({ action: 'on', midi, sound: game.part.sound });
+  }
   if (correct) {
     roll.addHit(note);
   }
@@ -322,7 +349,11 @@ function handleModifiers({ sharp, octave, time }) {
       roll.removeHit(note);
     }
   }
-  game.voice.setPitch(pressPitch(game.part, game.difficulty, pressed, game.held.note, game.held.time));
+  const midi = pressPitch(game.part, game.difficulty, pressed, game.held.note, game.held.time);
+  game.voice.setPitch(midi);
+  if (game.together) {
+    group.sendNote({ action: 'pitch', midi });
+  }
 }
 
 function handleRelease({ time }) {
@@ -333,6 +364,9 @@ function handleRelease({ time }) {
   game.voice?.release();
   game.voice = null;
   game.held = null;
+  if (game.together) {
+    group.sendNote({ action: 'off' });
+  }
 }
 
 function showLit({ buttons, sharp, octave }) {
