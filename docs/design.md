@@ -14,8 +14,9 @@ end.
 - Players perform a song. Each player is responsible for one part.
 - Parts nobody has taken are played automatically.
 - Each player uses their own device, sees only their own part, and hears their
-  own part from their own device. Players are in the same room and hear each
-  other through the air.
+  own part loudest from their own device. Players are in the same room. Each
+  player's notes, as they play them, also sound more quietly from the other
+  devices, so the whole band comes from every device.
 - It runs in a web browser on desktop and mobile.
 - Players are scored on accuracy, but never ranked against each other. The
   group sees a shared score such as the group average.
@@ -646,8 +647,8 @@ are designed together, since both give the `buttons` field a new meaning.
 The song tools follow once the format has settled.
 
 - **Multiple devices.** Further players connect to the first player's
-  device, the host. The network only carries clock sync, the start signal and
-  scores. The plan for this work is in `docs/multi-device-plan.md`. Agreed so
+  device, the host. The network carries clock sync, the start signal, the
+  players' notes and scores. The plan for this work is in `docs/multi-device-plan.md`. Agreed so
   far:
   - The devices connect directly over WebRTC data channels on the local
     network, with no server of any kind. Each guest connects to the host
@@ -690,8 +691,13 @@ The song tools follow once the format has settled.
     joined. Anyone who has left is skipped, and anyone who joins goes to the
     end of the order.
   - Every player chooses their own part and difficulty for every song. Two
-    players may take the same part. Each hears only their own, and the part
-    is not autoplayed.
+    players may take the same part. A part that anyone has taken is not
+    autoplayed on any device.
+  - Each player's notes are sent, as they are played, to every other device,
+    which plays them at once at the lowered autoplay level, so a player's
+    own device plays them loudest. Wrong notes and timing are heard
+    everywhere, as in a band. The host passes each guest's notes on to the
+    other guests. A note arrives a few milliseconds after it is played.
   - Neither a part nor a difficulty is chosen when a song is chosen, so each
     player chooses both afresh for every song. Choosing both marks the player
     ready, and the tap also starts the device's audio.

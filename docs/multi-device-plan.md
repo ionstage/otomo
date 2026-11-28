@@ -122,6 +122,11 @@ Each step ends with something that can be checked.
    Built, and checked in headless Chrome with three devices: autoplay at
    1/√3 of its level, retiming once a second on the guests, a guest leaving
    the song with the music playing on, and the host ending it for everyone.
+
+   Then, by the user's decision, each player's notes also play on the other
+   devices, as they are played, at the autoplay level. Checked in headless
+   Chrome: a guest's presses, replacements and releases play on the host
+   and the other guest, and not twice on its own device.
    Quit as the design describes, with no pause. Check: two people play a
    song together on two phones.
 6. **Scores and lost connections.** Each device sends its song score to the
