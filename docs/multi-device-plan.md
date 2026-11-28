@@ -127,6 +127,13 @@ Each step ends with something that can be checked.
    devices, as they are played, at the autoplay level. Checked in headless
    Chrome: a guest's presses, replacements and releases play on the host
    and the other guest, and not twice on its own device.
+
+   A bug found by the user: a guest who quit a song and waited in the lobby
+   could start the next song seconds late, stuck before its count-in. iOS
+   had most likely suspended its audio, which stops its clock, and the
+   guest kept its old offset. A guest now sets its clock again when its
+   audio stops running or its pings jump, and the host waits for it.
+   Confirmed fixed by the user.
    Quit as the design describes, with no pause. Check: two people play a
    song together on two phones.
 6. **Scores and lost connections.** Each device sends its song score to the
