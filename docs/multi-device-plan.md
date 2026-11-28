@@ -108,6 +108,11 @@ Each step ends with something that can be checked.
    tap, and the start when everyone is ready. Check: three devices take
    turns through a few songs, and the song starts when the last player
    chooses, or when a player who has not chosen disconnects.
+
+   Built, and checked in headless Chrome with three devices: turns, ready,
+   changing a choice, leaving, and the start, within 2 ms on all three.
+   Until step 5, Quit still pauses one device only, and the host's Quit
+   passes the turn on without stopping the guests' song.
 5. **Playing together.** Every device counts in and plays together, plays
    the untaken parts at the lowered volume, and plays its own player's part.
    The guests keep pinging during the song and correct their timing from

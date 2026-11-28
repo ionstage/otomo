@@ -695,11 +695,23 @@ The song tools follow once the format has settled.
   - Neither a part nor a difficulty is chosen when a song is chosen, so each
     player chooses both afresh for every song. Choosing both marks the player
     ready, and the tap also starts the device's audio.
+  - In the lobby, the chooser taps one of the songs, listed as buttons, and
+    it is chosen at once. Each part and each difficulty is a button too, so
+    that every choice is a tap, which iOS needs before it starts the audio.
+    Every device lists the players and which of them are ready, with the
+    part each ready player took. A ready player can change their choice
+    until the song starts, and stays ready. A chooser who leaves before
+    choosing passes the turn to the next player.
   - The song starts as soon as every player is ready, with no warning beyond
     the count-in. There is no time limit: the players are in one room, so
     they can ask anyone who has not chosen yet. A player whose device
     disconnects, for example because it went to sleep, is no longer waited
-    for.
+    for. A device that has only just started its audio needs about a second
+    of pings to set its clock, so the last player's tap can start the song
+    up to a second later than an earlier one would.
+  - After a song with several devices, the result screen has one button,
+    Continue, back to the lobby, where the turn has passed on. Leaving the
+    group is in the lobby. Play again and Change song stay for one device.
   - Nothing pauses with several devices. A guest's Quit asks to confirm with
     the music still playing, and takes only that player out of the song. The
     host's Quit ends the song for everyone.
