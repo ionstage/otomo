@@ -383,6 +383,18 @@ legend {
   color: var(--muted);
 }
 
+/* The group's score, below the player's own, with several devices. */
+.group-score {
+  margin: -1rem 0 2rem;
+  font-size: 1.25rem;
+  color: var(--muted);
+}
+
+.group-score strong {
+  color: var(--fg);
+  font-size: 1.75rem;
+}
+
 .actions {
   display: flex;
   gap: 0.75rem;

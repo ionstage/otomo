@@ -63,6 +63,7 @@ const group = new Group({
   onRetime: (countInStart) => audio?.retime(countInStart),
   onStop: stopGroupSong,
   onNote: playOtherNote,
+  onGroupScore: showGroupScore,
 });
 // With several devices, the other players' sounding notes, by player.
 const otherVoices = new Map();
@@ -297,7 +298,7 @@ function stopGroupSong() {
 }
 
 function finishGame(time) {
-  const { song, part } = game;
+  const { song, part, together } = game;
   quitDialog.close();
   input.disable();
   const { score } = game.judge.finish(time);
@@ -306,12 +307,30 @@ function finishGame(time) {
   scoreText.textContent = String(Math.round(score));
   // With several devices, Continue goes back to the lobby for the next
   // player's turn.
-  const together = group.active;
-  document.getElementById('again-button').hidden = together;
-  document.getElementById('change-button').hidden = together;
-  document.getElementById('continue-button').hidden = !together;
-  group.songEnded();
+  const inGroup = group.active;
+  document.getElementById('again-button').hidden = inGroup;
+  document.getElementById('change-button').hidden = inGroup;
+  document.getElementById('continue-button').hidden = !inGroup;
+  // The group score follows once every score has reached the host. A
+  // device that has lost its connection shows only its own.
+  const groupLine = document.getElementById('group-score');
+  groupLine.hidden = !(together && group.connected);
+  groupLine.textContent = 'Waiting for the other players’ scores…';
+  if (together) {
+    group.songFinished(score);
+  } else {
+    group.songEnded();
+  }
   show('result');
+}
+
+function showGroupScore({ average, count }) {
+  const groupLine = document.getElementById('group-score');
+  groupLine.replaceChildren(
+    'Group ',
+    Object.assign(document.createElement('strong'), { textContent: String(Math.round(average)) }),
+    ` / 100 · ${count} ${count === 1 ? 'player' : 'players'}`,
+  );
 }
 
 function handlePress({ button, sharp, octave, time }) {

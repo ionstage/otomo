@@ -7,9 +7,10 @@
 // it changes. Guests send their taps to the host.
 //
 // From the host: welcome (the guest's number), lobby, pong, start, stop
-// (the host quit the song), note (another player's note, with whose it is)
-// and end. From a guest: song, choose, ping, synced, unsynced (its clock
-// must be set again), note and leave. The host passes each guest's notes
+// (the host quit the song), note (another player's note, with whose it is),
+// group-score and end. From a guest: song, choose, ping, synced, unsynced
+// (its clock must be set again), note, score (its song score), quit-song
+// (it left the song) and leave. The host passes each guest's notes
 // on to the other guests.
 
 import { clockSample, estimateOffset, recentSamples, toLocalTime } from './clock.js';
@@ -32,6 +33,7 @@ import {
 import { Peer } from './peer.js';
 import { drawCode, scanCode } from './qr.js';
 import { addPlayer, createRoster, playerName, removePlayer } from './roster.js';
+import { addScore, createTally, groupScore, leaveTally, tallyComplete } from './scores.js';
 import { findPackedText } from './signal.js';
 
 // How long the host waits, after reading a player's code, for the
@@ -54,6 +56,12 @@ const START_LEAD = 1;
 // During a song, a guest retimes it to the latest offset this often, in
 // milliseconds.
 const RETIME_INTERVAL = 1000;
+// A playing guest pings ten times a second, and the host replies. One the
+// host has not heard from for this long, in milliseconds, is left out of
+// the group score, and a guest that has not heard from the host for this
+// long stops waiting for it: a lost connection can take half a minute to
+// be reported.
+const SILENT_LIMIT = 5000;
 
 const CONNECT_HELP = 'Both devices need to be on the same Wi-Fi. Some guest and public Wi-Fi keeps '
   + 'devices apart, and a phone’s hotspot usually works instead. On a Mac, the browser also needs '
@@ -73,8 +81,9 @@ export class Group {
   // countInStart on its audio clock. onRetime(countInStart) moves it there
   // for drift. onStop() ends it when the host quits. onNote(number, note)
   // plays another player's note: { action: "on", "pitch" or "off", midi,
-  // sound }.
-  constructor({ show, songs, startAudio, audio, onStart, onRetime, onStop, onNote }) {
+  // sound }. onGroupScore({ average, count }) shows the group score after a
+  // song.
+  constructor({ show, songs, startAudio, audio, onStart, onRetime, onStop, onNote, onGroupScore }) {
     this.show = show;
     this.songs = songs;
     this.startAudio = startAudio;
@@ -83,6 +92,7 @@ export class Group {
     this.onRetime = onRetime;
     this.onStop = onStop;
     this.onNote = onNote;
+    this.onGroupScore = onGroupScore;
     this.role = null;
     this.wakeLock = null;
     this.reset();
@@ -153,6 +163,12 @@ export class Group {
     this.stopRetiming();
     this.roster = null;
     this.lobby = null;
+    // Host: the scores of the song being played, and when each guest was
+    // last heard from.
+    this.tally = null;
+    clearInterval(this.silenceCheck);
+    this.silenceCheck = null;
+    this.lastHeard = new Map();
     // Host: the joined players' connections by number, those still
     // connecting, and the players whose clocks are synced.
     this.guests = new Map();
@@ -166,6 +182,9 @@ export class Group {
     this.number = null;
     this.samples = [];
     this.syncSent = false;
+    this.lastFromHost = 0;
+    clearInterval(this.scoreWait);
+    this.scoreWait = null;
   }
 
   // In a group, or was until the connection was lost and the player has
@@ -177,6 +196,12 @@ export class Group {
   // The screen to go back to after a song.
   get homeScreen() {
     return this.role === 'guest' ? 'guest' : 'setup';
+  }
+
+  // Still connected to the group: the host, or a guest whose connection is
+  // open.
+  get connected() {
+    return this.role === 'host' || (this.role === 'guest' && this.peer?.state === 'open');
   }
 
   get me() {
@@ -223,12 +248,89 @@ export class Group {
     }
   }
 
-  // The host's Quit ends the song for everyone.
-  quitSong() {
+  // Called when this device's player has played the song to the end, with
+  // their score, which goes into the group score.
+  songFinished(score) {
     if (this.role === 'host') {
-      this.sendAll({ type: 'stop' });
+      this.scoreFrom(HOST, score);
+    } else {
+      this.peer?.send({ type: 'score', score });
+      this.awaitGroupScore();
     }
     this.songEnded();
+  }
+
+  // A guest whose host has gone silent shows only its own score.
+  awaitGroupScore() {
+    clearInterval(this.scoreWait);
+    this.scoreWait = setInterval(() => {
+      if (performance.now() - this.lastFromHost > SILENT_LIMIT) {
+        clearInterval(this.scoreWait);
+        this.scoreWait = null;
+        $('group-score').hidden = true;
+      }
+    }, 1000);
+  }
+
+  // The host's Quit ends the song for everyone. A guest's takes only that
+  // player out, and out of the group score.
+  quitSong() {
+    if (this.role === 'host') {
+      this.tally = null;
+      clearInterval(this.silenceCheck);
+      this.silenceCheck = null;
+      this.sendAll({ type: 'stop' });
+    } else {
+      this.peer?.send({ type: 'quit-song' });
+    }
+    this.songEnded();
+  }
+
+  // ---- The group score, on the host
+
+  scoreFrom(number, score) {
+    if (this.tally) {
+      this.tally = addScore(this.tally, number, score);
+      this.checkTally();
+    }
+  }
+
+  // A player who will not send a score: they quit or were disconnected.
+  noScoreFrom(number) {
+    if (this.tally) {
+      this.tally = leaveTally(this.tally, number);
+      this.checkTally();
+    }
+  }
+
+  // While waiting for scores, a guest gone silent is left out.
+  startTally(players) {
+    this.tally = createTally(players);
+    clearInterval(this.silenceCheck);
+    this.silenceCheck = setInterval(() => {
+      const now = performance.now();
+      for (const number of this.tally?.expected ?? []) {
+        if (number !== HOST && !(number in this.tally.scores) && now - (this.lastHeard.get(number) ?? 0) > SILENT_LIMIT) {
+          this.noScoreFrom(number);
+        }
+      }
+    }, 1000);
+  }
+
+  // Once every player still counted has sent a score, the group score goes
+  // to everyone.
+  checkTally() {
+    if (!this.tally || !tallyComplete(this.tally)) {
+      return;
+    }
+    const result = groupScore(this.tally);
+    this.tally = null;
+    clearInterval(this.silenceCheck);
+    this.silenceCheck = null;
+    if (result) {
+      this.sendAll({ type: 'group-score', ...result });
+      this.onGroupScore(result);
+    }
   }
 
   message(text) {
@@ -337,6 +439,7 @@ export class Group {
     const lobby = startSong(this.lobby);
     const at = audio.audibleTime(performance.now()) + START_LEAD;
     this.lobby = lobby;
+    this.startTally(playing(lobby));
     this.sendAll({ type: 'lobby', lobby });
     this.sendAll({ type: 'start', at });
     this.render();
@@ -483,6 +586,7 @@ export class Group {
       if (number === null) {
         return;
       }
+      this.lastHeard.set(number, performance.now());
       if (message.type === 'ping') {
         const audio = this.audio();
         peer.send({
@@ -504,6 +608,10 @@ export class Group {
             otherPeer.send(note);
           }
         }
+      } else if (message.type === 'score') {
+        this.scoreFrom(number, message.score);
+      } else if (message.type === 'quit-song') {
+        this.noScoreFrom(number);
       } else if (message.type === 'leave') {
         this.removeGuest(number);
       } else {
@@ -523,6 +631,7 @@ export class Group {
     peer.close();
     this.roster = removePlayer(this.roster, number);
     this.setLobby(removeLobbyPlayer(this.lobby, number));
+    this.noScoreFrom(number);
   }
 
   end() {
@@ -601,6 +710,7 @@ export class Group {
   }
 
   hostMessage(message) {
+    this.lastFromHost = performance.now();
     if (message.type === 'welcome') {
       this.number = message.number;
       this.status(`You are ${playerName(this.number)}.`);
@@ -615,6 +725,12 @@ export class Group {
     } else if (message.type === 'note') {
       if (message.from !== this.number) {
         this.onNote(message.from, message);
+      }
+    } else if (message.type === 'group-score') {
+      clearInterval(this.scoreWait);
+      this.scoreWait = null;
+      if (Number.isFinite(message.average) && Number.isInteger(message.count)) {
+        this.onGroupScore({ average: message.average, count: message.count });
       }
     } else if (message.type === 'stop') {
       this.stopRetiming();
@@ -716,6 +832,8 @@ export class Group {
     this.status('');
     this.message(text);
     $('leave-button').textContent = 'Back';
+    // A group score will not come, so the result shows only this player's.
+    $('group-score').hidden = true;
     this.releaseWake();
   }
 
