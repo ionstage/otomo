@@ -715,13 +715,13 @@ The song tools follow once the format has settled.
     part each ready player took. A ready player can change their choice
     until the song starts, and stays ready. A chooser who leaves before
     choosing passes the turn to the next player.
-  - The song starts as soon as every player is ready or sits it out, with no warning beyond
-    the count-in. There is no time limit: the players are in one room, so
-    they can ask anyone who has not chosen yet. A player whose device
-    disconnects, for example because it went to sleep, is no longer waited
-    for. A device that has only just started its audio needs about a second
-    of pings to set its clock, so the last player's tap can start the song
-    up to a second later than an earlier one would.
+  - The song starts as soon as every player is ready or sits it out, with
+    no warning beyond the count-in. There is no time limit: the players are
+    in one room, so they can ask anyone who has not chosen yet. A player
+    whose device disconnects, for example because it went to sleep, is no
+    longer waited for. A device that has only just started its audio needs
+    about a second of pings to set its clock, so the last player's tap can
+    start the song up to a second later than an earlier one would.
   - After a song with several devices, the result screen has one button,
     Continue, back to the lobby, where the turn has passed on. Leaving the
     group is in the lobby. Play again and Change song stay for one device.
