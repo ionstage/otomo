@@ -199,11 +199,11 @@ Each step ends with something that can be checked.
 - **Screens sleeping.** A phone may sleep while waiting in the lobby. Use the
   Screen Wake Lock API where the browser has it.
 
-## Not yet decided
+## Smaller points
 
 How the group plays together was decided with the user and is in section 9
-of the design. These smaller points remain, each with a suggested default.
-Use the default and report it, unless it turns out to need more than that.
+of the design. These smaller points were left open in the plan, each with a
+suggested default, and the defaults were built.
 
 | Topic | Suggested default |
 |---|---|

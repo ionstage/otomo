@@ -761,10 +761,109 @@ The song tools follow once the format has settled.
   - A browser on a Mac needs the Local Network permission (System Settings,
     Privacy & Security) before it can connect. When a connection does not
     open, the game says so and mentions this.
-- **Percussion parts**, where each of the eight buttons is a different
-  percussive sound.
-- **Chord parts**, where each of the eight buttons is one of the chords used in
-  the song.
+- **Percussion parts**, where each button is a different percussive sound.
+  The first kind is drums. Agreed so far:
+  - A drums part (`"buttons": "drums"`) has ten sounds, on buttons 1 to 8,
+    9 and 0. 9 and 0 are sound buttons like 1 to 8, not modifiers, and keep
+    their keys (`C` and `9`, `V` and `0`) and their place in the modifier
+    row. The "♯↑" button over the centre of that row is not shown. Other
+    kinds of percussion can later add their own value with their own sounds.
+
+    | Button | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 |
+    |---|---|---|---|---|---|---|---|---|---|---|
+    | Sound | Low tom | Mid tom | High tom | Closed hi-hat | Bass drum | Snare | Rim | Tambourine | Open hi-hat | Cymbal |
+
+    Within each group the pitch rises from left to right, as on the scale
+    buttons, so a fill from the high tom down runs across neighbouring
+    fingers. The most frequent sounds are under the strongest fingers: the
+    closed hi-hat under the left index finger, and the bass drum and snare
+    under the right index and middle fingers. On touch, the closed hi-hat
+    and bass drum, the most common pair, sit side by side in the centre.
+
+  - The sounds form two groups: A is buttons 1 to 4, 9 and 0, and B is
+    buttons 5 to 8. Two sounds can play at once only if one is from each
+    group, so at any moment a part has one note or a pair.
+  - Each sound is synthesised, rings out on its own however long the button
+    is held, and is not stopped by release. A closed hi-hat cuts off a
+    ringing open hi-hat.
+  - Each button shows a short sound name beside its number, such as "Kick",
+    "Snare", "HH", "Open HH" or "Cym".
+  - Only timing is judged. A hit has no length, so it is scored as a note
+    shorter than a beat is, with duration counted as 100. The same timing
+    then gives the same score in every kind of part.
+  - In advanced mode the player presses exactly the written buttons, both of
+    them for a pair. Each group is judged on its own, so a press is matched
+    to the nearest note in its own group.
+  - In intermediate mode 9 and 0 are shown and are pressed like any other
+    button, and the player presses one button at each moment. A pair shows
+    only its group B button, and pressing that button plays both sounds.
+    Pressing the pair's group A button instead is wrong and plays only its
+    own sound. Any other wrong button plays its own sound.
+  - In beginner mode 9 and 0 are hidden, as the modifiers are for other
+    parts, and any button at the right moment plays the written sound, or
+    both sounds of a pair.
+  - Sliding a finger onto another button does not press it in a drums part.
+    Each touch is one hit.
+  - On the roll, notes are heads only, with no tails: squares one sixteenth
+    note wide, so four sixteenths sit edge to edge. A thin gap or outline in
+    the background colour separates neighbouring heads, so that a run of one
+    sound does not look like one long bar. Group A is drawn in the upper half
+    of each row and group B in the lower half. In beginner mode the notes are
+    not split by group and sit in a single line centred in the row, with a
+    pair shown as one head.
+  - A correct hit makes the head disappear with the hit effect. A wrong hit
+    fades it, and a missed one stays.
+  - 9 and 0 keep the modifiers' colours, light pink and light blue-grey, for
+    consistency with the other parts. These are paler than the note colours
+    and may look like the faded heads of wrong hits, so this is checked once
+    it is drawn. If it does not work, they get note colours of their own.
+  - Two rows of square heads make a row's notes about two and a half times
+    as tall as in other parts. Whether drums rows keep the usual height with
+    smaller heads, use the space left by having no modifier marks, or show
+    fewer rows on screen is decided after seeing it drawn.
+  - A drum event has `at` and `button` (0 for the cymbal) and no `length`. A
+    part has at most one note in each group at a time, and two notes in one
+    group are at least a sixteenth note apart.
+- **Chord parts**, where each button plays one of the chords used in the
+  part. Agreed so far:
+  - A chord is the exact set of pitches written, octaves included, and it
+    sounds exactly as written. Two chords are the same only when their
+    pitches match exactly, so C3–E3–G3, E3–G3–C4 and C4–E4–G4 are three
+    chords. A chord does not need a standard name.
+  - The buttons and keys are the same as for scale parts. In advanced mode
+    the two modifiers give four groups of eight, so up to 32 chords: buttons
+    1 to 8 alone, then with the octave modifier (`V`, `0`), then with the
+    semitone modifier (`C`, `9`), then with both. The octave group comes
+    second because pressing a note button with the left hand and the octave
+    modifier with the right is the easiest pattern to tap.
+  - The game assigns the chords when the song loads. It counts how many
+    times each chord is pressed in the part, and sorts them from most to
+    least, with ties in order of first appearance. They then take button 1
+    to 8 with no modifier, and the groups after it in turn. The song file
+    lists each chord event's notes, with no button numbers. The assignment
+    is fixed for the whole part.
+  - A part with more than 32 chords is rejected for now. Another scheme for
+    the chords beyond 32 is designed if a song needs it.
+  - The difficulty levels work as for scale parts. In beginner mode any
+    button plays the written chord. In intermediate mode the game supplies
+    the modifiers, so the button decides. A wrong button sounds its own
+    chord in the written chord's group. In advanced mode the button and
+    modifiers must match, and each chord has only one way to play it.
+  - The modifiers keep their colours and shapes on the buttons and the roll,
+    but for chords they only pick a group, so "♯" and "↑" would mislead.
+    Chord parts label them by their keys on the number row instead: "9"
+    for the semitone modifier and "0" for the octave modifier, carrying on
+    from the note buttons' 1 to 8. "C" and "V" were considered, but "C" is
+    also a chord name.
+  - Each button shows a chord name worked out from its notes, such as "Am"
+    or "G7", beside its number, and nothing when the notes have no standard
+    name. While modifiers are held, the buttons show that group's chords.
+  - One chord sounds at a time, and a new press replaces the held chord, as
+    for scale parts.
+  - Frequent chords may land far apart, such as on buttons 1 and 8. This is
+    accepted for a simple rule, and looked at after play. Chord parts are
+    written for the project with consistent voicings, so that the count of
+    chords stays low.
 - **MIDI conversion** into the format.
 - **Composition tool** for writing songs in the format.
 - **Sampled instrument sounds.**
@@ -801,3 +900,13 @@ The song tools follow once the format has settled.
    been played with no issues so far. The weights may still change, and a
    shift at a phrase boundary
    may be allowed where a part has long runs of held octave presses.
+6. **Key configuration.** Letting players choose their own keys may be
+   useful later. If it is added, the labels shown on screen, such as "9"
+   and "0" on chord parts' modifiers, must follow the keys actually
+   assigned, so the relationship between labels and keys needs to be
+   worked out first.
+7. **Gamepads.** Supporting gamepads may be useful later. A gamepad is
+   closer to a home console's controller than to a keyboard or a
+   touchscreen, so it would get a button layout of its own, perhaps
+   inspired by console music games such as the Band Brothers series,
+   rather than copying the keyboard's.
