@@ -109,8 +109,9 @@ Each step ends with something that can be checked.
    turns through a few songs, and the song starts when the last player
    chooses, or when a player who has not chosen disconnects.
 
-   Built, and checked in headless Chrome with three devices: turns, ready,
-   changing a choice, leaving, and the start, within 2 ms on all three.
+   Done. Checked in headless Chrome with three devices (turns, ready,
+   changing a choice, leaving, and the start, within 2 ms on all three),
+   and by the user on an iPad, an iPhone and a Mac.
    Until step 5, Quit still pauses one device only, and the host's Quit
    passes the turn on without stopping the guests' song.
 5. **Playing together.** Every device counts in and plays together, plays
