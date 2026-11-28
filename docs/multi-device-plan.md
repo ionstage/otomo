@@ -112,12 +112,16 @@ Each step ends with something that can be checked.
    Done. Checked in headless Chrome with three devices (turns, ready,
    changing a choice, leaving, and the start, within 2 ms on all three),
    and by the user on an iPad, an iPhone and a Mac.
-   Until step 5, Quit still pauses one device only, and the host's Quit
-   passes the turn on without stopping the guests' song.
+   A bug found in step 5: at the start, every device autoplayed every part,
+   the players' own included. Fixed.
 5. **Playing together.** Every device counts in and plays together, plays
    the untaken parts at the lowered volume, and plays its own player's part.
    The guests keep pinging during the song and correct their timing from
    the latest offset, since the trial measured drift of up to 170 ppm.
+
+   Built, and checked in headless Chrome with three devices: autoplay at
+   1/√3 of its level, retiming once a second on the guests, a guest leaving
+   the song with the music playing on, and the host ending it for everyone.
    Quit as the design describes, with no pause. Check: two people play a
    song together on two phones.
 6. **Scores and lost connections.** Each device sends its song score to the

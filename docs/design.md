@@ -713,8 +713,10 @@ The song tools follow once the format has settled.
     Continue, back to the lobby, where the turn has passed on. Leaving the
     group is in the lobby. Play again and Change song stay for one device.
   - Nothing pauses with several devices. A guest's Quit asks to confirm with
-    the music still playing, and takes only that player out of the song. The
-    host's Quit ends the song for everyone.
+    the music still playing ("Leave this song? The others play on."), and
+    takes only that player out of the song, back to the lobby. The host's
+    Quit asks the same way ("End this song for everyone?") and ends the song
+    for everyone.
   - A device that loses its connection plays on to the end on its own clock.
     It then sees only its own score and is left out of the group score, and
     the player rejoins by scanning the host's code again. If the host's
@@ -733,8 +735,9 @@ The song tools follow once the format has settled.
   - Two devices' audio clocks drift apart by up to about 170 parts per
     million (a Mac with an iPhone; an iPad with an iPhone drifted 13), which
     is about 30 ms over a three-minute song. So the guests keep pinging the
-    host during the song and each device corrects its timing from the
-    latest offset.
+    host during the song, and once a second each guest moves its song
+    towards the latest offset, by at most 2 ms at a time. A change of more
+    than 30 ms, as when a device switches its speaker, is made at once.
   - A browser on a Mac needs the Local Network permission (System Settings,
     Privacy & Security) before it can connect. When a connection does not
     open, the game says so and mentions this.
