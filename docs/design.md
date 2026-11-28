@@ -646,10 +646,11 @@ point of the game and its largest technical risk. Percussion and chord parts
 are designed together, since both give the `buttons` field a new meaning.
 The song tools follow once the format has settled.
 
-- **Multiple devices.** Further players connect to the first player's
-  device, the host. The network carries clock sync, the start signal, the
-  players' notes and scores. The plan for this work is in `docs/multi-device-plan.md`. Agreed so
-  far:
+- **Multiple devices.** Done, and checked on an iPad, an iPhone and a Mac.
+  Further players connect to the first player's device, the host. The
+  network carries clock sync, the start signal, the players' notes and
+  scores. How it was built is recorded in `docs/multi-device-plan.md`.
+  Agreed:
   - The devices connect directly over WebRTC data channels on the local
     network, with no server of any kind. Each guest connects to the host
     only, so the host is the hub.
@@ -793,9 +794,8 @@ The song tools follow once the format has settled.
    Apache-2.0 licence is compatible with it and only needs its licence text
    to be kept with the file. The project's licence may change if a library
    it comes to depend on requires it.
-4. **Multiple devices.** The connection method is decided (see section 9).
-   The questions still open, such as late joining and sharing a part, are
-   listed in `docs/multi-device-plan.md`.
+4. **Multiple devices.** Done (see section 9). Android phones and phone
+   hotspots were not tested, and are looked at if problems arise.
 5. **Arrangement weights and shifts.** The costs in
    [Scale position](#scale-position) are starting points. The songs have
    been played with no issues so far. The weights may still change, and a

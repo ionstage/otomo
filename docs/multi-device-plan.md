@@ -1,9 +1,10 @@
 # Multiple devices plan
 
-This is the handoff for implementing multiple devices, the first item in
-section 9 of [design.md](design.md). The design document records what was
-agreed. This document suggests how to build it, and lists what is not yet
-decided.
+This was the handoff for implementing multiple devices, the first item in
+section 9 of [design.md](design.md). All six steps are done and were
+checked by the user on an iPad, an iPhone and a Mac, so this document now
+records how it was built. The design document records what was agreed,
+including the decisions made along the way.
 
 The first build is complete and is recorded in
 [first-build-plan.md](first-build-plan.md). Everything in it still applies
@@ -148,10 +149,12 @@ Each step ends with something that can be checked.
    score is the average of the players' song scores, and turning a guest's
    Wi-Fi off mid-song leaves the others' result correct.
 
-   Built, and checked in headless Chrome with three devices over three
-   songs: everyone finishing, a guest quitting, and a guest's page closing
+   Done. Checked in headless Chrome with three devices over three songs:
+   everyone finishing, a guest quitting, and a guest's page closing
    mid-song, which the host noticed after 5 seconds of silence. Closing
-   the host's page left the guests showing only their own scores.
+   the host's page left the guests showing only their own scores. Then
+   checked by the user on the devices, with a guest's Wi-Fi turned off
+   mid-song.
 
 ## Technical notes
 
