@@ -735,7 +735,13 @@ The song tools follow once the format has settled.
     the player rejoins by scanning the host's code again. If the host's
     connection is lost, every guest is in that position.
   - The result screen shows the player's own score and, below it, the group
-    score with the number of players, once every score has arrived.
+    score with the number of players, once every score has arrived. Until
+    then it says "Waiting for the other players' scores…". The group score
+    is the average of the players who played the song to the end: a player
+    who quit it, sat it out or lost their connection is not counted. A lost
+    connection can take half a minute to be reported, so a player the host
+    has not heard from for 5 seconds is left out, and a guest that has not
+    heard from the host for 5 seconds shows only its own score.
   - The work started with a trial page (`trial/`), before the game screens
     depended on it. An iPad with an iPhone, and a Mac running Chrome with an
     iPhone, connected on home Wi-Fi by QR code and by copied text. Clicks

@@ -148,6 +148,11 @@ Each step ends with something that can be checked.
    score is the average of the players' song scores, and turning a guest's
    Wi-Fi off mid-song leaves the others' result correct.
 
+   Built, and checked in headless Chrome with three devices over three
+   songs: everyone finishing, a guest quitting, and a guest's page closing
+   mid-song, which the host noticed after 5 seconds of silence. Closing
+   the host's page left the guests showing only their own scores.
+
 ## Technical notes
 
 - **Secure context.** The camera needs HTTPS, or `localhost`. Phones on the
