@@ -134,6 +134,12 @@ Each step ends with something that can be checked.
    guest kept its old offset. A guest now sets its clock again when its
    audio stops running or its pings jump, and the host waits for it.
    Confirmed fixed by the user.
+
+   Done, and checked by the user on an iPad, an iPhone and a Mac: the
+   balance of autoplay, Rondo alla Turca staying together from a Mac host
+   to an iPhone, a guest's and the host's Quit, pausing alone, other
+   players' notes, and held parts. A song from the lobby counts as played
+   together even when the host has no guests left, so it does not pause.
    Quit as the design describes, with no pause. Check: two people play a
    song together on two phones.
 6. **Scores and lost connections.** Each device sends its song score to the
