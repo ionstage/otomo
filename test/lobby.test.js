@@ -72,6 +72,15 @@ test('two players may take the same part, and taken parts are listed once', () =
   assert.deepEqual(takenParts(lobby), [0, 2]);
 });
 
+test('the taken parts are still known once the song has started', () => {
+  let lobby = chooseSong(lobbyOf(1, 2), 1, 'ode.json', 3);
+  lobby = choose(lobby, 1, { part: 0, difficulty: 'beginner' });
+  lobby = choose(lobby, 2, { part: 2, difficulty: 'beginner' });
+  lobby = startSong(lobby);
+  assert.equal(lobby.phase, 'playing');
+  assert.deepEqual(takenParts(lobby), [0, 2]);
+});
+
 test('the song starts only when everyone is ready', () => {
   let lobby = chooseSong(lobbyOf(1, 2), 1, 'ode.json', 2);
   lobby = choose(lobby, 1, { part: 0, difficulty: 'beginner' });

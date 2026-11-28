@@ -79,9 +79,14 @@ export function choose(lobby, number, { part, difficulty } = {}) {
   return { ...lobby, choices: { ...lobby.choices, [number]: next } };
 }
 
-export function isReady(lobby, number) {
+// A player has chosen both a part and a difficulty.
+function hasChosen(lobby, number) {
   const choice = lobby.choices[number];
-  return lobby.phase === 'parts' && choice?.part !== null && choice?.part !== undefined && choice.difficulty !== null;
+  return Number.isInteger(choice?.part) && typeof choice.difficulty === 'string';
+}
+
+export function isReady(lobby, number) {
+  return lobby.phase === 'parts' && hasChosen(lobby, number);
 }
 
 // Every player still in the group is ready.
@@ -89,9 +94,10 @@ export function allReady(lobby) {
   return lobby.phase === 'parts' && lobby.players.length > 0 && lobby.players.every((number) => isReady(lobby, number));
 }
 
-// The parts any player has taken. None of them is autoplayed.
+// The parts any player has taken, while choosing and once the song has
+// started. None of them is autoplayed.
 export function takenParts(lobby) {
-  return [...new Set(lobby.players.filter((number) => isReady(lobby, number)).map((number) => lobby.choices[number].part))]
+  return [...new Set(lobby.players.filter((number) => hasChosen(lobby, number)).map((number) => lobby.choices[number].part))]
     .sort((a, b) => a - b);
 }
 
