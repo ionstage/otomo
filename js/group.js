@@ -8,8 +8,9 @@
 //
 // From the host: welcome (the guest's number), lobby, pong, start, stop
 // (the host quit the song), note (another player's note, with whose it is)
-// and end. From a guest: song, choose, ping, synced, note and leave. The
-// host passes each guest's notes on to the other guests.
+// and end. From a guest: song, choose, ping, synced, unsynced (its clock
+// must be set again), note and leave. The host passes each guest's notes
+// on to the other guests.
 
 import { clockSample, estimateOffset, recentSamples, toLocalTime } from './clock.js';
 import {
@@ -44,6 +45,9 @@ const PING_INTERVAL = 100;
 const CLOCK_WINDOW = 20;
 // A guest is ready to start once it has this many pings.
 const CLOCK_SAMPLES = 8;
+// A ping whose offset differs from the estimate by more than this, in
+// seconds, beyond half its round trip, means a clock has jumped.
+const CLOCK_JUMP = 0.05;
 // The host sends the count-in's start this far ahead, in seconds, so that
 // it reaches every guest in time.
 const START_LEAD = 1;
@@ -247,6 +251,11 @@ export class Group {
   // Every tap in the lobby starts the audio. Some browsers report it
   // running only a moment later, so the host checks again then whether the
   // song can start.
+  //
+  // A suspended audio clock stops, and carries on from there when it
+  // resumes, while the host's runs on. iOS can suspend it while a guest
+  // waits in the lobby. So a guest whose audio stops running sets its clock
+  // again from fresh pings.
   tap() {
     const audio = this.startAudio();
     if (!this.listening) {
@@ -254,6 +263,8 @@ export class Group {
       audio.context.addEventListener('statechange', () => {
         if (this.role === 'host') {
           this.maybeStart();
+        } else if (this.role === 'guest' && audio.context.state !== 'running') {
+          this.resetClock();
         }
       });
     }
@@ -483,6 +494,8 @@ export class Group {
       } else if (message.type === 'synced') {
         this.synced.add(number);
         this.maybeStart();
+      } else if (message.type === 'unsynced') {
+        this.synced.delete(number);
       } else if (message.type === 'note') {
         const note = { type: 'note', from: number, action: message.action, midi: message.midi, sound: message.sound };
         this.onNote(number, note);
@@ -624,11 +637,26 @@ export class Group {
       return;
     }
     const t1 = audio.audibleTime(performance.now());
-    this.samples.push(clockSample(t0, th, t1));
+    const sample = clockSample(t0, th, t1);
+    const estimate = estimateOffset(recentSamples(this.samples, t1, CLOCK_WINDOW));
+    if (estimate && Math.abs(sample.offset - estimate.offset) > CLOCK_JUMP + sample.rtt / 2) {
+      this.resetClock();
+    }
+    this.samples.push(sample);
     this.samples = recentSamples(this.samples, t1, CLOCK_WINDOW);
     if (!this.syncSent && this.samples.length >= CLOCK_SAMPLES) {
       this.syncSent = true;
       this.peer.send({ type: 'synced' });
+    }
+  }
+
+  // Drops the clock samples, after a clock has jumped, and tells the host
+  // to wait for fresh ones before starting a song.
+  resetClock() {
+    this.samples = [];
+    if (this.syncSent) {
+      this.syncSent = false;
+      this.peer?.send({ type: 'unsynced' });
     }
   }
 
