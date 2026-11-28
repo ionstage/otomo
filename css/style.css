@@ -311,6 +311,13 @@ legend {
   display: block;
 }
 
+/* A part another player holds, with their name. */
+.choice-buttons button:disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.6;
+}
+
 #difficulty-buttons button {
   color: var(--muted);
 }

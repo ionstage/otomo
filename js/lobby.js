@@ -56,8 +56,15 @@ export function chooseSong(lobby, number, song, partCount) {
   return { ...lobby, phase: 'parts', song, partCount, choices: {} };
 }
 
+// The player holding `part`, or null. Choosing a part claims it, even
+// before a difficulty is chosen.
+export function partHolder(lobby, part) {
+  return lobby.players.find((number) => lobby.choices[number]?.part === part) ?? null;
+}
+
 // Sets a player's part, difficulty or both. Allowed until the song starts,
-// so a ready player can change their mind and stays ready.
+// so a ready player can change their mind and stays ready. Each part can
+// be held by one player only.
 export function choose(lobby, number, { part, difficulty } = {}) {
   if (lobby.phase !== 'parts' || !lobby.players.includes(number)) {
     return lobby;
@@ -66,6 +73,10 @@ export function choose(lobby, number, { part, difficulty } = {}) {
   const next = { ...current };
   if (part !== undefined) {
     if (!Number.isInteger(part) || part < 0 || part >= lobby.partCount) {
+      return lobby;
+    }
+    const holder = partHolder(lobby, part);
+    if (holder !== null && holder !== number) {
       return lobby;
     }
     next.part = part;
@@ -80,7 +91,7 @@ export function choose(lobby, number, { part, difficulty } = {}) {
 }
 
 // A player has chosen both a part and a difficulty.
-function hasChosen(lobby, number) {
+export function hasChosen(lobby, number) {
   const choice = lobby.choices[number];
   return Number.isInteger(choice?.part) && typeof choice.difficulty === 'string';
 }
@@ -89,16 +100,40 @@ export function isReady(lobby, number) {
   return lobby.phase === 'parts' && hasChosen(lobby, number);
 }
 
-// Every player still in the group is ready.
-export function allReady(lobby) {
-  return lobby.phase === 'parts' && lobby.players.length > 0 && lobby.players.every((number) => isReady(lobby, number));
+// With more players than parts, a player without a part sits the song out
+// once every part is held by someone else. Once the song has started,
+// everyone who had not chosen sits it out.
+export function sitsOut(lobby, number) {
+  if (lobby.phase === 'playing') {
+    return !hasChosen(lobby, number);
+  }
+  if (lobby.phase !== 'parts' || Number.isInteger(lobby.choices[number]?.part)) {
+    return false;
+  }
+  for (let part = 0; part < lobby.partCount; part++) {
+    if (partHolder(lobby, part) === null) {
+      return false;
+    }
+  }
+  return true;
 }
 
-// The parts any player has taken, while choosing and once the song has
+// Every player still in the group is ready or sits the song out.
+export function allReady(lobby) {
+  return lobby.phase === 'parts'
+    && lobby.players.some((number) => isReady(lobby, number))
+    && lobby.players.every((number) => isReady(lobby, number) || sitsOut(lobby, number));
+}
+
+// The players who play the song, with a part and a difficulty.
+export function playing(lobby) {
+  return lobby.players.filter((number) => hasChosen(lobby, number));
+}
+
+// The parts the players have taken, while choosing and once the song has
 // started. None of them is autoplayed.
 export function takenParts(lobby) {
-  return [...new Set(lobby.players.filter((number) => hasChosen(lobby, number)).map((number) => lobby.choices[number].part))]
-    .sort((a, b) => a - b);
+  return playing(lobby).map((number) => lobby.choices[number].part).sort((a, b) => a - b);
 }
 
 export function startSong(lobby) {

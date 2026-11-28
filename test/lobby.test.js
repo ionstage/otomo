@@ -9,7 +9,10 @@ import {
   finishSong,
   isReady,
   nextPlayer,
+  partHolder,
+  playing,
   removeLobbyPlayer,
+  sitsOut,
   startSong,
   takenParts,
 } from '../js/lobby.js';
@@ -62,14 +65,62 @@ test('choices that are not allowed change nothing', () => {
   assert.equal(choose(parts, 7, { part: 0 }), parts);
 });
 
-test('two players may take the same part, and taken parts are listed once', () => {
+test('each part can be held by one player only', () => {
   let lobby = chooseSong(lobbyOf(1, 2, 3), 1, 'ode.json', 3);
   lobby = choose(lobby, 1, { part: 2, difficulty: 'beginner' });
-  lobby = choose(lobby, 2, { part: 2, difficulty: 'advanced' });
-  lobby = choose(lobby, 3, { part: 0 });
-  assert.deepEqual(takenParts(lobby), [2]);
-  lobby = choose(lobby, 3, { difficulty: 'beginner' });
+  const refused = choose(lobby, 2, { part: 2, difficulty: 'advanced' });
+  assert.equal(refused, lobby);
+  lobby = choose(lobby, 2, { part: 0, difficulty: 'advanced' });
+  assert.equal(partHolder(lobby, 2), 1);
+  assert.equal(partHolder(lobby, 0), 2);
+  assert.equal(partHolder(lobby, 1), null);
   assert.deepEqual(takenParts(lobby), [0, 2]);
+});
+
+test('choosing a part claims it before a difficulty is chosen', () => {
+  let lobby = chooseSong(lobbyOf(1, 2), 1, 'ode.json', 3);
+  lobby = choose(lobby, 1, { part: 1 });
+  assert.equal(choose(lobby, 2, { part: 1 }), lobby);
+});
+
+test('a part comes free when its player switches to another', () => {
+  let lobby = chooseSong(lobbyOf(1, 2), 1, 'ode.json', 2);
+  lobby = choose(lobby, 1, { part: 0, difficulty: 'beginner' });
+  lobby = choose(lobby, 1, { part: 1 });
+  lobby = choose(lobby, 2, { part: 0, difficulty: 'beginner' });
+  assert.deepEqual(lobby.choices[2], { part: 0, difficulty: 'beginner' });
+});
+
+test('with more players than parts, a player left without one sits out', () => {
+  let lobby = chooseSong(lobbyOf(1, 2, 3), 1, 'ode.json', 2);
+  lobby = choose(lobby, 1, { part: 0, difficulty: 'beginner' });
+  assert.equal(sitsOut(lobby, 3), false);
+  lobby = choose(lobby, 2, { part: 1 });
+  assert.equal(sitsOut(lobby, 3), true);
+  assert.equal(sitsOut(lobby, 2), false);
+  // Player 2 holds a part without a difficulty, so is still waited for.
+  assert.equal(allReady(lobby), false);
+  lobby = choose(lobby, 2, { difficulty: 'advanced' });
+  assert.equal(allReady(lobby), true);
+  lobby = startSong(lobby);
+  assert.deepEqual(playing(lobby), [1, 2]);
+  assert.equal(sitsOut(lobby, 3), true);
+});
+
+test('a player sitting out can take a part that comes free before the start', () => {
+  let lobby = chooseSong(lobbyOf(1, 2), 1, 'ode.json', 1);
+  lobby = choose(lobby, 1, { part: 0, difficulty: 'beginner' });
+  lobby = choose(lobby, 2, { difficulty: 'beginner' });
+  assert.equal(sitsOut(lobby, 2), true);
+  lobby = removeLobbyPlayer(lobby, 1);
+  assert.equal(sitsOut(lobby, 2), false);
+  lobby = choose(lobby, 2, { part: 0 });
+  assert.equal(isReady(lobby, 2), true);
+});
+
+test('the song does not start with nobody ready', () => {
+  const lobby = chooseSong(lobbyOf(1), 1, 'ode.json', 1);
+  assert.equal(allReady(lobby), false);
 });
 
 test('the taken parts are still known once the song has started', () => {

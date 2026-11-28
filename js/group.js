@@ -19,8 +19,12 @@ import {
   chooseSong,
   createLobby,
   finishSong,
+  hasChosen,
   isReady,
+  partHolder,
+  playing,
   removeLobbyPlayer,
+  sitsOut,
   startSong,
   takenParts,
 } from './lobby.js';
@@ -309,14 +313,14 @@ export class Group {
     this.maybeStart();
   }
 
-  // The song starts as soon as every player is ready and every guest's
-  // clock is synced.
+  // The song starts as soon as every player is ready or sits it out, and
+  // the clock of every guest who plays is synced.
   maybeStart() {
     const audio = this.audio();
     if (!this.lobby || !allReady(this.lobby) || audio?.context.state !== 'running') {
       return;
     }
-    if (!this.lobby.players.every((number) => number === HOST || this.synced.has(number))) {
+    if (!playing(this.lobby).every((number) => number === HOST || this.synced.has(number))) {
       return;
     }
     const lobby = startSong(this.lobby);
@@ -329,18 +333,18 @@ export class Group {
   }
 
   // Starts this device's part of the song, with the count-in at `at` on
-  // this device's clock.
+  // this device's clock. A player sitting the song out does not play it.
   startHere(at) {
-    const choice = this.lobby.choices[this.me];
-    if (!choice) {
+    if (!hasChosen(this.lobby, this.me)) {
       return;
     }
+    const choice = this.lobby.choices[this.me];
     this.onStart({
       file: this.lobby.song,
       partIndex: choice.part,
       difficulty: choice.difficulty,
       takenParts: takenParts(this.lobby),
-      devices: this.lobby.players.length,
+      devices: playing(this.lobby).length,
       countInStart: at,
     });
   }
@@ -640,7 +644,7 @@ export class Group {
 
   startFromHost(at) {
     const offset = this.offset();
-    if (offset === null || !this.lobby || this.lobby.phase !== 'playing') {
+    if (offset === null || !this.lobby || this.lobby.phase !== 'playing' || !hasChosen(this.lobby, this.me)) {
       return;
     }
     this.startHere(toLocalTime(at, offset));
@@ -748,15 +752,24 @@ export class Group {
         const button = document.createElement('button');
         button.type = 'button';
         button.dataset.part = index;
-        button.textContent = part.name;
         button.setAttribute('aria-pressed', String(choice.part === index));
+        const holder = partHolder(lobby, index);
+        if (holder !== null && holder !== me) {
+          // Another player holds it.
+          button.disabled = true;
+          button.append(Object.assign(document.createElement('strong'), { textContent: part.name }), playerName(holder));
+        } else {
+          button.textContent = part.name;
+        }
         return button;
       }));
       for (const button of $('difficulty-buttons').querySelectorAll('[data-difficulty]')) {
         button.setAttribute('aria-pressed', String(choice.difficulty === button.dataset.difficulty));
       }
       if (allReady(lobby)) {
-        status = 'Starting…';
+        status = sitsOut(lobby, me) ? 'Every part is taken, so you sit this song out.' : 'Starting…';
+      } else if (sitsOut(lobby, me)) {
+        status = 'Every part is taken, so you sit this song out. If a part comes free before the start, you can take it.';
       } else if (isReady(lobby, me)) {
         status = 'Ready. The song starts when everyone has chosen. You can still change.';
       } else {
@@ -775,9 +788,13 @@ export class Group {
       if (lobby.phase === 'song' && number === lobby.chooser) {
         state = 'choosing the song';
       } else if (lobby.phase === 'parts') {
-        state = isReady(lobby, number)
-          ? `ready · ${entry?.song.parts[lobby.choices[number].part]?.name ?? ''}`
-          : 'choosing';
+        if (isReady(lobby, number)) {
+          state = `ready · ${entry?.song.parts[lobby.choices[number].part]?.name ?? ''}`;
+        } else {
+          state = sitsOut(lobby, number) ? 'sitting out' : 'choosing';
+        }
+      } else if (lobby.phase === 'playing') {
+        state = hasChosen(lobby, number) ? entry?.song.parts[lobby.choices[number].part]?.name ?? '' : 'sitting out';
       }
       if (state) {
         item.append(' ', Object.assign(document.createElement('span'), { className: 'ready', textContent: `— ${state}` }));
