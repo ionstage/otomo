@@ -690,9 +690,16 @@ The song tools follow once the format has settled.
     after each song the turn passes to the next player in the order they
     joined. Anyone who has left is skipped, and anyone who joins goes to the
     end of the order.
-  - Every player chooses their own part and difficulty for every song. Two
-    players may take the same part. A part that anyone has taken is not
-    autoplayed on any device.
+  - Every player chooses their own part and difficulty for every song. Each
+    part can be held by one player only: choosing a part claims it, even
+    before a difficulty, until that player switches to another. If two
+    players tap the same part at once, the host's order decides. In the
+    lobby, a part another player holds is greyed out with their name. A
+    part that anyone has taken is not autoplayed on any device.
+  - With more players than parts, a player left without a part once every
+    part is held sits the song out and listens. They can still take a part
+    that comes free before the start. Their device does not play the song
+    and is not counted in the autoplay volume, and they are not scored.
   - Each player's notes are sent, as they are played, to every other device,
     which plays them at once at the lowered autoplay level, so a player's
     own device plays them loudest. Wrong notes and timing are heard
@@ -708,7 +715,7 @@ The song tools follow once the format has settled.
     part each ready player took. A ready player can change their choice
     until the song starts, and stays ready. A chooser who leaves before
     choosing passes the turn to the next player.
-  - The song starts as soon as every player is ready, with no warning beyond
+  - The song starts as soon as every player is ready or sits it out, with no warning beyond
     the count-in. There is no time limit: the players are in one room, so
     they can ask anyone who has not chosen yet. A player whose device
     disconnects, for example because it went to sleep, is no longer waited

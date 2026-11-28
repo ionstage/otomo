@@ -191,7 +191,7 @@ Use the default and report it, unless it turns out to need more than that.
 | The chooser leaves before choosing | The turn passes to the next player. |
 | Changing a choice after being ready | Allowed until the song starts. The player stays ready. |
 | Latency calibration (open question 2 of the design) | Not for now. The reported output latency is allowed for, which the trial showed covers Bluetooth. |
-| Number of players | No fixed limit. Test with three or four. |
+| Number of players | No fixed limit. Each part has one player, and with more players than parts the rest sit the song out (section 9 of the design). |
 
 ## After the trial
 
