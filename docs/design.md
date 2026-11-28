@@ -825,7 +825,11 @@ The song tools follow once the format has settled.
     part has at most one note in each group at a time, and two notes in one
     group are at least a sixteenth note apart.
 - **Chord parts**, where each button plays one of the chords used in the
-  part. Agreed so far:
+  part. Chord and drums parts are built from `docs/parts-plan.md`. They
+  are tried with a chord part added to "Ode to Joy", and a new song, "When
+  the Saints Go Marching In", arranged for the project with melody, chords,
+  bass and drums. "Ode to Joy" has no drums in the original, so it gets no
+  drums part. Agreed so far:
   - A chord is the exact set of pitches written, octaves included, and it
     sounds exactly as written. Two chords are the same only when their
     pitches match exactly, so C3–E3–G3, E3–G3–C4 and C4–E4–G4 are three
