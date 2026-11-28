@@ -47,10 +47,19 @@ const input = new Input({
 });
 
 let songs = [];
+// The loaded songs with their file names, by which devices in a group
+// name a song.
+let songEntries = [];
 let audio = null;
 let game = null;
 let lastSettings = null;
-const group = new Group({ show });
+const group = new Group({
+  show,
+  songs: () => songEntries,
+  startAudio,
+  audio: () => audio,
+  onStart: startGroupSong,
+});
 
 function show(name) {
   for (const [key, element] of Object.entries(screens)) {
@@ -81,7 +90,8 @@ async function loadSongs() {
       return { file, error };
     }
   }));
-  songs = loaded.filter((entry) => entry.song).map((entry) => entry.song);
+  songEntries = loaded.filter((entry) => entry.song);
+  songs = songEntries.map((entry) => entry.song);
   const errors = loaded.filter((entry) => entry.error);
   setupMessage.textContent = errors.map((entry) => `${entry.file}: ${entry.error.message}`).join('\n');
   songSelect.replaceChildren(...songs.map((song, index) => new Option(song.title, index)));
@@ -93,7 +103,20 @@ function showParts() {
   partSelect.replaceChildren(...(song ? song.parts.map((part, index) => new Option(part.name, index)) : []));
 }
 
-function startGame({ song, partIndex, difficulty }) {
+// The audio context must be created and resumed during a user gesture.
+function startAudio() {
+  if (navigator.audioSession) {
+    navigator.audioSession.type = 'playback';
+  }
+  audio ??= new AudioEngine();
+  audio.resume();
+  return audio;
+}
+
+// Alone, every other part is autoplayed and the count-in starts now. In a
+// group, the parts nobody has taken are autoplayed, and the count-in starts
+// when the host said.
+function startGame({ song, partIndex, difficulty, autoplay, countInStart }) {
   const part = song.parts[partIndex];
   lastSettings = { song, partIndex, difficulty };
   group.songStarting();
@@ -117,7 +140,7 @@ function startGame({ song, partIndex, difficulty }) {
   show('play');
   roll.setPart(song, part, difficulty);
   input.enable(difficulty === 'advanced');
-  audio.startSong(song, song.parts.filter((other) => other !== part));
+  audio.startSong(song, autoplay ?? song.parts.filter((other) => other !== part), countInStart);
   game.frame = requestAnimationFrame(frame);
 }
 
@@ -172,12 +195,30 @@ async function resumeGame() {
   game.frame = requestAnimationFrame(frame);
 }
 
+function startGroupSong({ file, partIndex, difficulty, takenParts, countInStart }) {
+  const song = songEntries.find((entry) => entry.file === file)?.song;
+  if (!song) {
+    return;
+  }
+  if (game) {
+    stopGame();
+  }
+  startGame({
+    song,
+    partIndex,
+    difficulty,
+    autoplay: song.parts.filter((_, index) => !takenParts.includes(index)),
+    countInStart,
+  });
+}
+
 function quitGame() {
   quitDialog.close();
   if (game) {
     stopGame();
+    group.songEnded();
   }
-  show('setup');
+  show(group.active ? group.homeScreen : 'setup');
 }
 
 function finishGame(time) {
@@ -187,6 +228,13 @@ function finishGame(time) {
   stopGame();
   resultTitle.textContent = `${song.title} · ${part.name}`;
   scoreText.textContent = String(Math.round(score));
+  // With several devices, Continue goes back to the lobby for the next
+  // player's turn.
+  const together = group.active;
+  document.getElementById('again-button').hidden = together;
+  document.getElementById('change-button').hidden = together;
+  document.getElementById('continue-button').hidden = !together;
+  group.songEnded();
   show('result');
 }
 
@@ -265,12 +313,7 @@ setupForm.addEventListener('submit', (event) => {
   if (!song) {
     return;
   }
-  // The audio context must be created and resumed during the user gesture.
-  if (navigator.audioSession) {
-    navigator.audioSession.type = 'playback';
-  }
-  audio ??= new AudioEngine();
-  audio.resume();
+  startAudio();
   const difficulty = new FormData(setupForm).get('difficulty');
   startGame({ song, partIndex: Number(partSelect.value), difficulty });
 });
@@ -299,6 +342,7 @@ document.getElementById('again-button').addEventListener('click', () => {
 });
 
 document.getElementById('change-button').addEventListener('click', () => show('setup'));
+document.getElementById('continue-button').addEventListener('click', () => show(group.homeScreen));
 
 loadSongs();
 group.openJoinLink();

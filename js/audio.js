@@ -59,17 +59,28 @@ export class AudioEngine {
     return this.context.resume();
   }
 
-  startSong(song, autoplayParts) {
+  // The count-in starts at `countInStart` on the context's clock, or
+  // shortly after now. With several devices it is a time the host sent,
+  // which may already have passed if the message was slow: anything due
+  // before now is left out.
+  startSong(song, autoplayParts, countInStart = this.context.currentTime + START_DELAY) {
     this.stopSong();
     const beatLength = song.secondsPerBeat;
-    this.songStart = this.context.currentTime + START_DELAY + song.countIn.beats * beatLength;
+    const now = this.context.currentTime;
+    this.songStart = countInStart + song.countIn.beats * beatLength;
     for (const beat of song.countIn.clicks) {
-      this.click(this.songStart + beat * beatLength);
+      const time = this.songStart + beat * beatLength;
+      if (time >= now) {
+        this.click(time);
+      }
     }
     this.queue = autoplayParts
       .flatMap((part) => part.notes.map((note) => ({ note, sound: part.sound })))
       .sort((a, b) => a.note.start - b.note.start);
     this.queueIndex = 0;
+    while (this.queueIndex < this.queue.length && this.songStart + this.queue[this.queueIndex].note.start < now) {
+      this.queueIndex++;
+    }
     this.schedule();
     this.timer = setInterval(() => this.schedule(), TICK_INTERVAL);
   }

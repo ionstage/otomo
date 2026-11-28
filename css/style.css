@@ -285,6 +285,55 @@ legend {
   margin-top: 1rem;
 }
 
+/* The lobby, before each song with several devices */
+
+.lobby h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
+}
+
+.lobby h3 {
+  font-size: 1rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.choice-buttons {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.choice-buttons button {
+  text-align: left;
+  padding: 0.7em 1em;
+}
+
+.choice-buttons button strong {
+  display: block;
+}
+
+#difficulty-buttons button {
+  color: var(--muted);
+}
+
+#difficulty-buttons button strong {
+  color: var(--fg);
+}
+
+.choice-buttons button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+
+#difficulty-buttons button[aria-pressed="true"],
+#difficulty-buttons button[aria-pressed="true"] strong {
+  color: var(--accent-fg);
+}
+
+.players .ready {
+  color: var(--muted);
+}
+
 /* Black on white whatever the theme, so cameras can read it. */
 .code {
   display: block;

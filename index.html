@@ -11,6 +11,23 @@
   <main id="setup" class="screen setup">
     <h1>Otomo</h1>
     <p class="tagline">Play music together.</p>
+    <section id="lobby" class="lobby" hidden>
+      <h2 id="lobby-title"></h2>
+      <div id="song-buttons" class="choice-buttons" hidden></div>
+      <div id="lobby-parts" hidden>
+        <h3>Your part</h3>
+        <div id="part-buttons" class="choice-buttons"></div>
+        <h3>Difficulty</h3>
+        <div id="difficulty-buttons" class="choice-buttons">
+          <button type="button" data-difficulty="beginner"><strong>Beginner</strong> Only timing matters.</button>
+          <button type="button" data-difficulty="intermediate"><strong>Intermediate</strong> The right number.</button>
+          <button type="button" data-difficulty="advanced"><strong>Advanced</strong> Numbers, ♯ and ↑.</button>
+        </div>
+      </div>
+      <p id="lobby-status" class="hint" aria-live="polite"></p>
+      <h3>Players</h3>
+      <ul id="lobby-players" class="players"></ul>
+    </section>
     <form id="setup-form" class="setup-form">
       <label>Song <select id="song-select"></select></label>
       <label>Part <select id="part-select"></select></label>
@@ -48,7 +65,6 @@
         </div>
       </div>
       <div id="group" hidden>
-        <ul id="player-list" class="players"></ul>
         <div id="group-buttons" class="buttons">
           <button id="add-player-button" type="button" class="primary">Add a player</button>
           <button id="end-group-button" type="button">End the group</button>
@@ -98,6 +114,7 @@
       <textarea id="reply-text" rows="2" readonly spellcheck="false" hidden></textarea>
     </div>
     <p id="guest-status" class="status" aria-live="polite"></p>
+    <div id="guest-lobby"></div>
     <p id="guest-message" class="message" role="alert"></p>
     <div class="buttons"><button id="leave-button" type="button">Leave</button></div>
   </main>
@@ -149,6 +166,7 @@
     <div class="actions">
       <button id="again-button" type="button" class="primary">Play again</button>
       <button id="change-button" type="button">Change song</button>
+      <button id="continue-button" type="button" class="primary" hidden>Continue</button>
     </div>
   </section>
 </body>
